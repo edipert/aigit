@@ -1,0 +1,35 @@
+{
+  "name": "aigit-core",
+  "version": "1.0.0",
+  "description": "AI Context Protocol Engine - Memory & State",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "build": "rm -rf dist && tsc",
+    "db:up": "docker-compose up -d",
+    "db:down": "docker-compose down",
+    "db:migrate": "prisma migrate dev"
+  },
+  "bin": {
+    "aigit": "./dist/cli/index.js"
+  },
+  "files": [
+    "dist",
+    "prisma/schema.prisma",
+    "prisma.config.ts"
+  ],
+  "dependencies": {
+    "@electric-sql/pglite": "^0.3.15",
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "@prisma/client": "^7.4.1",
+    "express": "^5.2.1",
+    "pg": "^8.11.3",
+    "pglite-prisma-adapter": "^0.7.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.35",
+    "prisma": "^7.4.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.0"
+  }
+}

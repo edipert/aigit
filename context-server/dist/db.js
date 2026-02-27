@@ -1,0 +1,62 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.prisma = exports.client = void 0;
+exports.initializeDatabase = initializeDatabase;
+const client_1 = require("@prisma/client");
+const pglite_1 = require("@electric-sql/pglite");
+const pglite_prisma_adapter_1 = require("pglite-prisma-adapter");
+// @ts-ignore - The pglite vector extension Typescript definitions are currently missing from the distribution
+const vector_1 = require("@electric-sql/pglite/vector");
+const path_1 = __importDefault(require("path"));
+const fs_1 = __importDefault(require("fs"));
+// Define the path to the embedded global database
+const AIGIT_DIR = path_1.default.join(process.cwd(), '.aigit');
+const AIGIT_DB_PATH = path_1.default.join(AIGIT_DIR, 'memory.db');
+if (!fs_1.default.existsSync(AIGIT_DIR)) {
+    fs_1.default.mkdirSync(AIGIT_DIR, { recursive: true });
+}
+// Instantiate PGlite with the pgvector extension enabled
+exports.client = new pglite_1.PGlite(AIGIT_DB_PATH, {
+    extensions: {
+        vector: vector_1.vector,
+    },
+});
+const adapter = new pglite_prisma_adapter_1.PrismaPGlite(exports.client);
+exports.prisma = new client_1.PrismaClient({ adapter });
+async function initializeDatabase() {
+    try {
+        const result = await exports.client.query(`
+            SELECT EXISTS (
+                SELECT FROM information_schema.tables 
+                WHERE table_schema = 'public' 
+                AND table_name = 'Project'
+            );
+        `);
+        if (!result.rows[0].exists) {
+            console.error('[AI Context Protocol Engine] Initializing bare PGlite database schema...');
+            const schemaSqlPath = path_1.default.join(__dirname, '..', 'prisma', 'migrations', '20260226204239_add_git_branch', 'migration.sql');
+            let schemaSql = '';
+            try {
+                schemaSql = fs_1.default.readFileSync(schemaSqlPath, 'utf8');
+            }
+            catch (err) {
+                // If __dirname is inside src, fallback 
+                const fallbackPath = path_1.default.join(__dirname, '..', '..', 'prisma', 'migrations', '20260226204239_add_git_branch', 'migration.sql');
+                if (fs_1.default.existsSync(fallbackPath)) {
+                    schemaSql = fs_1.default.readFileSync(fallbackPath, 'utf8');
+                }
+                else {
+                    console.error('[AI Context Protocol Engine] Could not find migration file at either location.');
+                    return;
+                }
+            }
+            await exports.client.exec(schemaSql);
+        }
+    }
+    catch (error) {
+        console.error('[AI Context Protocol Engine] Error initializing database schema:', error);
+    }
+}

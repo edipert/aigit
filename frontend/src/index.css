@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Syncopate:wght@400;700&display=swap');
+
+:root {
+  /* Absolute Void Foundation */
+  --bg-primary: #050505;
+  --bg-secondary: #0a0a0a;
+  --bg-glass: rgba(15, 15, 15, 0.4);
+  
+  /* High-Voltage Cyber Accents */
+  --neon-chartreuse: #d6fa00;
+  --neon-chartreuse-dim: rgba(214, 250, 0, 0.2);
+  --electric-cyan: #00f0ff;
+  --alert-red: #ff2a2a;
+  
+  /* Mechanical Monochrome Typography */
+  --text-main: #f0f0f0;
+  --text-muted: #888888;
+  --text-dark: #121212;
+
+  /* Typography Stacks */
+  --font-display: 'Syncopate', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Geometry & Grid */
+  --border-radius-sharp: 0px;
+  --border-radius-panel: 4px;
+  --border-glass: 1px solid rgba(255, 255, 255, 0.05);
+  --border-neon: 1px solid var(--neon-chartreuse);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  font-family: var(--font-mono);
+  overflow-x: hidden;
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(214, 250, 0, 0.04), transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(0, 240, 255, 0.04), transparent 25%);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bg-secondary);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--neon-chartreuse);
+}
+
+/* Base Typographic Resets */
+h1, h2, h3 {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+a {
+  color: var(--neon-chartreuse);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+a:hover {
+  color: var(--electric-cyan);
+  text-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
+}

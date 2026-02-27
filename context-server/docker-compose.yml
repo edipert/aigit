@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: aigit_context_db
+    environment:
+      POSTGRES_USER: aigit_user
+      POSTGRES_PASSWORD: aigit_password
+      POSTGRES_DB: aigit_context
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

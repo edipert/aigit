@@ -1,0 +1,84 @@
+// prisma/schema.prisma
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions", "driverAdapters"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  extensions = [pgvector(map: "vector")]
+}
+
+model Project {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  agents      Agent[]
+  tasks       Task[]
+  memories    Memory[]
+}
+
+model Agent {
+  id          String    @id @default(uuid())
+  name        String    
+  projectId   String
+  project     Project   @relation(fields: [projectId], references: [id])
+  skills      String[]  
+  
+  sessions    Session[]
+}
+
+model Session {
+  id          String   @id @default(uuid())
+  agentId     String
+  agent       Agent    @relation(fields: [agentId], references: [id])
+  startedAt   DateTime @default(now())
+  endedAt     DateTime?
+  
+  logs        Memory[]
+}
+
+model Task {
+  id          String   @id @default(uuid())
+  slug        String   @unique 
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+  title       String
+  gitBranch   String   @default("main")
+  status      String   
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  decisions   Decision[]
+}
+
+model Decision {
+  id          String   @id @default(uuid())
+  taskId      String
+  task        Task     @relation(fields: [taskId], references: [id])
+  gitBranch   String   @default("main")
+  context     String   
+  chosen      String   
+  rejected    String[] 
+  reasoning   String   
+  createdAt   DateTime @default(now())
+}
+
+model Memory {
+  id          String   @id @default(uuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+  sessionId   String?
+  session     Session? @relation(fields: [sessionId], references: [id])
+  
+  gitBranch   String   @default("main")
+  type        String   
+  content     String   
+  embedding   Unsupported("vector(1536)")? 
+  
+  createdAt   DateTime @default(now())
+}
