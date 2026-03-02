@@ -19,7 +19,7 @@ async function dumpContextLedger(workspacePath) {
         const decisions = await db_1.prisma.decision.findMany();
         // Fetch memories including their raw stringified vector embeddings
         const memories = await db_1.prisma.$queryRaw `
-            SELECT id, "projectId", "sessionId", "gitBranch", type, content, embedding::text, "createdAt", explanation, summary
+            SELECT id, "projectId", "sessionId", "gitBranch", type, content, embedding::text, "createdAt"
             FROM "Memory"
         `;
         const sanitizedDecisions = decisions.map(scrubber_1.sanitizeDecision);

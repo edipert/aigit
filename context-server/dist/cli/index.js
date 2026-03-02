@@ -434,11 +434,52 @@ Commands:
             console.log(`   ID: ${task.id}`);
             console.log();
         }
+        else if (subCommand === 'auto') {
+            const { execSync } = require('child_process');
+            try {
+                // Get the latest commit hash and message
+                const commitInfo = execSync('git log -1 --pretty=format:"%h - %s%n%b"').toString().trim();
+                // Get the list of files changed and their status (A, M, D, etc.)
+                const fileChanges = execSync('git diff-tree --no-commit-id --name-status -r HEAD').toString().trim();
+                // Get the diff stats (insertions/deletions)
+                const diffStats = execSync('git diff --stat HEAD~1 HEAD').toString().trim();
+                const semanticSummary = `Automatic Git Commit Context
+Commit:
+${commitInfo}
+
+Files Changed:
+${fileChanges}
+
+Statistics:
+${diffStats}`;
+                const memory = await db_1.prisma.memory.create({
+                    data: {
+                        projectId: project.id,
+                        gitBranch: branch,
+                        type: 'capability', // using capability to denote functional changes
+                        content: semanticSummary,
+                        filePath: 'git-commit-auto'
+                    }
+                });
+                console.log(`\n✅ [aigit commit] Git context recorded automatically on branch [${branch}]`);
+                console.log(`   ID: ${memory.id}`);
+                console.log(`   Tokens: ~${Math.floor(semanticSummary.length / 4)}`);
+                console.log();
+            }
+            catch (error) {
+                console.error('⚠️  Failed to generate automatic Git commit context. Are you in a Git repository with at least one commit?');
+                console.error(error);
+                process.exit(1);
+            }
+        }
         else {
             console.log(`
 🧠 aigit commit — Commit context to your semantic memory
 
 Commands:
+  commit auto
+      Automatically generate a rich semantic context from the latest git commit (message, files, diff stats)
+  
   commit memory "<content>" [--type <type>] [--file <path>]
       Commit a memory (architecture, capability, pattern, etc.)
       Types: architecture, capability, pattern, convention (default: architecture)

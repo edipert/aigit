@@ -66,12 +66,11 @@ echo "[aigit] Diagnostics complete. Proceeding with push..."
     const postCommitPath = path.join(hooksDir, 'post-commit');
     const postCommitContent = `#!/bin/sh
 # aigit post-commit hook
-# Captures the commit message into the AI's semantic memory timeline.
+# Captures an automatic semantic context summary of the latest commit into the AI's semantic memory timeline.
 
-COMMIT_MSG=$(git log -1 --pretty=%B)
-echo "[aigit] Recording commit in Context Timeline..."
+echo "[aigit] Generating AI-readable context for the latest commit..."
 
-npx --no-install aigit commit memory "Git Commit: $COMMIT_MSG" || npx --no-install aigit commit memory "Git Commit: $COMMIT_MSG" || true
+npx --no-install aigit commit auto || true
 `;
 
     try {

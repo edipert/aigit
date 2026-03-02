@@ -42,6 +42,16 @@
       "content": "Git Commit: fix(hooks): update hooks to use local npx aigit",
       "embedding": null,
       "createdAt": "2026-03-02T19:53:14.477Z"
+    },
+    {
+      "id": "425d0fff-e252-41e9-8233-faf3b36ea414",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Git Commit: fix(cli): resolve prisma schema queries breaking aigit dump",
+      "embedding": null,
+      "createdAt": "2026-03-02T19:59:48.027Z"
     }
   ]
 }
