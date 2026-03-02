@@ -1,10 +1,14 @@
 import './App.css'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { Navbar } from './Navbar'
 import { TerminalSimulator } from './TerminalSimulator'
+import { InteractiveDemo } from './InteractiveDemo'
 import { HowToUse } from './HowToUse'
+import { DocsPage } from './DocsPage'
 
-function App() {
+function LandingPage() {
     return (
-        <div className="app-container">
+        <>
             <header className="hero-section">
                 <div className="hero-content">
                     <h1 className="hero-title">aigit</h1>
@@ -17,6 +21,8 @@ function App() {
                     <TerminalSimulator />
                 </div>
             </header>
+
+            <InteractiveDemo />
 
             <HowToUse />
 
@@ -45,10 +51,10 @@ function App() {
                     </div>
                     <div className="feature-card">
                         <div className="feature-icon">03</div>
-                        <h3>Universal Environment Support</h3>
+                        <h3>Universal Agent Sync</h3>
                         <p>
-                            Write rules once in <code>AGENTS.md</code>. Native MCP integration.
-                            Works seamlessly with Cursor, Windsurf, Cline, or raw Claude API calls.
+                            Switch between Gemini, Claude, Cursor, Windsurf freely.
+                            <code>aigit sync</code> keeps rules, memory, and skills in sync across all tools.
                         </p>
                     </div>
                     <div className="feature-card">
@@ -57,6 +63,53 @@ function App() {
                         <p>
                             Powered by an embedded, WASM-compiled Vector Database (PGlite).
                             No Docker, no external services. Everything stays local in your repo.
+                        </p>
+                    </div>
+                    <div className="feature-card">
+                        <div className="feature-icon">05</div>
+                        <h3>Multi-Agent Swarm</h3>
+                        <p>
+                            Orchestrate multiple AI agents in a single task. <code>aigit swarm</code> creates
+                            a shared session where agents communicate, take turns, and resolve conflicts automatically.
+                        </p>
+                    </div>
+                    <div className="feature-card">
+                        <div className="feature-icon">06</div>
+                        <h3>AST-Anchored RAG</h3>
+                        <p>
+                            Decisions are physically linked to code symbols via AST parsing.
+                            <code>aigit query</code> finds relevant context instantly — even across time.
+                        </p>
+                    </div>
+                    <div className="feature-card">
+                        <div className="feature-icon">07</div>
+                        <h3>Self-Healing Codebases</h3>
+                        <p>
+                            Shift from assist to maintain. <code>aigit heal</code> intercepts failing tests,
+                            diagnoses the root cause, and auto-commits fixes to keep your codebase green.
+                        </p>
+                    </div>
+                    <div className="feature-card">
+                        <div className="feature-icon">08</div>
+                        <h3>Autonomous Dependency Updates</h3>
+                        <p>
+                            Secure your supply chain automatically. <code>aigit deps</code> audits vulnerabilities,
+                            understands semantic memory, and automatically branches + fixes issues.
+                        </p>
+                    </div>
+                    <div className="feature-card">
+                        <div className="feature-icon">09</div>
+                        <h3>Semantic Security Auditing</h3>
+                        <p>
+                            Actively audit memory for vulnerabilities. <code>security-auditor</code> automatically flags
+                            prompt injections and redacts PII before it hits the context ledger.
+                        </p>
+                    </div>
+                    <div className="feature-card">
+                        <div className="feature-icon">10</div>
+                        <h3>Auto-Generating Documentation</h3>
+                        <p>
+                            Nobody should write <code>ARCHITECTURE.md</code> manually again. <code>aigit docs</code> generates a holistic overview and Semantic DAG from context memory.
                         </p>
                     </div>
                 </div>
@@ -68,7 +121,21 @@ function App() {
                     <a href="https://github.com/aigit" className="footer-link">GitHub</a>
                 </div>
             </footer>
-        </div>
+        </>
+    )
+}
+
+function App() {
+    return (
+        <BrowserRouter>
+            <div className="app-container">
+                <Navbar />
+                <Routes>
+                    <Route path="/" element={<LandingPage />} />
+                    <Route path="/docs" element={<DocsPage />} />
+                </Routes>
+            </div>
+        </BrowserRouter>
     )
 }
 

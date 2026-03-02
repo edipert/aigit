@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { prisma, initializeDatabase } from '../db';
+import { sanitizeMemory, sanitizeDecision } from '../security/scrubber';
 
 export async function dumpContextLedger(workspacePath: string) {
     try {
@@ -14,17 +15,20 @@ export async function dumpContextLedger(workspacePath: string) {
 
         // Fetch memories including their raw stringified vector embeddings
         const memories = await prisma.$queryRaw<any[]>`
-            SELECT id, "projectId", "sessionId", "gitBranch", type, content, embedding::text, "createdAt" 
+            SELECT id, "projectId", "sessionId", "gitBranch", type, content, embedding::text, "createdAt", explanation, summary
             FROM "Memory"
         `;
+
+        const sanitizedDecisions = decisions.map(sanitizeDecision);
+        const sanitizedMemories = memories.map(sanitizeMemory);
 
         const ledger = {
             projects,
             agents,
             sessions,
             tasks,
-            decisions,
-            memories
+            decisions: sanitizedDecisions,
+            memories: sanitizedMemories
         };
 
         const aigitDir = path.join(workspacePath, '.aigit');

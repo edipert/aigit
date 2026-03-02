@@ -20,7 +20,7 @@
 
 ### ADR-003: Vector-Backed Context Server
 - **Context**: Over time, `MEMORY.md` forms a bottleneck contextually.
-- **Decision**: Developed `context-server` utilizing PostgreSQL + `pgvector` and Prisma to expose MCP endpoints (`get_project_history`, `log_decision`) to semantically query massive project history.
+- **Decision**: Developed `context-server` utilizing PostgreSQL + `pgvector` and Prisma to expose MCP endpoints (`get_project_history`, `commit_decision`) to semantically query massive project history.
 - **Status**: Backend scaffolding and MCP setup complete.
 
 ## 3. Rejected Approaches

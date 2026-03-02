@@ -20,6 +20,8 @@ model Project {
   agents      Agent[]
   tasks       Task[]
   memories    Memory[]
+  swarms      SwarmSession[]
+  healingEvents HealingEvent[]
 }
 
 model Agent {
@@ -65,6 +67,11 @@ model Decision {
   chosen      String   
   rejected    String[] 
   reasoning   String   
+  filePath    String?  
+  lineNumber  Int?     
+  symbolName  String?  
+  symbolType  String?  
+  symbolRange String?  
   createdAt   DateTime @default(now())
 }
 
@@ -78,7 +85,77 @@ model Memory {
   gitBranch   String   @default("main")
   type        String   
   content     String   
+  filePath    String?  
+  lineNumber  Int?     
+  symbolName  String?  
+  symbolType  String?  
+  symbolRange String?  
   embedding   Unsupported("vector(1536)")? 
   
+  createdAt   DateTime @default(now())
+}
+
+// ── Swarm Orchestration ──────────────────────────────
+
+model SwarmSession {
+  id          String   @id @default(uuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+  goal        String
+  status      String   @default("PENDING")  // PENDING | ACTIVE | HALTED | DONE | FAILED
+  gitBranch   String   @default("main")
+  currentTurn Int      @default(0)
+  totalTurns  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  agents      SwarmAgent[]
+  messages    SwarmMessage[]
+}
+
+model SwarmAgent {
+  id          String   @id @default(uuid())
+  swarmId     String
+  swarm       SwarmSession @relation(fields: [swarmId], references: [id], onDelete: Cascade)
+  role        String              // "orchestrator" | "backend-specialist" | etc.
+  agentName   String
+  status      String   @default("IDLE")  // IDLE | WORKING | BLOCKED | DONE
+  taskSlug    String?
+  turnOrder   Int      @default(0)
+  joinedAt    DateTime @default(now())
+
+  messages    SwarmMessage[]
+}
+
+model SwarmMessage {
+  id          String   @id @default(uuid())
+  swarmId     String
+  swarm       SwarmSession @relation(fields: [swarmId], references: [id], onDelete: Cascade)
+  fromAgentId String
+  fromAgent   SwarmAgent   @relation(fields: [fromAgentId], references: [id], onDelete: Cascade)
+  type        String              // "context" | "decision" | "conflict" | "status" | "directive"
+  channel     String              // "broadcast" | role-specific
+  payload     String
+  isConflict  Boolean  @default(false)
+  resolved    Boolean  @default(false)
+  resolution  String?
+  createdAt   DateTime @default(now())
+}
+
+// ── Self-Healing Codebases ───────────────────────────
+
+model HealingEvent {
+  id          String   @id @default(uuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+  trigger     String   // "test_failure" | "dep_audit" | "manual"
+  source      String   // raw stack trace or audit JSON (truncated)
+  diagnosis   String   // parsed summary of what broke
+  filePath    String?
+  symbolName  String?
+  strategy    String   @default("propose") // "propose" | "auto_commit"
+  patch       String?  // generated diff or healing plan
+  status      String   @default("PENDING") // PENDING | FIXED | FAILED | SKIPPED
+  gitBranch   String   @default("main")
   createdAt   DateTime @default(now())
 }

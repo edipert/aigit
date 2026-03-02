@@ -8,6 +8,7 @@ exports.loadContextLedger = loadContextLedger;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const db_1 = require("../db");
+const scrubber_1 = require("../security/scrubber");
 async function dumpContextLedger(workspacePath) {
     try {
         await (0, db_1.initializeDatabase)();
@@ -18,16 +19,18 @@ async function dumpContextLedger(workspacePath) {
         const decisions = await db_1.prisma.decision.findMany();
         // Fetch memories including their raw stringified vector embeddings
         const memories = await db_1.prisma.$queryRaw `
-            SELECT id, "projectId", "sessionId", "gitBranch", type, content, embedding::text, "createdAt" 
+            SELECT id, "projectId", "sessionId", "gitBranch", type, content, embedding::text, "createdAt", explanation, summary
             FROM "Memory"
         `;
+        const sanitizedDecisions = decisions.map(scrubber_1.sanitizeDecision);
+        const sanitizedMemories = memories.map(scrubber_1.sanitizeMemory);
         const ledger = {
             projects,
             agents,
             sessions,
             tasks,
-            decisions,
-            memories
+            decisions: sanitizedDecisions,
+            memories: sanitizedMemories
         };
         const aigitDir = path_1.default.join(workspacePath, '.aigit');
         if (!fs_1.default.existsSync(aigitDir)) {

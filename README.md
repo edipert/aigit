@@ -50,7 +50,7 @@ aigit init-hook
 
 2. **Commit Semantic Memory**
    ```bash
-   aigit commit_context "Refactored user sessions to rely strictly on Redis caching."
+   aigit commit_memory "Refactored user sessions to rely strictly on Redis caching."
    ```
    *Explicitly instructs the embedded engine to record a new reasoning path logic directly into the active branch history.*
 

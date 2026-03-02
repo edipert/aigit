@@ -25,5 +25,5 @@ yarn-debug.log*
 yarn-error.log*
 
 # aigit specific
-.aigit/memory.db*
+**/.aigit/memory.db*
 .gemini/

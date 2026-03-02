@@ -1,0 +1,163 @@
+{
+    "name": "vscode-aigit",
+    "displayName": "Aigit — AI Context Explorer",
+    "description": "Visual sidebar for exploring and managing your aigit semantic memory ledger directly inside VS Code.",
+    "version": "0.2.0",
+    "publisher": "aigit",
+    "engines": {
+        "vscode": "^1.109.5"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "workspaceContains:.aigit",
+        "workspaceContains:AGENTS.md",
+        "workspaceContains:CLAUDE.md",
+        "workspaceContains:.cursorrules",
+        "workspaceContains:.clinerules"
+    ],
+    "main": "./dist/extension.js",
+    "contributes": {
+        "commands": [
+            {
+                "command": "aigit.showTimeline",
+                "title": "Aigit: Show Context Timeline",
+                "icon": "$(history)"
+            },
+            {
+                "command": "aigit.hydrate",
+                "title": "Aigit: Hydrate Context",
+                "icon": "$(water)"
+            },
+            {
+                "command": "aigit.revert",
+                "title": "Aigit: Revert Context Entry",
+                "icon": "$(history)"
+            },
+            {
+                "command": "aigit.dump",
+                "title": "Aigit: Dump Ledger",
+                "icon": "$(arrow-down)"
+            },
+            {
+                "command": "aigit.load",
+                "title": "Aigit: Load Ledger",
+                "icon": "$(arrow-up)"
+            },
+            {
+                "command": "aigit.scan",
+                "title": "Aigit: Scan AI Tools",
+                "icon": "$(search)"
+            },
+            {
+                "command": "aigit.sync",
+                "title": "Aigit: Sync All Tools",
+                "icon": "$(sync)"
+            },
+            {
+                "command": "aigit.syncDryRun",
+                "title": "Aigit: Sync (Dry Run)",
+                "icon": "$(sync-ignored)"
+            },
+            {
+                "command": "aigit.showConflicts",
+                "title": "Aigit: Show Conflicts",
+                "icon": "$(warning)"
+            },
+            {
+                "command": "aigit.query",
+                "title": "Aigit: Query Context",
+                "icon": "$(search-fuzzy)"
+            },
+            {
+                "command": "aigit.showContextDetail",
+                "title": "Aigit: Show Context Detail",
+                "icon": "$(preview)"
+            },
+            {
+                "command": "aigit.swarmStatus",
+                "title": "Aigit: Swarm Status",
+                "icon": "$(server-environment)"
+            },
+            {
+                "command": "aigit.swarmConflicts",
+                "title": "Aigit: Swarm Conflicts",
+                "icon": "$(git-merge)"
+            },
+            {
+                "command": "aigit.heal",
+                "title": "Aigit: Heal Codebase (Test & Fix)",
+                "icon": "$(tools)"
+            },
+            {
+                "command": "aigit.healStatus",
+                "title": "Aigit: Healing History",
+                "icon": "$(history)"
+            },
+            {
+                "command": "aigit.deps",
+                "title": "Aigit: Audit & Fix Dependencies",
+                "icon": "$(shield)"
+            },
+            {
+                "command": "aigit.docs",
+                "title": "Aigit: Generate Architecture Docs",
+                "icon": "$(book)"
+            }
+        ],
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "aigit-explorer",
+                    "title": "Aigit",
+                    "icon": "media/aigit-icon.svg"
+                }
+            ]
+        },
+        "views": {
+            "aigit-explorer": [
+                {
+                    "type": "webview",
+                    "id": "aigit.timelineView",
+                    "name": "Context Timeline"
+                },
+                {
+                    "type": "webview",
+                    "id": "aigit.syncView",
+                    "name": "Agent Sync"
+                }
+            ]
+        },
+        "configuration": {
+            "title": "Aigit",
+            "properties": {
+                "aigit.enableCodeLens": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show inline context hints (CodeLens) above functions with linked memories/decisions."
+                },
+                "aigit.enableHover": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show context tooltips when hovering over code with linked memories/decisions."
+                },
+                "aigit.prefetchDebounceMs": {
+                    "type": "number",
+                    "default": 300,
+                    "description": "Debounce delay (ms) for pre-fetching context on cursor movement."
+                }
+            }
+        }
+    },
+    "scripts": {
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "build": "rm -rf dist && tsc -p ./"
+    },
+    "devDependencies": {
+        "@types/vscode": "^1.85.0",
+        "@types/node": "^20.0.0",
+        "typescript": "^5.3.0"
+    }
+}

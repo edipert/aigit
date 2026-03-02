@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 const commands = [
     { cmd: "aigit hydrate", out: "[aigit] Compiling branch context (main)...\\n[aigit] Ingesting 14 architectural decisions...\\n✅ Context Hydrated. Agent ready." },
-    { cmd: "aigit commit_context", out: "[aigit] Commit Semantic Context?\\nDecision: Switched to Redis for session caching.\\nReason: Remote DB was locking under load.\\n✅ Context Committed to vector ledger." },
+    { cmd: "aigit commit_memory", out: "[aigit] Commit Semantic Context?\\nDecision: Switched to Redis for session caching.\\nReason: Remote DB was locking under load.\\n✅ Context Committed to vector ledger." },
     { cmd: "git checkout feature/auth", out: "Switched to branch 'feature/auth'\\n\\n[aigit] Post-checkout detected.\\n[aigit] Context Engine shifted to branch: feature/auth" },
     { cmd: "aigit check-conflicts main", out: "⚠️ [aigit] CONTEXT CONFLICT WARNING\\nBranch 'feature/auth' contains 2 architectural decisions that might conflict with main.\\nRun 'aigit blame' to review before merging." },
     { cmd: "aigit merge feature/auth main", out: "🔍 [aigit] SEMANTIC MERGE DRY RUN\\nReady to port context:\\n - 1 Tasks\\n - 2 Architectural Decisions\\n✅ Successfully merged semantic context." },

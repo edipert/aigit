@@ -48,11 +48,25 @@ if [ -f .aigit/ledger.json ]; then
     git add .aigit/ledger.json
 fi
 `;
+    // 4. pre-push hook (Runs before git push)
+    const prePushPath = path_1.default.join(hooksDir, 'pre-push');
+    const prePushContent = `#!/bin/sh
+# aigit pre-push hook
+# Runs the self-healing test engine to ensure code is healthy before pushing.
+
+echo "[aigit] Running self-healing diagnostics..."
+
+command -v aigit >/dev/null 2>&1 && aigit heal --quiet || npx --no-install aigit heal --quiet || true
+
+# If tests failed, print a warning but usually don't block the push aggressively unless configured to
+echo "[aigit] Diagnostics complete. Proceeding with push..."
+`;
     try {
         fs_1.default.writeFileSync(postCheckoutPath, postCheckoutContent, { mode: 0o755 });
         fs_1.default.writeFileSync(postMergePath, postMergeContent, { mode: 0o755 });
         fs_1.default.writeFileSync(preCommitPath, preCommitContent, { mode: 0o755 });
-        console.log(`✅ [aigit] Git hooks successfully installed at .git/hooks (post-checkout, post-merge, pre-commit)`);
+        fs_1.default.writeFileSync(prePushPath, prePushContent, { mode: 0o755 });
+        console.log(`✅ [aigit] Git hooks successfully installed at .git/hooks (post-checkout, post-merge, pre-commit, pre-push)`);
         // Ensure .aigit is ignored properly, but track ledger.json
         const gitignorePath = path_1.default.join(workspacePath, '.gitignore');
         const ignoreEntries = ['\n# aigit local database', '.aigit/memory.db*', '!.aigit/ledger.json', ''];

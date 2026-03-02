@@ -6,6 +6,7 @@
   "scripts": {
     "start": "ts-node src/index.ts",
     "build": "rm -rf dist && tsc",
+    "postbuild": "chmod +x dist/cli/index.js",
     "db:up": "docker-compose up -d",
     "db:down": "docker-compose down",
     "db:migrate": "prisma migrate dev"
@@ -24,7 +25,8 @@
     "@prisma/client": "^7.4.1",
     "express": "^5.2.1",
     "pg": "^8.11.3",
-    "pglite-prisma-adapter": "^0.7.2"
+    "pglite-prisma-adapter": "^0.7.2",
+    "ts-morph": "^27.0.2"
   },
   "devDependencies": {
     "@types/node": "^20.19.35",

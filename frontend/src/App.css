@@ -342,132 +342,381 @@
 }
 
 /* ==================================
-   6. HOW TO USE SECTION
+   6. NAVBAR
+   ================================== */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.navbar-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.navbar-logo {
+    text-decoration: none;
+}
+
+.logo-text {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text-main);
+    text-shadow: -1px -1px 0 var(--electric-cyan), 1px 1px 0 var(--alert-red);
+    letter-spacing: 2px;
+}
+
+.navbar-links {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.nav-link {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s ease;
+    padding: 4px 0;
+}
+
+.nav-link:hover {
+    color: var(--text-main);
+}
+
+.nav-link.active {
+    color: var(--neon-chartreuse);
+    border-bottom: 1px solid var(--neon-chartreuse);
+}
+
+.nav-link.external {
+    opacity: 0.7;
+}
+
+/* ==================================
+   7. SYS.WORKFLOW — COMPACT CARDS
    ================================== */
 .how-to-section {
-    padding: 8rem 2rem;
+    padding: 8rem 2rem 6rem;
     background-color: var(--bg-primary);
     border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.how-to-container {
+.workflow-pills {
+    max-width: 1200px;
+    margin: 0 auto 2rem auto;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.pill {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 6px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.pill:hover {
+    color: var(--text-main);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.pill.active {
+    color: var(--neon-chartreuse);
+    border-color: var(--neon-chartreuse);
+    background: rgba(214, 250, 0, 0.05);
+}
+
+.cmd-grid {
     max-width: 1200px;
     margin: 0 auto;
-    display: flex;
-    gap: 4rem;
-}
-
-.how-to-sidebar {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
-    min-width: 300px;
 }
 
-.how-to-tab {
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    padding: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    cursor: pointer;
-    text-align: left;
-    color: var(--text-muted);
-    font-family: var(--font-display);
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    transition: all 0.3s ease;
-    border-left: 4px solid transparent;
-}
-
-.how-to-tab:hover {
-    background: rgba(255, 255, 255, 0.02);
-    color: var(--text-main);
-    border-color: rgba(255, 255, 255, 0.1);
-}
-
-.how-to-tab.active {
-    background: rgba(214, 250, 0, 0.05);
-    color: var(--neon-chartreuse);
-    border-color: rgba(255, 255, 255, 0.1);
-    border-left-color: var(--neon-chartreuse);
-}
-
-.tab-number {
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    opacity: 0.5;
-}
-
-.how-to-content-area {
-    flex-grow: 1;
-    display: flex;
-    align-items: center;
-}
-
-.how-to-card {
+.cmd-card {
     background: rgba(10, 10, 10, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 3rem;
-    width: 100%;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-    animation: fadeIn 0.4s ease forwards;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.how-to-card-title {
-    font-size: 1.5rem;
-    color: var(--electric-cyan);
-    margin-bottom: 1.5rem;
-    text-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
-}
-
-.how-to-card-desc {
-    color: var(--text-main);
-    font-size: 1.1rem;
-    line-height: 1.7;
-    margin-bottom: 2.5rem;
-}
-
-.how-to-terminal {
-    background: var(--bg-primary);
     border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: var(--border-radius-panel);
+    padding: 1.25rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative;
     overflow: hidden;
 }
 
-/* Responsiveness */
-@media (max-width: 900px) {
-    .how-to-container {
-        flex-direction: column;
+.cmd-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 0;
+    background: var(--neon-chartreuse);
+    transition: height 0.25s ease;
+}
+
+.cmd-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.cmd-card:hover::before {
+    height: 100%;
+}
+
+.cmd-card.expanded {
+    border-color: rgba(214, 250, 0, 0.2);
+    background: rgba(15, 15, 15, 1);
+}
+
+.cmd-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.cmd-badge {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 2px 6px;
+    border-radius: 2px;
+}
+
+.cmd-badge.core {
+    background: rgba(0, 240, 255, 0.12);
+    color: var(--electric-cyan);
+}
+
+.cmd-badge.git {
+    background: rgba(195, 232, 141, 0.12);
+    color: #c3e88d;
+}
+
+.cmd-badge.sync {
+    background: rgba(214, 250, 0, 0.12);
+    color: var(--neon-chartreuse);
+}
+
+.cmd-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-main);
+    letter-spacing: 0.5px;
+}
+
+.cmd-terminal-inline {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    padding: 6px 10px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 3px;
+    margin-bottom: 8px;
+}
+
+.cmd-desc {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+.workflow-cta {
+    max-width: 1200px;
+    margin: 2rem auto 0 auto;
+    text-align: right;
+}
+
+.docs-link {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--electric-cyan);
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    transition: color 0.2s;
+}
+
+.docs-link:hover {
+    color: var(--neon-chartreuse);
+}
+
+/* ==================================
+   8. DOCS PAGE
+   ================================== */
+.docs-page {
+    display: flex;
+    min-height: 100vh;
+    padding-top: 56px;
+}
+
+.docs-sidebar {
+    width: 280px;
+    min-width: 280px;
+    background: var(--bg-secondary);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 2rem 0;
+    position: sticky;
+    top: 56px;
+    height: calc(100vh - 56px);
+    overflow-y: auto;
+}
+
+.docs-sidebar-title {
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    padding: 0 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.docs-nav-item {
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: none;
+    padding: 10px 1.5rem;
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.docs-nav-item:hover {
+    color: var(--text-main);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.docs-nav-item.active {
+    color: var(--neon-chartreuse);
+    background: rgba(214, 250, 0, 0.03);
+    border-left-color: var(--neon-chartreuse);
+}
+
+.docs-content {
+    flex: 1;
+    padding: 3rem 4rem;
+    max-width: 900px;
+}
+
+.docs-page-title {
+    font-size: 2rem;
+    color: var(--text-main);
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.docs-body {
+    color: var(--text-main);
+    font-size: 1rem;
+    line-height: 1.7;
+}
+
+.docs-body p {
+    margin-bottom: 1rem;
+}
+
+.docs-body .doc-h3 {
+    font-size: 1.2rem;
+    color: var(--electric-cyan);
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.docs-body .doc-code {
+    display: block;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+    overflow-x: auto;
+    white-space: pre;
+}
+
+.docs-body .inline-code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    background: rgba(214, 250, 0, 0.08);
+    color: var(--neon-chartreuse);
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.docs-body .doc-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+}
+
+.docs-body .doc-table th {
+    background: rgba(255, 255, 255, 0.03);
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.docs-body .doc-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+/* ==================================
+   9. RESPONSIVE
+   ================================== */
+@media (max-width: 1024px) {
+    .cmd-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 
-    .how-to-sidebar {
-        min-width: 100%;
-        flex-direction: row;
-        overflow-x: auto;
-        padding-bottom: 1rem;
-    }
-
-    .how-to-tab {
-        min-width: 200px;
-        padding: 1rem;
+    .docs-content {
+        padding: 2rem;
     }
 }
 
 @media (max-width: 768px) {
+    .hero-section {
+        padding-top: 80px;
+    }
+
     .hero-title {
         font-size: 3.5rem;
     }
@@ -475,5 +724,38 @@
     .section-header {
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    .cmd-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .docs-page {
+        flex-direction: column;
+    }
+
+    .docs-sidebar {
+        width: 100%;
+        min-width: 100%;
+        position: static;
+        height: auto;
+        padding: 1rem 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0;
+    }
+
+    .docs-sidebar-title {
+        display: none;
+    }
+
+    .docs-nav-item {
+        min-width: 50%;
+        padding: 8px 1rem;
+        font-size: 0.8rem;
+    }
+
+    .docs-content {
+        padding: 1.5rem;
     }
 }

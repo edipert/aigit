@@ -2,15 +2,30 @@ import fs from 'fs';
 import path from 'path';
 import { getActiveBranch, getChangedFiles } from './git';
 import { detectProjectType } from './environment';
+import { prisma } from '../db';
+import { detectAgents } from '../agents/registry';
 
-export function compileHydratedContext(workspacePath: string, activeFile?: string): string {
+export async function compileHydratedContext(workspacePath: string, activeFile?: string): Promise<string> {
     let payload = '';
 
-    const globalGemini = path.join(workspacePath, 'AGENTS.md');
-    if (fs.existsSync(globalGemini)) {
-        payload += fs.readFileSync(globalGemini, 'utf8') + '\n\n';
+    // Detect ALL AI tool config files (Gemini, Claude, Cursor, Cline, Codex, Windsurf, Copilot, Aider)
+    const agents = detectAgents(workspacePath);
+
+    if (agents.length > 0) {
+        // Collect all unique rules content across detected tools
+        const ingested: string[] = [];
+
+        for (const agent of agents) {
+            for (const rc of agent.rulesContent) {
+                payload += `# ${agent.tool.name} — ${rc.file}\n\n`;
+                payload += rc.content + '\n\n';
+                ingested.push(`${agent.tool.name}/${rc.file}`);
+            }
+        }
+
+        payload += `> 🔍 aigit hydrate: Ingested ${ingested.length} rule file(s) from ${agents.length} AI tool(s): ${agents.map(a => a.tool.name).join(', ')}\n\n`;
     } else {
-        payload += '# AIGIT CONTEXT AUTOMATION\n\n> No AGENTS.md found in this directory.\n\n';
+        payload += '# AIGIT CONTEXT AUTOMATION\n\n> No AI tool config files detected (checked AGENTS.md, GEMINI.md, CLAUDE.md, .cursorrules, .clinerules, CODEX.md, .windsurfrules, copilot-instructions.md, .aider.conf.yml, CONVENTIONS.md).\n\n';
     }
 
     payload += '## CURRENT ENVIRONMENT\n';
@@ -28,8 +43,46 @@ export function compileHydratedContext(workspacePath: string, activeFile?: strin
     }
     payload += '\n';
 
+    // Phase 23: AST-Anchored Context Retrieval
+    if (activeFile) {
+        try {
+            const relPath = path.relative(workspacePath, activeFile);
+            const { extractAllSymbols } = await import('../ast/resolver');
+
+            // Extract symbols from the active file
+            const symbols = extractAllSymbols(activeFile);
+            const symbolNames = symbols.map(s => s.qualifiedName);
+
+            // Query by symbol name (deep link) + fallback to filePath
+            const symbolWhere = symbolNames.length > 0
+                ? { OR: [{ symbolName: { in: symbolNames } }, { filePath: { contains: relPath } }] }
+                : { filePath: { contains: relPath } };
+
+            const [anchoredMemories, anchoredDecisions] = await Promise.all([
+                prisma.memory.findMany({ where: symbolWhere, orderBy: { createdAt: 'desc' }, take: 15 }),
+                prisma.decision.findMany({ where: symbolWhere, orderBy: { createdAt: 'desc' }, take: 15 }),
+            ]);
+
+            if (anchoredMemories.length > 0 || anchoredDecisions.length > 0) {
+                payload += `## 📌 FILE-ANCHORED CONTEXT (${relPath})\n`;
+                for (const m of anchoredMemories) {
+                    const anchor = m.symbolName ? `@${m.symbolName}` : (m.lineNumber ? `L${m.lineNumber}` : '');
+                    payload += `- [MEMORY ${anchor}] ${m.content}\n`;
+                }
+                for (const d of anchoredDecisions) {
+                    const anchor = d.symbolName ? `@${d.symbolName}` : (d.lineNumber ? `L${d.lineNumber}` : '');
+                    payload += `- [DECISION ${anchor}] ${d.context} ➔ ${d.chosen}\n`;
+                }
+                payload += '\n';
+            }
+        } catch {
+            // DB may not be initialized yet, gracefully skip
+        }
+    }
+
     payload += `## CONTEXT HYDRATION\n`;
-    payload += `The environment features above have been auto-detected. Please follow the modular loading protocol defined in AGENTS.md and target your execution rules accordingly.\n`;
+    payload += `The environment features above have been auto-detected. Please follow the rules and protocols from the ingested AI tool configuration files and target your execution accordingly.\n`;
 
     return payload;
 }
+
