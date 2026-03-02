@@ -62,12 +62,25 @@ command -v aigit >/dev/null 2>&1 && aigit heal --quiet || npx --no-install aigit
 echo "[aigit] Diagnostics complete. Proceeding with push..."
 `;
 
+    // 5. post-commit hook (Runs after git commit)
+    const postCommitPath = path.join(hooksDir, 'post-commit');
+    const postCommitContent = `#!/bin/sh
+# aigit post-commit hook
+# Captures the commit message into the AI's semantic memory timeline.
+
+COMMIT_MSG=$(git log -1 --pretty=%B)
+echo "[aigit] Recording commit in Context Timeline..."
+
+command -v aigit >/dev/null 2>&1 && aigit remember "Git Commit: $COMMIT_MSG" || npx --no-install aigit remember "Git Commit: $COMMIT_MSG" || true
+`;
+
     try {
         fs.writeFileSync(postCheckoutPath, postCheckoutContent, { mode: 0o755 });
         fs.writeFileSync(postMergePath, postMergeContent, { mode: 0o755 });
         fs.writeFileSync(preCommitPath, preCommitContent, { mode: 0o755 });
         fs.writeFileSync(prePushPath, prePushContent, { mode: 0o755 });
-        console.log(`✅ [aigit] Git hooks successfully installed at .git/hooks (post-checkout, post-merge, pre-commit, pre-push)`);
+        fs.writeFileSync(postCommitPath, postCommitContent, { mode: 0o755 });
+        console.log(`✅ [aigit] Git hooks successfully installed at .git/hooks (post-checkout, post-merge, pre-commit, post-commit, pre-push)`);
 
         // Ensure .aigit is ignored properly, but track ledger.json
         const gitignorePath = path.join(workspacePath, '.gitignore');
