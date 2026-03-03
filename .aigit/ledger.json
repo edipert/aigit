@@ -132,6 +132,16 @@
       "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\t.aigit/ledger.json\nM\tcontext-server/dist/cli/hooks.js\nM\tcontext-server/dist/cli/index.js\nM\tcontext-server/src/cli/hooks.ts\nM\tcontext-server/src/cli/index.ts\n\nStatistics:\n.aigit/ledger.json               | 10 ++++++++++\n context-server/dist/cli/hooks.js | 22 +++++++++-----------\n context-server/dist/cli/index.js | 37 ++++++++++++++++++++++++++++++++++\n context-server/src/cli/hooks.ts  | 24 ++++++++++------------\n context-server/src/cli/index.ts  | 43 ++++++++++++++++++++++++++++++++++++++++\n 5 files changed, 110 insertions(+), 26 deletions(-)",
       "embedding": null,
       "createdAt": "2026-03-03T20:45:03.428Z"
+    },
+    {
+      "id": "34c7bc14-015a-4279-ab1b-cb463c6212ad",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "capability",
+      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tfrontend/api/feedback.ts\n\nStatistics:\nfrontend/api/feedback.ts | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)",
+      "embedding": null,
+      "createdAt": "2026-03-03T21:23:12.957Z"
     }
   ]
 }
