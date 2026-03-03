@@ -102,6 +102,16 @@
       "content": "Automatic Git Commit Context\nCommit:\ndbd7e4d - fix(cli): resolve missing ledger dump for auto commit and skip missing test script gracefully\n\nFiles Changed:\nM\t.aigit/ledger.json\nM\tcontext-server/.aigit/ledger.json\nM\tcontext-server/dist/cli/index.js\nM\tcontext-server/dist/healing/runner.js\nM\tcontext-server/src/cli/index.ts\nM\tcontext-server/src/healing/runner.ts\n\nStatistics:\n.aigit/ledger.json                    | 30 ++++++++++++++++++++++++++++++\n context-server/.aigit/ledger.json     | 23 +++++++++++++++++++++--\n context-server/dist/cli/index.js      |  2 ++\n context-server/dist/healing/runner.js | 11 +++++++++++\n context-server/src/cli/index.ts       |  3 +++\n context-server/src/healing/runner.ts  | 11 +++++++++++\n 6 files changed, 78 insertions(+), 2 deletions(-)",
       "embedding": null,
       "createdAt": "2026-03-03T05:01:50.185Z"
+    },
+    {
+      "id": "b4e489f1-6e05-4d52-bbf4-16d66e1bf8b6",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "capability",
+      "content": "Automatic Git Commit Context\nCommit:\nabc71fc - feat(web): Add interactive install command and Resend feedback channel\nThis commit introduces the CopyableCommand component for the hero section, removes external GitHub links, and integrates a secure /feedback route powered by the Resend API.\n\nFiles Changed:\nM\t.aigit/ledger.json\nA\tcontext-server/README.md\nM\tcontext-server/package.json\nA\tfrontend/.gitignore\nA\tfrontend/api/feedback.ts\nM\tfrontend/package-lock.json\nM\tfrontend/package.json\nM\tfrontend/src/App.css\nM\tfrontend/src/App.tsx\nM\tfrontend/src/DocsPage.tsx\nA\tfrontend/src/FeedbackPage.tsx\nM\tfrontend/src/Navbar.tsx\nM\tvscode-aigit/package.json\nA\tvscode-aigit/vscode-aigit-1.0.0.vsix\n\nStatistics:\n.aigit/ledger.json                   |  10 +++\n context-server/README.md             |  84 ++++++++++++++++++\n context-server/package.json          |   2 +-\n frontend/.gitignore                  |  29 ++++++\n frontend/api/feedback.ts             |  28 ++++++\n frontend/package-lock.json           |  75 +++++++++++++++-\n frontend/package.json                |   3 +-\n frontend/src/App.css                 | 166 +++++++++++++++++++++++++++++++++++\n frontend/src/App.tsx                 |  32 ++++++-\n frontend/src/DocsPage.tsx            |  92 +++++++++++++++++--\n frontend/src/FeedbackPage.tsx        |  92 +++++++++++++++++++\n frontend/src/Navbar.tsx              |   6 +-\n vscode-aigit/package.json            |   2 +-\n vscode-aigit/vscode-aigit-1.0.0.vsix | Bin 0 -> 39812 bytes\n 14 files changed, 604 insertions(+), 17 deletions(-)",
+      "embedding": null,
+      "createdAt": "2026-03-03T20:19:04.915Z"
     }
   ]
 }
