@@ -6,8 +6,21 @@ import { vector } from '@electric-sql/pglite/vector';
 import path from 'path';
 import fs from 'fs';
 
-// Define the path to the embedded global database
-const AIGIT_DIR = path.join(process.cwd(), '.aigit');
+// Check if we are starting MCP with a specific directory argument
+let targetDir = process.cwd();
+
+const args = process.argv.slice(2);
+if (args[0] === 'mcp' && args[1]) {
+    const potentialDir = args[1];
+    if (path.isAbsolute(potentialDir)) {
+        targetDir = potentialDir;
+    } else {
+        targetDir = path.resolve(process.cwd(), potentialDir);
+    }
+}
+
+// Define the path to the embedded memory database
+const AIGIT_DIR = path.join(targetDir, '.aigit');
 const AIGIT_DB_PATH = path.join(AIGIT_DIR, 'memory.db');
 
 if (!fs.existsSync(AIGIT_DIR)) {

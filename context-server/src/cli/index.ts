@@ -14,6 +14,9 @@ async function main() {
         const activeFile = args[1];
         const context = await compileHydratedContext(workspacePath, activeFile);
         console.log(context);
+    } else if (command === 'mcp') {
+        // Simply requiring the main index file kicks off the StdioServerTransport
+        require('../index');
     } else if (command === 'init') {
         const workspacePath = process.cwd();
         const { installGitHook } = require('./hooks');
@@ -74,11 +77,28 @@ async function main() {
         const workspacePath = process.cwd();
         const { syncAgents } = require('../agents/sync');
         const dryRun = args.includes('--dry-run');
+        const skillsMigrate = args.includes('--skills');
         const fromIdx = args.indexOf('--from');
         const toIdx = args.indexOf('--to');
         const from = fromIdx !== -1 ? args[fromIdx + 1] : undefined;
         const to = toIdx !== -1 ? args[toIdx + 1] : undefined;
+
         syncAgents(workspacePath, { dryRun, from, to });
+
+        if (skillsMigrate && !dryRun) {
+            const { migrateSkills } = require('../agents/migration');
+            const result = migrateSkills(workspacePath);
+            if (result.migrated.length > 0) {
+                console.log(`\n✅ Unified skills into .aigit/skills and created symlinks for:\n  - ${result.migrated.join('\n  - ')}\n`);
+            } else if (result.errors.length === 0) {
+                console.log('\n✅ No skill folders required migration.\n');
+            }
+            if (result.errors.length > 0) {
+                console.error('\n⚠️  Migration encountered errors:');
+                result.errors.forEach((err: string) => console.error(`  - ${err}`));
+                console.log();
+            }
+        }
     } else if (command === 'conflicts') {
         const workspacePath = process.cwd();
         const { loadConflicts, printConflicts } = require('../agents/conflicts');
@@ -514,7 +534,7 @@ Context:
 
 Agent Sync:
   scan                          Detect active AI tools in the workspace
-  sync [--dry-run]              Bidirectional sync across all detected tools
+  sync [--dry-run] [--skills]   Bidirectional sync across all detected tools
   sync --from <tool> --to <tool>  One-directional targeted sync
   conflicts                     Show unresolved sync conflicts
 

@@ -52,6 +52,16 @@
       "content": "Git Commit: fix(cli): resolve prisma schema queries breaking aigit dump",
       "embedding": null,
       "createdAt": "2026-03-02T19:59:48.027Z"
+    },
+    {
+      "id": "b0888714-03e5-4878-8cff-97adcd0a5cdc",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "capability",
+      "content": "Automatic Git Commit Context\nCommit:\n0761ced - feat(cli): add aigit commit auto command for rich semantic git commits\n\nFiles Changed:\nM\t.aigit/ledger.json\nM\tcontext-server/dist/cli/hooks.js\nM\tcontext-server/dist/cli/index.js\nM\tcontext-server/dist/cli/sync.js\nM\tcontext-server/dist/security/scrubber.js\nM\tcontext-server/src/cli/hooks.ts\nM\tcontext-server/src/cli/index.ts\n\nStatistics:\n.aigit/ledger.json                       | 10 +++++++\n context-server/dist/cli/hooks.js         | 21 +++++++++++----\n context-server/dist/cli/index.js         | 41 ++++++++++++++++++++++++++++\n context-server/dist/cli/sync.js          |  2 +-\n context-server/dist/security/scrubber.js |  7 -----\n context-server/src/cli/hooks.ts          |  7 +++--\n context-server/src/cli/index.ts          | 46 ++++++++++++++++++++++++++++++++\n 7 files changed, 117 insertions(+), 17 deletions(-)",
+      "embedding": null,
+      "createdAt": "2026-03-02T20:18:22.364Z"
     }
   ]
 }

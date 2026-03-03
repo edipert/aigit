@@ -13,7 +13,7 @@ const AGENT_DEFINITIONS = [
         name: 'Google Gemini',
         rulesFiles: ['GEMINI.md', 'AGENTS.md'],
         memoryFiles: ['MEMORY.md'],
-        skillsDir: '.agent',
+        skillsDir: '.agent/skills',
         configDir: '.gemini',
     },
     {
@@ -21,7 +21,7 @@ const AGENT_DEFINITIONS = [
         name: 'Claude Code',
         rulesFiles: ['CLAUDE.md'],
         memoryFiles: ['CLAUDE.md'],
-        skillsDir: '.claude',
+        skillsDir: '.claude/skills',
         configDir: '.claude',
     },
     {
@@ -29,7 +29,7 @@ const AGENT_DEFINITIONS = [
         name: 'Cursor',
         rulesFiles: ['.cursorrules'],
         memoryFiles: ['.cursorrules'],
-        skillsDir: null,
+        skillsDir: '.cursor/skills',
         configDir: '.cursor',
     },
     {
@@ -37,7 +37,7 @@ const AGENT_DEFINITIONS = [
         name: 'Cline / Roo',
         rulesFiles: ['.clinerules'],
         memoryFiles: ['.clinerules'],
-        skillsDir: null,
+        skillsDir: '.cline/skills',
         configDir: '.cline',
     },
     {
@@ -45,7 +45,7 @@ const AGENT_DEFINITIONS = [
         name: 'Windsurf',
         rulesFiles: ['.windsurfrules'],
         memoryFiles: ['.windsurfrules'],
-        skillsDir: null,
+        skillsDir: '.windsurf/skills',
         configDir: null,
     },
     {
@@ -53,7 +53,7 @@ const AGENT_DEFINITIONS = [
         name: 'GitHub Copilot',
         rulesFiles: ['.github/copilot-instructions.md'],
         memoryFiles: ['.github/copilot-instructions.md'],
-        skillsDir: null,
+        skillsDir: '.github/copilot-instructions/skills',
         configDir: '.github',
     },
     {

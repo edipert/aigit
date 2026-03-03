@@ -12,8 +12,20 @@ const pglite_prisma_adapter_1 = require("pglite-prisma-adapter");
 const vector_1 = require("@electric-sql/pglite/vector");
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
-// Define the path to the embedded global database
-const AIGIT_DIR = path_1.default.join(process.cwd(), '.aigit');
+// Check if we are starting MCP with a specific directory argument
+let targetDir = process.cwd();
+const args = process.argv.slice(2);
+if (args[0] === 'mcp' && args[1]) {
+    const potentialDir = args[1];
+    if (path_1.default.isAbsolute(potentialDir)) {
+        targetDir = potentialDir;
+    }
+    else {
+        targetDir = path_1.default.resolve(process.cwd(), potentialDir);
+    }
+}
+// Define the path to the embedded memory database
+const AIGIT_DIR = path_1.default.join(targetDir, '.aigit');
 const AIGIT_DB_PATH = path_1.default.join(AIGIT_DIR, 'memory.db');
 if (!fs_1.default.existsSync(AIGIT_DIR)) {
     fs_1.default.mkdirSync(AIGIT_DIR, { recursive: true });
