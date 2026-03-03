@@ -37,10 +37,12 @@ npx --no-install aigit load || npx --no-install aigit load || true
     const preCommitPath = path_1.default.join(hooksDir, 'pre-commit');
     const preCommitContent = `#!/bin/sh
 # aigit pre-commit hook
-# Serializes local semantic memory into the Git-tracked ledger before committing.
+# Evaluates staged files to auto-generate context memory, then serializes memory into the Git-tracked ledger before committing.
+
+echo "[aigit] Generating AI-readable context for staged files..."
+npx --no-install aigit commit staged || true
 
 echo "[aigit] Serializing active memory into ledger.json..."
-
 npx --no-install aigit dump || npx --no-install aigit dump || true
 
 # Automatically stage the updated ledger if it exists
@@ -61,23 +63,17 @@ npx --no-install aigit heal --quiet || npx --no-install aigit heal --quiet || tr
 # If tests failed, print a warning but usually don't block the push aggressively unless configured to
 echo "[aigit] Diagnostics complete. Proceeding with push..."
 `;
-    // 5. post-commit hook (Runs after git commit)
     const postCommitPath = path_1.default.join(hooksDir, 'post-commit');
-    const postCommitContent = `#!/bin/sh
-# aigit post-commit hook
-# Captures an automatic semantic context summary of the latest commit into the AI's semantic memory timeline.
-
-echo "[aigit] Generating AI-readable context for the latest commit..."
-
-npx --no-install aigit commit auto || true
-`;
     try {
         fs_1.default.writeFileSync(postCheckoutPath, postCheckoutContent, { mode: 0o755 });
         fs_1.default.writeFileSync(postMergePath, postMergeContent, { mode: 0o755 });
         fs_1.default.writeFileSync(preCommitPath, preCommitContent, { mode: 0o755 });
         fs_1.default.writeFileSync(prePushPath, prePushContent, { mode: 0o755 });
-        fs_1.default.writeFileSync(postCommitPath, postCommitContent, { mode: 0o755 });
-        console.log(`✅ [aigit] Git hooks successfully installed at .git/hooks (post-checkout, post-merge, pre-commit, post-commit, pre-push)`);
+        // Remove legacy post-commit hook if it exists to fix the infinite dirtiness loop
+        if (fs_1.default.existsSync(postCommitPath)) {
+            fs_1.default.unlinkSync(postCommitPath);
+        }
+        console.log(`✅ [aigit] Git hooks successfully installed at .git/hooks (post-checkout, post-merge, pre-commit, pre-push)`);
         // Ensure .aigit is ignored properly, but track ledger.json
         const gitignorePath = path_1.default.join(workspacePath, '.gitignore');
         const ignoreEntries = ['\n# aigit local database', '.aigit/memory.db*', '!.aigit/ledger.json', ''];

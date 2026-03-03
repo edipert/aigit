@@ -439,6 +439,49 @@ Commands:
             console.log(`   ID: ${task.id}`);
             console.log();
 
+        } else if (subCommand === 'staged') {
+            const { execSync } = require('child_process');
+
+            try {
+                // Get the list of staged files and their status (A, M, D, etc.)
+                const fileChanges = execSync('git diff --cached --name-status').toString().trim();
+
+                if (!fileChanges) {
+                    process.exit(0);
+                }
+
+                // Get the diff stats (insertions/deletions)
+                const diffStats = execSync('git diff --cached --stat').toString().trim();
+
+                const semanticSummary = `Automatic Git Commit Context (Staged Changes)
+Files Changed:
+${fileChanges}
+
+Statistics:
+${diffStats}`;
+
+                const memory = await prisma.memory.create({
+                    data: {
+                        projectId: project.id,
+                        gitBranch: branch,
+                        type: 'capability', // using capability to denote functional changes
+                        content: semanticSummary,
+                        filePath: 'git-commit-staged'
+                    }
+                });
+
+                const { dumpContextLedger } = require('./sync');
+                await dumpContextLedger(workspacePath);
+
+                console.log(`\n✅ [aigit commit] Staged context recorded automatically on branch [${branch}]`);
+                console.log(`   ID: ${memory.id}`);
+                console.log(`   Tokens: ~${Math.floor(semanticSummary.length / 4)}`);
+                console.log();
+            } catch (error) {
+                console.error('⚠️  Failed to generate automatic staged context.');
+                process.exit(1);
+            }
+
         } else if (subCommand === 'auto') {
             const { execSync } = require('child_process');
 
