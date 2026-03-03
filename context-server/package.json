@@ -1,6 +1,6 @@
 {
   "name": "aigit-core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "AI Context Protocol Engine - Memory & State",
   "main": "dist/index.js",
   "scripts": {

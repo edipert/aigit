@@ -12,10 +12,8 @@ export function Navbar() {
                 </Link>
                 <div className="navbar-links">
                     <Link to="/" className={`nav-link ${isHome ? 'active' : ''}`}>Home</Link>
-                    <Link to="/docs" className={`nav-link ${!isHome ? 'active' : ''}`}>Docs</Link>
-                    <a href="https://github.com/aigit" className="nav-link external" target="_blank" rel="noopener noreferrer">
-                        GitHub ↗
-                    </a>
+                    <Link to="/docs" className={`nav-link ${location.pathname.includes('/docs') ? 'active' : ''}`}>Docs</Link>
+                    <Link to="/feedback" className={`nav-link ${location.pathname === '/feedback' ? 'active' : ''}`}>Feedback</Link>
                 </div>
             </div>
         </nav>

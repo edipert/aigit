@@ -2,7 +2,7 @@
     "name": "vscode-aigit",
     "displayName": "Aigit — AI Context Explorer",
     "description": "Visual sidebar for exploring and managing your aigit semantic memory ledger directly inside VS Code.",
-    "version": "0.2.0",
+    "version": "1.0.0",
     "publisher": "aigit",
     "engines": {
         "vscode": "^1.109.5"

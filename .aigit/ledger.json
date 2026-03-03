@@ -92,6 +92,16 @@
       "content": "Automatic Git Commit Context\nCommit:\nfda0147 - feat: implement unified skill migration and symlinking\n\nFiles Changed:\nA\t.agent/skills\nD\t.agent/skills/brainstorming/SKILL.md\nD\t.agent/skills/clean-code/SKILL.md\nD\t.agent/skills/frontend-design/SKILL.md\nM\t.aigit/ledger.json\nA\t.aigit/skills/brainstorming/SKILL.md\nA\t.aigit/skills/clean-code/SKILL.md\nA\t.aigit/skills/frontend-design/SKILL.md\nA\t.claude/skills\nA\tCLAUDE.md\nA\tcontext-server/dist/agents/migration.js\nM\tcontext-server/dist/agents/registry.js\nM\tcontext-server/dist/cli/index.js\nM\tcontext-server/dist/db.js\nA\tcontext-server/src/agents/migration.ts\nM\tcontext-server/src/agents/registry.ts\nM\tcontext-server/src/cli/index.ts\nM\tcontext-server/src/db.ts\nA\tskills-migration-sync.md\n\nStatistics:\n.agent/skills                                      |   1 +\n .aigit/ledger.json                                 |  10 +\n {.agent => .aigit}/skills/brainstorming/SKILL.md   |   0\n {.agent => .aigit}/skills/clean-code/SKILL.md      |   0\n {.agent => .aigit}/skills/frontend-design/SKILL.md |   0\n .claude/skills                                     |   1 +\n CLAUDE.md                                          | 257 +++++++++++++++++++++\n context-server/dist/agents/migration.js            |  78 +++++++\n context-server/dist/agents/registry.js             |  12 +-\n context-server/dist/cli/index.js                   |  22 +-\n context-server/dist/db.js                          |  16 +-\n context-server/src/agents/migration.ts             |  84 +++++++\n context-server/src/agents/registry.ts              |  12 +-\n context-server/src/cli/index.ts                    |  22 +-\n context-server/src/db.ts                           |  17 +-\n skills-migration-sync.md                           |  31 +++\n 16 files changed, 545 insertions(+), 18 deletions(-)",
       "embedding": null,
       "createdAt": "2026-03-03T04:58:14.117Z"
+    },
+    {
+      "id": "c3d70c63-fe3d-4ddd-95eb-f00d027de721",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "capability",
+      "content": "Automatic Git Commit Context\nCommit:\ndbd7e4d - fix(cli): resolve missing ledger dump for auto commit and skip missing test script gracefully\n\nFiles Changed:\nM\t.aigit/ledger.json\nM\tcontext-server/.aigit/ledger.json\nM\tcontext-server/dist/cli/index.js\nM\tcontext-server/dist/healing/runner.js\nM\tcontext-server/src/cli/index.ts\nM\tcontext-server/src/healing/runner.ts\n\nStatistics:\n.aigit/ledger.json                    | 30 ++++++++++++++++++++++++++++++\n context-server/.aigit/ledger.json     | 23 +++++++++++++++++++++--\n context-server/dist/cli/index.js      |  2 ++\n context-server/dist/healing/runner.js | 11 +++++++++++\n context-server/src/cli/index.ts       |  3 +++\n context-server/src/healing/runner.ts  | 11 +++++++++++\n 6 files changed, 78 insertions(+), 2 deletions(-)",
+      "embedding": null,
+      "createdAt": "2026-03-03T05:01:50.185Z"
     }
   ]
 }

@@ -8,30 +8,106 @@ interface DocSection {
 
 const sections: DocSection[] = [
   {
+    id: 'best-practices',
+    title: 'Best Usage & Workflows',
+    content: `### 🌟 What is aigit?
+At its core, aigit is the **Central Nervous System for AI-assisted Development**. 
+
+The biggest problem with AI coding agents today (Cursor, Windsurf, Claude, Copilot) is that they are **amnesic and siloed**. They forget architectural decisions made last week, and context built in Cursor doesn't transfer to a teammate using Claude.
+
+aigit solves this by acting as a universal, git-aligned memory layer and orchestration engine.
+
+---
+
+### 🚀 The 5-Step Ideal Workflow
+
+To get the absolute maximum value out of aigit, developers should weave it into their daily loop:
+
+#### 1. Setup & Unification (Single Source of Truth)
+Instead of managing multiple \`.cursorrules\`, \`.clinerules\`, and \`.claude\` folders, you use aigit to unify them.
+
+\`\`\`bash
+# 1. Initialize the semantic ledger and Git hooks
+aigit init
+
+# 2. Automatically collapse fragmented agent skills into a single .aigit/skills directory
+aigit sync --skills
+\`\`\`
+
+#### 2. The Context-Aware Coding Loop (via MCP)
+The most powerful way to use aigit is **not** via the CLI, but as a background brain connected to your IDE.
+
+*   **Action**: You configure your AI IDE (Cursor, Windsurf, Claude) to connect to aigit's local **MCP Server**.
+*   **Result**: When you ask your IDE, *"Why did we choose Redis over Postgres for this feature?"*, the IDE doesn't just guess. It uses the MCP server to query aigit's Time-Traveling Semantic Ledger, fetching the exact architectural decision you recorded 3 weeks ago.
+
+#### 3. Continuous Semantic Memory (Invisible Documentation)
+Developers hate writing documentation. aigit handles it invisibly.
+
+*   **Action**: You commit code normally.
+    \`\`\`bash
+    git commit -m "feat: setup auth"
+    \`\`\`
+*   **Result**: The \`post-commit\` hook seamlessly triggers \`aigit commit auto\`. It captures your commit message, diff stats, and file changes, embedding them directly into \`.aigit/ledger.json\`. 
+*   **Bonus**: Run \`aigit docs\` at any time to auto-generate a fresh, Mermaid-diagrammed \`ARCHITECTURE.md\` perfectly synced with your code.
+
+#### 4. The "Guardian" pre-push Hook (Self-Healing)
+Before pushing broken code or vulnerable dependencies to GitHub, aigit acts as a local CI guardian.
+
+*   **Action**: You run \`git push\`.
+*   **Result**: The custom \`pre-push\` hook triggers \`npx aigit heal\`.
+*   **Workflow**: 
+    1. It runs your test suite. 
+    2. If a test fails, it captures the stack trace.
+    3. It parses your AST to map the failure to specific functions.
+    4. It queries the \`ledger.json\` to see if this bug has been fixed before.
+    5. It prints a **Healing Plan** detailing exactly how to fix the bug, or if you run \`aigit heal --auto\`, it automatically patches the code and commits the fix for you before pushing.
+
+#### 5. Multi-Agent Swarm Orchestration (For Complex Tasks)
+When a task is too big for a single prompt, you bring in the Swarm.
+
+*   **Action**: You run \`aigit swarm\`.
+    \`\`\`bash
+    aigit swarm "Build the JWT authentication middleware"
+    \`\`\`
+*   **Result**: It spins up specialized agents (e.g., frontend, backend, security).
+*   **Workflow**: The Architect outlines the database schema, the Security Auditor reviews it for vulnerabilities, and the Frontend Specialist waits for the API to be approved before generating React components. They talk to each other over the local message bus, resolving architectural conflicts autonomously.`
+  },
+  {
     id: 'quickstart',
     title: 'Quick Start',
     content: `### Install
+The recommended way to install aigit is globally via npm:
 
 \`\`\`bash
 npm install -g aigit-core
 \`\`\`
 
-### Initialize in your project
-
+*Alternatively, you can run it on-the-fly without installing:*
 \`\`\`bash
-cd your-project
+npx aigit-core init
+\`\`\`
+
+### Initialize Semantic DB
+Navigate to any git repository and run:
+\`\`\`bash
 aigit init
 \`\`\`
 
-This creates the \`.aigit/\` directory and installs Git post-checkout and pre-push hooks.
+This will create a lightweight local Vector DB (PGlite) in the \`.aigit/\` folder to store your project's semantic memory.
 
-### Hydrate your AI context
-
+### Install Git Hooks
+To ensure your memory stays perfectly synchronized with your branch changes:
 \`\`\`bash
-aigit hydrate
+aigit init-hook
 \`\`\`
+This installs native \`post-commit\`, \`post-checkout\`, and \`pre-push\` hooks.
 
-Compiles a branch-aware system prompt from your semantic memory. This is injected automatically when using MCP.`
+### Start the MCP Server
+If you are using an AI IDE like Cursor or Windsurf, connect them to aigit's real-time memory by running:
+\`\`\`bash
+aigit mcp
+\`\`\`
+Then, add the local server URL to your IDE's MCP configuration.`
   },
   {
     id: 'cli-core',
@@ -532,6 +608,8 @@ function renderMarkdown(md: string): string {
       }).join('');
       return `<table class="doc-table"><thead><tr>${ths}</tr></thead><tbody>${rows}</tbody></table>`;
     })
+    .replace(/^---$/gm, '<hr class="doc-hr"/>')
+    .replace(/#### (.+)/g, '<h4 class="doc-h4">$1</h4>')
     .replace(/### (.+)/g, '<h3 class="doc-h3">$1</h3>')
     .replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>')
     .replace(/\n\n/g, '</p><p>')

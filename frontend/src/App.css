@@ -75,6 +75,57 @@
     font-weight: 700;
 }
 
+.hero-install-box {
+    margin-top: 2rem;
+    display: inline-flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(0, 240, 255, 0.2);
+    border-radius: 6px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 0 10px rgba(0, 240, 255, 0.05);
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.hero-install-box:hover {
+    border-color: rgba(0, 240, 255, 0.5);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(0, 240, 255, 0.1);
+}
+
+.hero-install-cmd {
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    color: var(--electric-cyan);
+    padding: 0.75rem 1rem 0.75rem 1.5rem;
+    letter-spacing: 0.5px;
+}
+
+.copy-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 0.75rem 1.25rem 0.75rem 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.copy-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+.hero-install-box:hover .copy-btn {
+    color: var(--electric-cyan);
+}
+
+.copy-btn.copied {
+    color: var(--neon-chartreuse) !important;
+}
+
 /* ==================================
    2. TERMINAL MOCKUP (Glassmorphic)
    ================================== */
@@ -758,4 +809,119 @@
     .docs-content {
         padding: 1.5rem;
     }
+}
+
+/* ==================================
+   10. FEEDBACK PAGE
+   ================================== */
+.feedback-page {
+    flex: 1;
+    padding: 8rem 2rem 4rem;
+    display: flex;
+    justify-content: center;
+}
+
+.feedback-container {
+    max-width: 600px;
+    width: 100%;
+}
+
+.feedback-form {
+    background: rgba(10, 10, 10, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 2.5rem;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.feedback-form::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background-color: var(--neon-chartreuse);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.terminal-input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-main);
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    padding: 0.75rem 1rem;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+    border-radius: 4px;
+}
+
+.terminal-input:focus {
+    outline: none;
+    border-color: var(--electric-cyan);
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.1);
+}
+
+.submit-btn {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #000;
+    background: var(--neon-chartreuse);
+    border: none;
+    padding: 1rem 2rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+    margin-top: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-radius: 4px;
+}
+
+.submit-btn:hover:not(:disabled) {
+    background: #eaff00;
+    box-shadow: 0 0 15px rgba(214, 250, 0, 0.4);
+}
+
+.submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.form-message {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    border-left: 3px solid transparent;
+    text-align: left;
+}
+
+.form-message.success {
+    background: rgba(214, 250, 0, 0.05);
+    color: var(--neon-chartreuse);
+    border-color: var(--neon-chartreuse);
+}
+
+.form-message.error {
+    background: rgba(255, 95, 86, 0.05);
+    color: var(--alert-red);
+    border-color: var(--alert-red);
 }
