@@ -472,6 +472,9 @@ ${diffStats}`;
                     }
                 });
 
+                const { dumpContextLedger } = require('./sync');
+                await dumpContextLedger(workspacePath);
+
                 console.log(`\n✅ [aigit commit] Git context recorded automatically on branch [${branch}]`);
                 console.log(`   ID: ${memory.id}`);
                 console.log(`   Tokens: ~${Math.floor(semanticSummary.length / 4)}`);

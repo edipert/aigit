@@ -1,8 +1,27 @@
 {
-  "projects": [],
+  "projects": [
+    {
+      "id": "c958b6ca-330d-412f-948d-4062e316803e",
+      "name": "context-server",
+      "description": null,
+      "createdAt": "2026-03-01T00:54:17.516Z",
+      "updatedAt": "2026-03-01T00:54:17.516Z"
+    }
+  ],
   "agents": [],
   "sessions": [],
   "tasks": [],
   "decisions": [],
-  "memories": []
+  "memories": [
+    {
+      "id": "aa9f26fd-366e-4e31-954b-78322d0e1f4c",
+      "projectId": "c958b6ca-330d-412f-948d-4062e316803e",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "capability",
+      "content": "Automatic Git Commit Context\nCommit:\nfda0147 - feat: implement unified skill migration and symlinking\n\nFiles Changed:\nA\t.agent/skills\nD\t.agent/skills/brainstorming/SKILL.md\nD\t.agent/skills/clean-code/SKILL.md\nD\t.agent/skills/frontend-design/SKILL.md\nM\t.aigit/ledger.json\nA\t.aigit/skills/brainstorming/SKILL.md\nA\t.aigit/skills/clean-code/SKILL.md\nA\t.aigit/skills/frontend-design/SKILL.md\nA\t.claude/skills\nA\tCLAUDE.md\nA\tcontext-server/dist/agents/migration.js\nM\tcontext-server/dist/agents/registry.js\nM\tcontext-server/dist/cli/index.js\nM\tcontext-server/dist/db.js\nA\tcontext-server/src/agents/migration.ts\nM\tcontext-server/src/agents/registry.ts\nM\tcontext-server/src/cli/index.ts\nM\tcontext-server/src/db.ts\nA\tskills-migration-sync.md\n\nStatistics:\n.agent/skills                                      |   1 +\n .aigit/ledger.json                                 |  10 +\n {.agent => .aigit}/skills/brainstorming/SKILL.md   |   0\n {.agent => .aigit}/skills/clean-code/SKILL.md      |   0\n {.agent => .aigit}/skills/frontend-design/SKILL.md |   0\n .claude/skills                                     |   1 +\n CLAUDE.md                                          | 257 +++++++++++++++++++++\n context-server/dist/agents/migration.js            |  78 +++++++\n context-server/dist/agents/registry.js             |  12 +-\n context-server/dist/cli/index.js                   |  22 +-\n context-server/dist/db.js                          |  16 +-\n context-server/src/agents/migration.ts             |  84 +++++++\n context-server/src/agents/registry.ts              |  12 +-\n context-server/src/cli/index.ts                    |  22 +-\n context-server/src/db.ts                           |  17 +-\n skills-migration-sync.md                           |  31 +++\n 16 files changed, 545 insertions(+), 18 deletions(-)",
+      "embedding": null,
+      "createdAt": "2026-03-03T04:57:32.599Z"
+    }
+  ]
 }

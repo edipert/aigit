@@ -47,6 +47,17 @@ async function healFromTestFailure(workspacePath, options = {}) {
             eventId: null,
         };
     }
+    if (output.includes('Missing script: "test"') || output.includes('Missing script: test')) {
+        if (!options.quiet)
+            console.log('⚠️  No "test" script found in package.json. Skipping diagnostic phase.\n');
+        return {
+            success: true, // Graceful skip
+            diagnosis: null,
+            plan: null,
+            report: '\n⚠️  No "test" script found. Skipping healing.\n',
+            eventId: null,
+        };
+    }
     if (!options.quiet)
         console.log('❌ Tests failed. Diagnosing...\n');
     // Step 2: Diagnose the failure
