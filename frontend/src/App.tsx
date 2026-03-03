@@ -151,6 +151,7 @@ function LandingPage() {
 }
 
 import { FeedbackPage } from './FeedbackPage'
+import NotFoundPage from './NotFoundPage'
 
 function App() {
     return (
@@ -161,6 +162,7 @@ function App() {
                     <Route path="/" element={<LandingPage />} />
                     <Route path="/docs" element={<DocsPage />} />
                     <Route path="/feedback" element={<FeedbackPage />} />
+                    <Route path="*" element={<NotFoundPage />} />
                 </Routes>
             </div>
         </BrowserRouter>
