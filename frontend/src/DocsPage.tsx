@@ -462,9 +462,17 @@ A dedicated adversarial AI profile (\`security-auditor\`) that hunts for loophol
 
 aigit runs as an MCP server, making your semantic memory available to any MCP-compatible AI tool.
 
-### Configuration
+### CLI Command
 
-Add aigit to your tool's MCP settings:
+You can run the MCP server directly from the terminal for testing or standalone use:
+
+\`\`\`bash
+aigit mcp
+\`\`\`
+
+### IDE Configuration
+
+Add aigit to your AI IDE's MCP settings (e.g., Claude Desktop, Cursor):
 
 \`\`\`json
 {
@@ -509,49 +517,51 @@ Add aigit to your tool's MCP settings:
 ### Supported Tools
 Cursor, Windsurf, Claude Code, Cline/Roo, VS Code with Copilot, and any tool supporting MCP.`
   },
-  {
-    id: 'vscode',
-    title: 'VS Code Extension',
-    content: `### Installation
-
-Install the ** Aigit — AI Context Explorer ** extension from the VS Code marketplace or build from source:
-
-\`\`\`bash
-cd vscode-aigit && npm run build
-\`\`\`
-
-### Sidebar Panels
-
-**Context Timeline** — View your semantic memory history, anchored entries for the active file, and quick action buttons (Refresh, Dump, Load).
-
-**Agent Sync Dashboard** — See detected AI tools, sync status, and action buttons:
-- 🔍 **Scan** — Detect all AI tools
-- 📋 **Dry Run** — Preview sync changes
-- 🔄 **Sync** — Apply sync
-- ⚠️ **Conflicts** — View blocking conflicts
-
-### Inline Context (CodeLens + Hover)
-
-When you open a file with linked memories or decisions, you'll see:
-
-- **CodeLens** — Inline hints like \`🧭 aigit @initRedis: Switched to Redis\` appear above functions. Click to see full details.
-- **Hover Tooltips** — Hover near a function with linked context to see a rich tooltip with the decision, reasoning, and timestamps.
-- **Pre-fetching** — Context is pre-loaded as you move your cursor (300ms debounce). No manual refresh needed.
-
-### Settings
-
-| Setting | Default | Description |
-|---------|---------|-------------|
-| \`aigit.enableCodeLens\` | \`true\` | Show inline context hints above functions |
-| \`aigit.enableHover\` | \`true\` | Show context tooltips on hover |
-| \`aigit.prefetchDebounceMs\` | \`300\` | Debounce delay for pre-fetching |
-
-### Status Bar
-A persistent indicator shows sync health: tool count, pending syncs, or conflict warnings.
-
-### Auto-Refresh
-The extension watches all agent config files (\`.cursorrules\`, \`CLAUDE.md\`, \`AGENTS.md\`, etc.) and auto-rescans when any file changes.`
-  },
+  /*
+    {
+      id: 'vscode',
+      title: 'VS Code Extension',
+      content: `### Installation
+  
+  Install the ** Aigit — AI Context Explorer ** extension from the VS Code marketplace or build from source:
+  
+  \`\`\`bash
+  cd vscode-aigit && npm run build
+  \`\`\`
+  
+  ### Sidebar Panels
+  
+  **Context Timeline** — View your semantic memory history, anchored entries for the active file, and quick action buttons (Refresh, Dump, Load).
+  
+  **Agent Sync Dashboard** — See detected AI tools, sync status, and action buttons:
+  - 🔍 **Scan** — Detect all AI tools
+  - 📋 **Dry Run** — Preview sync changes
+  - 🔄 **Sync** — Apply sync
+  - ⚠️ **Conflicts** — View blocking conflicts
+  
+  ### Inline Context (CodeLens + Hover)
+  
+  When you open a file with linked memories or decisions, you'll see:
+  
+  - **CodeLens** — Inline hints like \`🧭 aigit @initRedis: Switched to Redis\` appear above functions. Click to see full details.
+  - **Hover Tooltips** — Hover near a function with linked context to see a rich tooltip with the decision, reasoning, and timestamps.
+  - **Pre-fetching** — Context is pre-loaded as you move your cursor (300ms debounce). No manual refresh needed.
+  
+  ### Settings
+  
+  | Setting | Default | Description |
+  |---------|---------|-------------|
+  | \`aigit.enableCodeLens\` | \`true\` | Show inline context hints above functions |
+  | \`aigit.enableHover\` | \`true\` | Show context tooltips on hover |
+  | \`aigit.prefetchDebounceMs\` | \`300\` | Debounce delay for pre-fetching |
+  
+  ### Status Bar
+  A persistent indicator shows sync health: tool count, pending syncs, or conflict warnings.
+  
+  ### Auto-Refresh
+  The extension watches all agent config files (\`.cursorrules\`, \`CLAUDE.md\`, \`AGENTS.md\`, etc.) and auto-rescans when any file changes.`
+    },
+  */
   {
     id: 'architecture',
     title: 'Architecture',
@@ -567,6 +577,7 @@ The extension watches all agent config files (\`.cursorrules\`, \`CLAUDE.md\`, \
 │    └── conflicts.json                   │
 ├─────────────────────────────────────────┤
 │  Git Hooks                              │
+│    pre-commit    → aigit commit auto    │
 │    post-checkout → aigit load           │
 │    pre-push      → aigit dump           │
 ├─────────────────────────────────────────┤
@@ -581,6 +592,9 @@ aigit uses **PGlite** — a WASM-compiled PostgreSQL with \`pgvector\` for seman
 
 ### Branch Isolation
 Each Git branch gets its own context. When you \`git checkout\`, the post-checkout hook automatically loads the correct branch memory.
+
+### Context Tracking
+The \`pre-commit\` hook automatically captures your staged code changes and commit messages, embedding them into the active semantic memory without any manual data entry.
 
 ### Ledger Sync
 \`aigit dump\` serializes the in-memory database to \`ledger.json\`. This file is committed to Git, so your semantic memory travels with the repo.
