@@ -119,7 +119,54 @@ Compile a branch-aware context prompt from your semantic memory database. Option
 Serialize the in-memory PGlite database to \`.aigit/ledger.json\`. This file is Git-trackable.
 
 ### \`aigit load\`
-Reconstruct the memory database from \`.aigit/ledger.json\` after a Git pull or clone.`
+Reconstruct the memory database from \`.aigit/ledger.json\` after a Git pull or clone.
+
+---
+
+### \`aigit note "<message>" [options]\`
+Instantly capture a manual context note or architectural decision without waiting for a commit hook. This is the fastest way to record **"why"** from both the CLI and MCP.
+
+\`\`\`bash
+# Simple note
+❯ aigit note "Redis was too slow, switching to Valkey"
+📝 [aigit note] Context captured on branch [main]
+   ID: a1b2c3d4-e5f6...
+
+# Architectural decision scoped to a file
+❯ aigit note "Chose JWT over sessions" --decision --scope src/auth/jwt.ts
+📝 [aigit note] Context captured on branch [main]
+   Scope: 📁 src/auth/jwt.ts
+   Tag: Architecture Decision
+
+# Link to an external issue tracker
+❯ aigit note "Fixed race condition in worker pool" --issue ENG-404
+📝 [aigit note] Context captured on branch [main]
+   🔗 Issue: ENG-404
+\`\`\`
+
+**Options:**
+- **\`--decision\`** — Tag this note as an architectural decision.
+- **\`--scope <path>\`** — Bind the note to a specific file or directory.
+- **\`--issue <ref>\`** — Link to an external issue tracker ID (e.g. Linear, Jira, GitHub).
+
+---
+
+### \`aigit replay <path>\`
+Replay the chronological evolution of any file or module. Generates a narrative timeline from the semantic ledger — perfect for onboarding new developers or reviewing how a decision evolved over time.
+
+\`\`\`bash
+❯ aigit replay src/auth/jwt.ts
+📖 [aigit replay] Evolution of: src/auth/jwt.ts
+   3 context entries found.
+   ─────────────────────────────────────────────
+
+   📝 [2026-02-28 10:15] [ARCHITECTURE] Chose JWT over sessions
+   🔀 [2026-03-01 14:30] Context: Scale to 10k users → Chosen: Add refresh tokens
+   📝 [2026-03-04 09:01] [HUMAN_NOTE] Fixed race condition in token rotation
+
+   ─────────────────────────────────────────────
+   Timeline spans: 2026-02-28 → 2026-03-04
+\`\`\``
   },
   {
     id: 'cli-git',
@@ -372,6 +419,27 @@ Agents interact with swarms via 9 MCP tools:
 
 aigit can shift from an assistive memory tool into a proactive maintainer. The **Self-Healing Codebases** feature allows aigit to intercept failing tests and vulnerable dependencies, diagnose them using semantic memory, and propose or auto-commit fixes.
 
+### Context Drift Detection (Garbage Collection)
+
+Every time you run \`aigit heal\`, it automatically performs a **semantic drift scan** before running tests. This cross-references your semantic ledger against the live workspace to detect stale architectural memories:
+
+- **Deleted files** — Memories anchored to files that no longer exist.
+- **Removed AST symbols** — Decisions tied to functions or classes that have been refactored away.
+- **Uninstalled dependencies** — Architectural notes referencing libraries no longer in \`package.json\`.
+
+\`\`\`bash
+❯ aigit heal
+🧹 Context Drift Detected: Found 3 stale architectural memories.
+   - [MEMORY] Anchored file deleted: src/old-module.ts
+   - [DECISION] Dependency removed: Memory references 'yup' but it is no longer in package.json
+   - [MEMORY] Anchored AST symbol deleted: initLegacyDB in src/db.ts
+   (Run an interactive AI orchestrator to resolve or mark them as [OBSOLETE])
+
+🧪 Running test suite...
+\`\`\`
+
+This prevents AI agents from hallucinating based on outdated decisions and keeps your knowledge base clean.
+
 ### \`aigit heal [options]\`
 Run your test suite, diagnose failures, and propose contextual fixes.
 
@@ -480,6 +548,7 @@ Add aigit to your AI IDE's MCP settings (e.g., Claude Desktop, Cursor):
 
 | Tool | Description |
 |------|-------------|
+| \`take_note\` | Instantly capture a context note or decision — supports \`issueRef\` for tracker linking |
 | \`commit_memory\` | Save a memory — auto-anchors to code symbols if filePath+lineNumber provided |
 | \`commit_decision\` | Log a decision — auto-resolves enclosing function/class via AST |
 | \`hydrate_context\` | Get branch-aware, symbol-enriched context prompt |

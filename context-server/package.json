@@ -1,6 +1,6 @@
 {
   "name": "aigit-core",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "AI Context Protocol Engine - Memory & State",
   "main": "dist/index.js",
   "scripts": {
@@ -12,7 +12,7 @@
     "db:migrate": "prisma migrate dev"
   },
   "bin": {
-    "aigit": "./dist/cli/index.js"
+    "aigit": "dist/cli/index.js"
   },
   "files": [
     "dist",

@@ -122,6 +122,16 @@
       "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tcontext-server/.aigit/ledger.json\nM\tcontext-server/dist/cli/index.js\nM\tcontext-server/dist/db.js\nM\tcontext-server/dist/index.js\nM\tcontext-server/prisma/schema.prisma\nM\tcontext-server/src/cli/index.ts\nM\tcontext-server/src/db.ts\nM\tcontext-server/src/index.ts\nM\tfrontend/src/App.css\n\nStatistics:\ncontext-server/.aigit/ledger.json   | 10 ++++++++++\n context-server/dist/cli/index.js    |  7 ++++++-\n context-server/dist/db.js           |  2 ++\n context-server/dist/index.js        |  7 +++++--\n context-server/prisma/schema.prisma |  2 ++\n context-server/src/cli/index.ts     |  6 +++++-\n context-server/src/db.ts            |  2 ++\n context-server/src/index.ts         |  7 +++++--\n frontend/src/App.css                |  1 +\n 9 files changed, 38 insertions(+), 6 deletions(-)",
       "embedding": null,
       "createdAt": "2026-03-04T13:51:15.422Z"
+    },
+    {
+      "id": "a3df542a-a26c-4c06-87aa-436243c8fa13",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "capability",
+      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tcontext-server/package.json\nM\tfrontend/src/DocsPage.tsx\n\nStatistics:\ncontext-server/package.json |  6 ++--\n frontend/src/DocsPage.tsx   | 71 ++++++++++++++++++++++++++++++++++++++++++++-\n 2 files changed, 73 insertions(+), 4 deletions(-)",
+      "embedding": null,
+      "createdAt": "2026-03-04T14:08:25.688Z"
     }
   ]
 }
