@@ -37,40 +37,30 @@ aigit sync --skills
 #### 2. The Context-Aware Coding Loop (via MCP)
 The most powerful way to use aigit is **not** via the CLI, but as a background brain connected to your IDE.
 
-*   **Action**: You configure your AI IDE (Cursor, Windsurf, Claude) to connect to aigit's local **MCP Server**.
-*   **Result**: When you ask your IDE, *"Why did we choose Redis over Postgres for this feature?"*, the IDE doesn't just guess. It uses the MCP server to query aigit's Time-Traveling Semantic Ledger, fetching the exact architectural decision you recorded 3 weeks ago.
+Simply **configure your AI IDE** (Cursor, Windsurf, Claude) to connect to aigit's local **MCP Server**. When you ask your IDE, *"Why did we choose Redis over Postgres for this feature?"*, the IDE doesn't just guess. It actively queries aigit's Time-Traveling Semantic Ledger, fetching the exact architectural decision you recorded weeks ago.
 
 #### 3. Continuous Semantic Memory (Invisible Documentation)
 Developers hate writing documentation. aigit handles it invisibly.
 
-*   **Action**: You commit code normally.
+When you **commit code normally**:
     \`\`\`bash
     git commit -m "feat: setup auth"
     \`\`\`
-*   **Result**: The \`pre-commit\` hook seamlessly triggers \`aigit commit auto\`. It captures your commit message, diff stats, and file changes, embedding them directly into \`.aigit/ledger.json\`. 
-*   **Bonus**: Run \`aigit docs\` at any time to auto-generate a fresh, Mermaid-diagrammed \`ARCHITECTURE.md\` perfectly synced with your code.
+The \`pre-commit\` hook seamlessly triggers \`aigit commit auto\`. It automatically captures your commit message, diff stats, and file changes, embedding them directly into \`.aigit/ledger.json\`. You can even run \`aigit docs\` at any time to generate a fresh, Mermaid-diagrammed \`ARCHITECTURE.md\` perfectly synced with your code.
 
 #### 4. The "Guardian" pre-push Hook (Self-Healing)
 Before pushing broken code or vulnerable dependencies to GitHub, aigit acts as a local CI guardian.
 
-*   **Action**: You run \`git push\`.
-*   **Result**: The custom \`pre-push\` hook triggers \`npx aigit heal\`.
-*   **Workflow**: 
-    1. It runs your test suite. 
-    2. If a test fails, it captures the stack trace.
-    3. It parses your AST to map the failure to specific functions.
-    4. It queries the \`ledger.json\` to see if this bug has been fixed before.
-    5. It prints a **Healing Plan** detailing exactly how to fix the bug, or if you run \`aigit heal --auto\`, it automatically patches the code and commits the fix for you before pushing.
+When you run \`git push\`, the custom \`pre-push\` hook triggers \`npx aigit heal\`. This initiates a workflow that runs your test suite, captures stack traces from failures, and parses your AST to map failures to specific functions. It queries \`ledger.json\` to see if the bug has been fixed before, then prints a **Healing Plan** detailing exactly how to fix it. If you run \`aigit heal --auto\`, it automatically patches the code and commits the fix before pushing.
 
 #### 5. Multi-Agent Swarm Orchestration (For Complex Tasks)
 When a task is too big for a single prompt, you bring in the Swarm.
 
-*   **Action**: You run \`aigit swarm\`.
+Simply run the **aigit swarm** command:
     \`\`\`bash
     aigit swarm "Build the JWT authentication middleware"
     \`\`\`
-*   **Result**: It spins up specialized agents (e.g., frontend, backend, security).
-*   **Workflow**: The Architect outlines the database schema, the Security Auditor reviews it for vulnerabilities, and the Frontend Specialist waits for the API to be approved before generating React components. They talk to each other over the local message bus, resolving architectural conflicts autonomously.`
+It instantly spins up specialized agents (e.g., frontend, backend, security). The Architect outlines the schema, the Security Auditor reviews it for vulnerabilities, and the Frontend Specialist generates components once the API is approved. They communicate over a local message bus, resolving architectural conflicts autonomously.`
   },
   {
     id: 'quickstart',
