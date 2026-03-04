@@ -152,6 +152,7 @@ function LandingPage() {
 
 import { FeedbackPage } from './FeedbackPage'
 import NotFoundPage from './NotFoundPage'
+import { Analytics } from '@vercel/analytics/react'
 
 function App() {
     return (
@@ -164,6 +165,7 @@ function App() {
                     <Route path="/feedback" element={<FeedbackPage />} />
                     <Route path="*" element={<NotFoundPage />} />
                 </Routes>
+                <Analytics />
             </div>
         </BrowserRouter>
     )
