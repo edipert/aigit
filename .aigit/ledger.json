@@ -92,6 +92,16 @@
       "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tcontext-server/.aigit/ledger.json\nM\tcontext-server/dist/cli/index.js\nM\tcontext-server/dist/index.js\nM\tcontext-server/src/index.ts\n\nStatistics:\ncontext-server/.aigit/ledger.json | 10 ++++++++++\n context-server/dist/cli/index.js  | 40 +++++++++++++++++++++++++++++++++++++++\n context-server/dist/index.js      | 31 ++++++++++++++++++++++++++++++\n context-server/src/index.ts       | 35 ++++++++++++++++++++++++++++++++++\n 4 files changed, 116 insertions(+)",
       "embedding": null,
       "createdAt": "2026-03-04T13:08:19.262Z"
+    },
+    {
+      "id": "d0c5e229-f098-4864-b39d-e1a6e4b0e602",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "capability",
+      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tcontext-server/.aigit/ledger.json\nA\tcontext-server/dist/diagnostics/drift.js\nM\tcontext-server/dist/healing/runner.js\nM\tcontext-server/package-lock.json\nM\tcontext-server/package.json\nA\tcontext-server/src/diagnostics/drift.ts\nM\tcontext-server/src/healing/runner.ts\n\nStatistics:\ncontext-server/.aigit/ledger.json        |  10 +++\n context-server/dist/diagnostics/drift.js | 131 ++++++++++++++++++++++++++++\n context-server/dist/healing/runner.js    |  20 +++++\n context-server/package-lock.json         |   4 +-\n context-server/package.json              |   2 +-\n context-server/src/diagnostics/drift.ts  | 145 +++++++++++++++++++++++++++++++\n context-server/src/healing/runner.ts     |  20 +++++\n 7 files changed, 329 insertions(+), 3 deletions(-)",
+      "embedding": null,
+      "createdAt": "2026-03-04T13:23:37.109Z"
     }
   ]
 }

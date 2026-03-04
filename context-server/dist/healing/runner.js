@@ -9,6 +9,7 @@ const db_1 = require("../db");
 const git_1 = require("../cli/git");
 const diagnosis_1 = require("./diagnosis");
 const strategy_1 = require("./strategy");
+const drift_1 = require("../diagnostics/drift");
 /**
  * Run the test suite and capture output.
  */
@@ -34,6 +35,25 @@ function runTestSuite(workspacePath, cmd) {
  */
 async function healFromTestFailure(workspacePath, options = {}) {
     const branch = (0, git_1.getActiveBranch)(workspacePath);
+    // Step 0: Run Semantic Drift Detection
+    if (!options.quiet) {
+        try {
+            const driftReport = await (0, drift_1.detectContextDrift)(workspacePath);
+            if (driftReport.staleCount > 0) {
+                console.log(`\n🧹 Context Drift Detected: Found ${driftReport.staleCount} stale architectural memories.`);
+                for (const item of driftReport.staleItems.slice(0, 3)) {
+                    console.log(`   - [${item.type.toUpperCase()}] ${item.reason}`);
+                }
+                if (driftReport.staleCount > 3) {
+                    console.log(`   ...and ${driftReport.staleCount - 3} more.`);
+                }
+                console.log(`   (Run an interactive AI orchestrator to resolve or mark them as [OBSOLETE])\n`);
+            }
+        }
+        catch (error) {
+            // fail silently on diagnostic errors
+        }
+    }
     // Step 1: Run the test suite
     if (!options.quiet)
         console.log('\n🧪 Running test suite...\n');

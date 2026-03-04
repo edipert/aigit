@@ -32,6 +32,16 @@
       "content": "Testing the new human capture functionality",
       "embedding": null,
       "createdAt": "2026-03-04T13:04:18.963Z"
+    },
+    {
+      "id": "61ef00dc-7ee0-46ff-bd67-6496851315ac",
+      "projectId": "c958b6ca-330d-412f-948d-4062e316803e",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Decided to use yup for validation here",
+      "embedding": null,
+      "createdAt": "2026-03-04T13:17:22.501Z"
     }
   ]
 }

@@ -3,6 +3,7 @@ import { prisma } from '../db';
 import { getActiveBranch } from '../cli/git';
 import { diagnoseTestFailure, Diagnosis } from './diagnosis';
 import { buildHealingPlan, formatHealReport, HealingPlan } from './strategy';
+import { detectContextDrift } from '../diagnostics/drift';
 
 export interface HealOptions {
     cmd?: string;
@@ -46,6 +47,25 @@ export async function healFromTestFailure(
     options: HealOptions = {}
 ): Promise<HealResult> {
     const branch = getActiveBranch(workspacePath);
+
+    // Step 0: Run Semantic Drift Detection
+    if (!options.quiet) {
+        try {
+            const driftReport = await detectContextDrift(workspacePath);
+            if (driftReport.staleCount > 0) {
+                console.log(`\n🧹 Context Drift Detected: Found ${driftReport.staleCount} stale architectural memories.`);
+                for (const item of driftReport.staleItems.slice(0, 3)) {
+                    console.log(`   - [${item.type.toUpperCase()}] ${item.reason}`);
+                }
+                if (driftReport.staleCount > 3) {
+                    console.log(`   ...and ${driftReport.staleCount - 3} more.`);
+                }
+                console.log(`   (Run an interactive AI orchestrator to resolve or mark them as [OBSOLETE])\n`);
+            }
+        } catch (error) {
+            // fail silently on diagnostic errors
+        }
+    }
 
     // Step 1: Run the test suite
     if (!options.quiet) console.log('\n🧪 Running test suite...\n');
