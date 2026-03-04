@@ -47,7 +47,7 @@ Developers hate writing documentation. aigit handles it invisibly.
     \`\`\`bash
     git commit -m "feat: setup auth"
     \`\`\`
-*   **Result**: The \`post-commit\` hook seamlessly triggers \`aigit commit auto\`. It captures your commit message, diff stats, and file changes, embedding them directly into \`.aigit/ledger.json\`. 
+*   **Result**: The \`pre-commit\` hook seamlessly triggers \`aigit commit auto\`. It captures your commit message, diff stats, and file changes, embedding them directly into \`.aigit/ledger.json\`. 
 *   **Bonus**: Run \`aigit docs\` at any time to auto-generate a fresh, Mermaid-diagrammed \`ARCHITECTURE.md\` perfectly synced with your code.
 
 #### 4. The "Guardian" pre-push Hook (Self-Healing)
@@ -100,7 +100,7 @@ To ensure your memory stays perfectly synchronized with your branch changes:
 \`\`\`bash
 aigit init-hook
 \`\`\`
-This installs native \`post-commit\`, \`post-checkout\`, and \`pre-push\` hooks.
+This installs native \`pre-commit\`, \`post-checkout\`, and \`pre-push\` hooks.
 
 ### Start the MCP Server
 If you are using an AI IDE like Cursor or Windsurf, connect them to aigit's real-time memory by running:
