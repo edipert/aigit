@@ -1,12 +1,88 @@
 #!/usr/bin/env node
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 const hydration_1 = require("./hydration");
 const db_1 = require("../db");
+const Sentry = __importStar(require("@sentry/node"));
+const posthog_node_1 = require("posthog-node");
+const client = new posthog_node_1.PostHog(process.env.AIGIT_POSTHOG_KEY || 'phc_2iR7j4Lw6qjUzvA3aJwR9GvK0pA7dJt5Rk1Y1L2mNn3', { host: 'https://us.i.posthog.com' });
+// Initialize Sentry with strict strict privacy controls
+Sentry.init({
+    dsn: process.env.AIGIT_SENTRY_DSN || 'https://ebddaa251f22aa52a225de9c322b7a8a@o4508930438103040.ingest.us.sentry.io/4508930440331264', // Provide a default/fallback or expect it in env
+    tracesSampleRate: 1.0,
+    beforeSend(event) {
+        // Path scrubbing: remove the user's local directory paths from exceptions
+        const workspacePath = process.cwd();
+        const scrubbedEvent = JSON.parse(JSON.stringify(event));
+        const scrubString = (str) => str.split(workspacePath).join('[SECURE_WORKSPACE]');
+        if (scrubbedEvent.exception?.values) {
+            scrubbedEvent.exception.values.forEach((val) => {
+                if (val.value)
+                    val.value = scrubString(val.value);
+                if (val.stacktrace?.frames) {
+                    val.stacktrace.frames.forEach((frame) => {
+                        if (frame.filename)
+                            frame.filename = scrubString(frame.filename);
+                        if (frame.abs_path)
+                            frame.abs_path = scrubString(frame.abs_path);
+                    });
+                }
+            });
+        }
+        return scrubbedEvent;
+    },
+});
 const args = process.argv.slice(2);
 const command = args[0];
 async function main() {
     await (0, db_1.initializeDatabase)();
+    // Anonymous Telemetry (Respects DO_NOT_TRACK)
+    if (process.env.DO_NOT_TRACK !== '1' && process.env.DO_NOT_TRACK !== 'true') {
+        try {
+            client.capture({
+                distinctId: 'anonymous_cli_user',
+                event: 'cli_command_executed',
+                properties: { command }
+            });
+            await client.shutdown();
+        }
+        catch (e) {
+            // Silently fail telemetry if network issue
+        }
+    }
     if (command === 'hydrate') {
         const workspacePath = process.cwd();
         const activeFile = args[1];
@@ -612,6 +688,17 @@ Examples:
             `);
         }
     }
+    else if (command === 'telemetry') {
+        const sub = args[1];
+        if (sub === 'off') {
+            console.log('🛑 [aigit telemetry] To opt-out of anonymous usage data, set the standard environment variable:');
+            console.log('\n   export DO_NOT_TRACK=1\n');
+            console.log('You can add this to your ~/.bashrc or ~/.zshrc file to make it permanent.');
+        }
+        else {
+            console.log('aigit telemetry off  — Show instructions to disable anonymous usage tracking');
+        }
+    }
     else {
         console.log(`
 aigit — The AI Context Engine for Git
@@ -659,6 +746,9 @@ Self-Healing Codebases:
   heal status                   List test-failure healing history
   deps                          Audit npm dependencies & correlate with past context
   deps --auto                   Auto-branch and fix vulnerabilities
+  
+Other:
+  telemetry off                 Show instructions to disable anonymous usage tracking
         `);
     }
 }

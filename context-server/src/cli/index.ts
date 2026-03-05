@@ -2,12 +2,59 @@
 
 import { compileHydratedContext } from './hydration';
 import { initializeDatabase, prisma } from '../db';
+import * as Sentry from '@sentry/node';
+import { PostHog } from 'posthog-node';
+
+const client = new PostHog(
+    process.env.AIGIT_POSTHOG_KEY || 'phc_2iR7j4Lw6qjUzvA3aJwR9GvK0pA7dJt5Rk1Y1L2mNn3',
+    { host: 'https://us.i.posthog.com' }
+);
+
+// Initialize Sentry with strict strict privacy controls
+Sentry.init({
+    dsn: process.env.AIGIT_SENTRY_DSN || 'https://b7b2bf74b578153299cf94bc66e89175@o4510993965907968.ingest.de.sentry.io/4510993978490960', // Provided by user
+    tracesSampleRate: 1.0,
+    beforeSend(event) {
+        // Path scrubbing: remove the user's local directory paths from exceptions
+        const workspacePath = process.cwd();
+        const scrubbedEvent = JSON.parse(JSON.stringify(event));
+
+        const scrubString = (str: string) => str.split(workspacePath).join('[SECURE_WORKSPACE]');
+
+        if (scrubbedEvent.exception?.values) {
+            scrubbedEvent.exception.values.forEach((val: any) => {
+                if (val.value) val.value = scrubString(val.value);
+                if (val.stacktrace?.frames) {
+                    val.stacktrace.frames.forEach((frame: any) => {
+                        if (frame.filename) frame.filename = scrubString(frame.filename);
+                        if (frame.abs_path) frame.abs_path = scrubString(frame.abs_path);
+                    });
+                }
+            });
+        }
+        return scrubbedEvent;
+    },
+});
 
 const args = process.argv.slice(2);
 const command = args[0];
 
 async function main() {
     await initializeDatabase();
+
+    // Anonymous Telemetry (Respects DO_NOT_TRACK)
+    if (process.env.DO_NOT_TRACK !== '1' && process.env.DO_NOT_TRACK !== 'true') {
+        try {
+            client.capture({
+                distinctId: 'anonymous_cli_user',
+                event: 'cli_command_executed',
+                properties: { command }
+            });
+            await client.shutdown();
+        } catch (e) {
+            // Silently fail telemetry if network issue
+        }
+    }
 
     if (command === 'hydrate') {
         const workspacePath = process.cwd();
@@ -612,6 +659,15 @@ Examples:
             `);
         }
 
+    } else if (command === 'telemetry') {
+        const sub = args[1];
+        if (sub === 'off') {
+            console.log('🛑 [aigit telemetry] To opt-out of anonymous usage data, set the standard environment variable:');
+            console.log('\n   export DO_NOT_TRACK=1\n');
+            console.log('You can add this to your ~/.bashrc or ~/.zshrc file to make it permanent.');
+        } else {
+            console.log('aigit telemetry off  — Show instructions to disable anonymous usage tracking');
+        }
     } else {
         console.log(`
 aigit — The AI Context Engine for Git
@@ -659,6 +715,9 @@ Self-Healing Codebases:
   heal status                   List test-failure healing history
   deps                          Audit npm dependencies & correlate with past context
   deps --auto                   Auto-branch and fix vulnerabilities
+  
+Other:
+  telemetry off                 Show instructions to disable anonymous usage tracking
         `);
     }
 }

@@ -14,134 +14,34 @@
   "decisions": [],
   "memories": [
     {
-      "id": "135a4f6c-f92a-4409-b0ee-e6a1dabcc04d",
+      "id": "691f28c6-a7ba-4a7a-96cf-b6fe0dcb9dde",
       "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
       "sessionId": null,
       "gitBranch": "main",
       "type": "capability",
-      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tfrontend/src/App.css\nM\tfrontend/src/App.tsx\n\nStatistics:\nfrontend/src/App.css | 100 ++++++++++++++++++++++++++++++++++++++++-----------\n frontend/src/App.tsx |  20 +++++++----\n 2 files changed, 92 insertions(+), 28 deletions(-)",
+      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tcontext-server/dist/cli/index.js\nA\tcontext-server/dist/cli/index.test.js\nM\tcontext-server/package-lock.json\nM\tcontext-server/package.json\nA\tcontext-server/scan-db.js\nA\tcontext-server/src/cli/index.test.ts\nM\tcontext-server/src/cli/index.ts\nA\tcontext-server/vitest.config.ts\nM\tfrontend/src/FeedbackPage.tsx\n\nStatistics:\ncontext-server/dist/cli/index.js      |   90 ++\n context-server/dist/cli/index.test.js |   11 +\n context-server/package-lock.json      | 2286 ++++++++++++++++++++++++++++++++-\n context-server/package.json           |    8 +-\n context-server/scan-db.js             |    9 +\n context-server/src/cli/index.test.ts  |   10 +\n context-server/src/cli/index.ts       |   59 +\n context-server/vitest.config.ts       |    9 +\n frontend/src/FeedbackPage.tsx         |   13 +\n 9 files changed, 2464 insertions(+), 31 deletions(-)",
       "embedding": null,
-      "createdAt": "2026-03-04T10:17:05.567Z"
+      "createdAt": "2026-03-05T21:30:07.217Z"
     },
     {
-      "id": "db71f697-c61d-4d0c-9079-cb29175310dc",
+      "id": "40cd5a6e-3412-4ced-836c-62cf1a978e21",
       "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
       "sessionId": null,
       "gitBranch": "main",
       "type": "capability",
-      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tfrontend/src/DocsPage.tsx\n\nStatistics:\nfrontend/src/DocsPage.tsx | 4 ++--\n 1 file changed, 2 insertions(+), 2 deletions(-)",
+      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tcontext-server/dist/cli/index.js\nA\tcontext-server/dist/cli/index.test.js\nM\tcontext-server/package-lock.json\nM\tcontext-server/package.json\nA\tcontext-server/scan-db.js\nA\tcontext-server/src/cli/index.test.ts\nM\tcontext-server/src/cli/index.ts\nA\tcontext-server/vitest.config.ts\nM\tfrontend/src/main.tsx\n\nStatistics:\ncontext-server/dist/cli/index.js      |   90 ++\n context-server/dist/cli/index.test.js |   11 +\n context-server/package-lock.json      | 2286 ++++++++++++++++++++++++++++++++-\n context-server/package.json           |    8 +-\n context-server/scan-db.js             |    9 +\n context-server/src/cli/index.test.ts  |   10 +\n context-server/src/cli/index.ts       |   59 +\n context-server/vitest.config.ts       |    9 +\n frontend/src/main.tsx                 |   15 +-\n 9 files changed, 2463 insertions(+), 34 deletions(-)",
       "embedding": null,
-      "createdAt": "2026-03-04T10:21:11.219Z"
+      "createdAt": "2026-03-05T21:33:56.766Z"
     },
     {
-      "id": "32d4cfe8-e73a-4b53-a043-f63251f6e792",
+      "id": "e0696389-ada9-4846-b8df-61f2dab5936a",
       "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
       "sessionId": null,
       "gitBranch": "main",
       "type": "capability",
-      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tfrontend/src/DocsPage.tsx\n\nStatistics:\nfrontend/src/DocsPage.tsx | 104 ++++++++++++++++++++++++++--------------------\n 1 file changed, 59 insertions(+), 45 deletions(-)",
+      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tcontext-server/dist/cli/index.js\nA\tcontext-server/dist/cli/index.test.js\nM\tcontext-server/package-lock.json\nM\tcontext-server/package.json\nA\tcontext-server/scan-db.js\nA\tcontext-server/src/cli/index.test.ts\nM\tcontext-server/src/cli/index.ts\nA\tcontext-server/vitest.config.ts\n\nStatistics:\ncontext-server/dist/cli/index.js      |   90 ++\n context-server/dist/cli/index.test.js |   11 +\n context-server/package-lock.json      | 2286 ++++++++++++++++++++++++++++++++-\n context-server/package.json           |    8 +-\n context-server/scan-db.js             |    9 +\n context-server/src/cli/index.test.ts  |   10 +\n context-server/src/cli/index.ts       |   59 +\n context-server/vitest.config.ts       |    9 +\n 8 files changed, 2451 insertions(+), 31 deletions(-)",
       "embedding": null,
-      "createdAt": "2026-03-04T10:27:40.270Z"
-    },
-    {
-      "id": "28a2e63c-9dd7-4de6-9686-c83b30a69ece",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "capability",
-      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tfrontend/src/DocsPage.tsx\n\nStatistics:\nfrontend/src/DocsPage.tsx | 22 ++++++----------------\n 1 file changed, 6 insertions(+), 16 deletions(-)",
-      "embedding": null,
-      "createdAt": "2026-03-04T10:36:03.741Z"
-    },
-    {
-      "id": "22efbddb-3b88-4993-a1b8-7e887e2e00bd",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "capability",
-      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nA\tfrontend/vercel.json\n\nStatistics:\nfrontend/vercel.json | 8 ++++++++\n 1 file changed, 8 insertions(+)",
-      "embedding": null,
-      "createdAt": "2026-03-04T10:40:20.262Z"
-    },
-    {
-      "id": "51a44aeb-c00f-4823-bf79-52c30526878e",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "capability",
-      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tfrontend/index.html\nA\tfrontend/public/favicon.svg\n\nStatistics:\nfrontend/index.html         | 24 ++++++++++++++----------\n frontend/public/favicon.svg |  5 +++++\n 2 files changed, 19 insertions(+), 10 deletions(-)",
-      "embedding": null,
-      "createdAt": "2026-03-04T12:34:02.988Z"
-    },
-    {
-      "id": "74db332f-2c2a-405f-9aa2-9ff24124e297",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "capability",
-      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tcontext-server/src/cli/index.ts\n\nStatistics:\ncontext-server/src/cli/index.ts | 44 +++++++++++++++++++++++++++++++++++++++++\n 1 file changed, 44 insertions(+)",
-      "embedding": null,
-      "createdAt": "2026-03-04T13:05:50.642Z"
-    },
-    {
-      "id": "dd12a000-4f74-4f5d-a309-4570c4be6c5b",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "capability",
-      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tcontext-server/.aigit/ledger.json\nM\tcontext-server/dist/cli/index.js\nM\tcontext-server/dist/index.js\nM\tcontext-server/src/index.ts\n\nStatistics:\ncontext-server/.aigit/ledger.json | 10 ++++++++++\n context-server/dist/cli/index.js  | 40 +++++++++++++++++++++++++++++++++++++++\n context-server/dist/index.js      | 31 ++++++++++++++++++++++++++++++\n context-server/src/index.ts       | 35 ++++++++++++++++++++++++++++++++++\n 4 files changed, 116 insertions(+)",
-      "embedding": null,
-      "createdAt": "2026-03-04T13:08:19.262Z"
-    },
-    {
-      "id": "d0c5e229-f098-4864-b39d-e1a6e4b0e602",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "capability",
-      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tcontext-server/.aigit/ledger.json\nA\tcontext-server/dist/diagnostics/drift.js\nM\tcontext-server/dist/healing/runner.js\nM\tcontext-server/package-lock.json\nM\tcontext-server/package.json\nA\tcontext-server/src/diagnostics/drift.ts\nM\tcontext-server/src/healing/runner.ts\n\nStatistics:\ncontext-server/.aigit/ledger.json        |  10 +++\n context-server/dist/diagnostics/drift.js | 131 ++++++++++++++++++++++++++++\n context-server/dist/healing/runner.js    |  20 +++++\n context-server/package-lock.json         |   4 +-\n context-server/package.json              |   2 +-\n context-server/src/diagnostics/drift.ts  | 145 +++++++++++++++++++++++++++++++\n context-server/src/healing/runner.ts     |  20 +++++\n 7 files changed, 329 insertions(+), 3 deletions(-)",
-      "embedding": null,
-      "createdAt": "2026-03-04T13:23:37.109Z"
-    },
-    {
-      "id": "ad8d0c40-ce26-4535-875a-95c5eb82e910",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "capability",
-      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nA\tcontext-server/dist/agents/storyteller.js\nM\tcontext-server/dist/cli/index.js\nA\tcontext-server/src/agents/storyteller.ts\nM\tcontext-server/src/cli/index.ts\n\nStatistics:\ncontext-server/dist/agents/storyteller.js | 60 +++++++++++++++++++++++++\n context-server/dist/cli/index.js          | 13 ++++++\n context-server/src/agents/storyteller.ts  | 74 +++++++++++++++++++++++++++++++\n context-server/src/cli/index.ts           | 13 ++++++\n 4 files changed, 160 insertions(+)",
-      "embedding": null,
-      "createdAt": "2026-03-04T13:30:27.613Z"
-    },
-    {
-      "id": "e4780882-6080-4838-ad76-2bc8fe630c7b",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "capability",
-      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tcontext-server/.aigit/ledger.json\nM\tcontext-server/dist/cli/index.js\nM\tcontext-server/dist/db.js\nM\tcontext-server/dist/index.js\nM\tcontext-server/prisma/schema.prisma\nM\tcontext-server/src/cli/index.ts\nM\tcontext-server/src/db.ts\nM\tcontext-server/src/index.ts\nM\tfrontend/src/App.css\n\nStatistics:\ncontext-server/.aigit/ledger.json   | 10 ++++++++++\n context-server/dist/cli/index.js    |  7 ++++++-\n context-server/dist/db.js           |  2 ++\n context-server/dist/index.js        |  7 +++++--\n context-server/prisma/schema.prisma |  2 ++\n context-server/src/cli/index.ts     |  6 +++++-\n context-server/src/db.ts            |  2 ++\n context-server/src/index.ts         |  7 +++++--\n frontend/src/App.css                |  1 +\n 9 files changed, 38 insertions(+), 6 deletions(-)",
-      "embedding": null,
-      "createdAt": "2026-03-04T13:51:15.422Z"
-    },
-    {
-      "id": "a3df542a-a26c-4c06-87aa-436243c8fa13",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "capability",
-      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tcontext-server/package.json\nM\tfrontend/src/DocsPage.tsx\n\nStatistics:\ncontext-server/package.json |  6 ++--\n frontend/src/DocsPage.tsx   | 71 ++++++++++++++++++++++++++++++++++++++++++++-\n 2 files changed, 73 insertions(+), 4 deletions(-)",
-      "embedding": null,
-      "createdAt": "2026-03-04T14:08:25.688Z"
-    },
-    {
-      "id": "deb9323f-430f-440f-b894-6b2cd615c5c6",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "capability",
-      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nD\tfrontend/dist/assets/index-BvcMZHEx.js\nD\tfrontend/dist/assets/index-mep9DjFs.css\nM\tfrontend/dist/index.html\nM\tfrontend/package-lock.json\nM\tfrontend/package.json\nM\tfrontend/src/App.tsx\nM\tfrontend/src/main.tsx\nA\tfrontend/src/vite-env.d.ts\n\nStatistics:\nfrontend/dist/assets/index-BvcMZHEx.js  | 403 --------------------------------\n frontend/dist/assets/index-mep9DjFs.css |   1 -\n frontend/dist/index.html                |  26 ++-\n frontend/package-lock.json              | 127 ++++++++++\n frontend/package.json                   |   2 +\n frontend/src/App.tsx                    |   2 +\n frontend/src/main.tsx                   |  12 +\n frontend/src/vite-env.d.ts              |   9 +\n 8 files changed, 167 insertions(+), 415 deletions(-)",
-      "embedding": null,
-      "createdAt": "2026-03-05T20:24:14.550Z"
+      "createdAt": "2026-03-05T21:11:18.022Z"
     }
   ]
 }
