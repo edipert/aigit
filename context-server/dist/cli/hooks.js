@@ -40,7 +40,9 @@ npx --no-install aigit load || npx --no-install aigit load || true
 # Evaluates staged files to auto-generate context memory, then serializes memory into the Git-tracked ledger before committing.
 
 echo "[aigit] Generating AI-readable context for staged files..."
-npx --no-install aigit commit staged || true
+if ! npx --no-install aigit commit staged; then
+    exit 1
+fi
 
 echo "[aigit] Serializing active memory into ledger.json..."
 npx --no-install aigit dump || npx --no-install aigit dump || true

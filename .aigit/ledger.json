@@ -182,6 +182,26 @@
       "content": "Implemented strict non-bypassable git hooks. Replaced interactive TTY prompts with a hard process.exit(1) block to forcefully prevent AI agents from skipping semantic commit requirements.",
       "embedding": null,
       "createdAt": "2026-03-07T22:40:09.089Z"
+    },
+    {
+      "id": "0f566571-ee73-49ea-8dab-f25a2609f0e0",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Testing the smart hybrid fallback path.",
+      "embedding": null,
+      "createdAt": "2026-03-07T22:49:43.908Z"
+    },
+    {
+      "id": "6c5435ad-254d-4fcf-9ec3-433714daa419",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Replaced the strict commit hard-block with a Smart Hybrid TTY check. Human devs are seamlessly prompted inline for a semantic summary to save their commit momentum, while headless AI agents are strictly blocked to enforce compliance.",
+      "embedding": null,
+      "createdAt": "2026-03-07T22:50:09.192Z"
     }
   ]
 }

@@ -668,6 +668,62 @@ Commands:
                     console.log(`   └─ Found recent Agent-authored memory: "${recentAgentMemory.content.slice(0, 50)}..."`);
                     process.exit(0);
                 }
+                else {
+                    let isTTY = false;
+                    try {
+                        const fs = require('fs');
+                        fs.accessSync('/dev/tty', fs.constants.R_OK | fs.constants.W_OK);
+                        isTTY = true;
+                    }
+                    catch (e) {
+                        isTTY = false;
+                    }
+                    if (isTTY) {
+                        const fs = require('fs');
+                        const ttyFd = fs.openSync('/dev/tty', 'rs+');
+                        fs.writeSync(ttyFd, `\n[Aigit] No semantic memory detected for this commit.\n`);
+                        fs.writeSync(ttyFd, `[Aigit] Please briefly summarize the architectural changes you made (or press ENTER to abort):\n> `);
+                        let summary = '';
+                        const buffer = Buffer.alloc(1);
+                        while (true) {
+                            const bytesRead = fs.readSync(ttyFd, buffer, 0, 1, null);
+                            if (bytesRead === 0 || buffer[0] === 10 || buffer[0] === 13) {
+                                break;
+                            }
+                            summary += buffer.toString('utf8');
+                        }
+                        fs.closeSync(ttyFd);
+                        const trimmedSummary = summary.trim();
+                        if (!trimmedSummary) {
+                            console.error(`\n🛑 [Aigit] Commit aborted. Semantic summary is required.\n`);
+                            process.exit(1);
+                        }
+                        console.log(`\n[Aigit] Saving semantic memory...`);
+                        const { execSync } = require('child_process');
+                        try {
+                            const safeSummary = trimmedSummary.replace(/"/g, '\\"');
+                            execSync(`npx --no-install aigit commit memory "${safeSummary}"`, { stdio: 'inherit' });
+                            console.log(`⏭️  [aigit commit] Resuming git commit...\n`);
+                            process.exit(0);
+                        }
+                        catch (err) {
+                            console.error(`🛑 [Aigit] Failed to save semantic memory.`);
+                            process.exit(1);
+                        }
+                    }
+                    else {
+                        console.error(`\n======================================================`);
+                        console.error(`🛑 [Aigit] ERROR: Agent-Driven Commit Summaries are REQUIRED.`);
+                        console.error(`======================================================`);
+                        console.error(`To maintain a clean and token-efficient semantic ledger, you`);
+                        console.error(`are not allowed to generate noisy raw 'git diff' payloads.\n`);
+                        console.error(`🤖 AI Agents & Developers MUST run this command FIRST:\n`);
+                        console.error(`   aigit commit memory "<semantic architectural summary>"\n`);
+                        console.error(`Please run the command above, then try your 'git commit' again.`);
+                        console.error(`======================================================\n`);
+                        process.exit(1);
+                    }
+                }
                 // Get the list of staged files and their status (A, M, D, etc.)
                 const fileChanges = execSync('git diff --cached --name-status').toString().trim();
                 if (!fileChanges) {
