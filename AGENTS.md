@@ -139,6 +139,7 @@ When user's prompt is NOT in English:
 - Do NOT rely on the raw git diff hook. 
 - You wrote the code, so you must summarize the architectural intent before committing.
 - **Action:** Run `aigit commit memory "<dense 2-sentence architectural summary of changes>"` right before running `git commit`.
+- **⚠️ FATAL CONSEQUENCE:** The project has a strict `isTTY` Git hook installed. Because you run headless, if you attempt to run `git commit` without prior semantic memory, the hook will instantly detect you are an AI and **fatally abort your commit** with `process.exit(1)`. Do not skip this step or you will fail your task.
 
 ### 🏁 Final Checklist Protocol
 

@@ -212,6 +212,16 @@
       "content": "Updated the DocsPage frontend to detail the new Smart Hybrid Commit Enforcement approach for pre-commit hooks.",
       "embedding": null,
       "createdAt": "2026-03-07T22:57:45.226Z"
+    },
+    {
+      "id": "74cefc04-fbdd-4c98-a0c8-072f9e7d0b35",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Added explicit 'FATAL CONSEQUENCE' warnings directly into the AI agent prompt files (AGENTS.md, GEMINI.md). This ensures headless AI agents are aware of the strict isTTY git hook and do not waste tokens attempting raw git commits.",
+      "embedding": null,
+      "createdAt": "2026-03-07T23:18:10.745Z"
     }
   ]
 }
