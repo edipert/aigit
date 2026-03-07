@@ -1,0 +1,9 @@
+{
+    "name": "aigit-monorepo",
+    "version": "1.0.0",
+    "private": true,
+    "description": "Root workspace to execute tests across sub-packages",
+    "scripts": {
+        "test": "npm test --prefix context-server"
+    }
+}

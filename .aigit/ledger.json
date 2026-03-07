@@ -232,6 +232,16 @@
       "content": "Documented the new Smart Hybrid Git Hooks in both the main README and the context-server README to highlight the split AI/Human developer experience.",
       "embedding": null,
       "createdAt": "2026-03-07T23:23:26.910Z"
+    },
+    {
+      "id": "9ec96b6b-6f43-4788-88aa-924bb7dfa056",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Added a root package.json router to allow 'npm test' to correctly trigger child package tests, enabling the local CI 'aigit heal' workflow on pre-push.",
+      "embedding": null,
+      "createdAt": "2026-03-07T23:33:57.189Z"
     }
   ]
 }
