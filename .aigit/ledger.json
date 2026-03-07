@@ -242,6 +242,16 @@
       "content": "Added a root package.json router to allow 'npm test' to correctly trigger child package tests, enabling the local CI 'aigit heal' workflow on pre-push.",
       "embedding": null,
       "createdAt": "2026-03-07T23:33:57.189Z"
+    },
+    {
+      "id": "57fa7b0c-c97a-4941-a118-76b85dc56755",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Bumped aigit-core version to 1.1.3 to release the new Smart Hybrid Git Hooks (pre-commit  logic) to the npm registry.",
+      "embedding": null,
+      "createdAt": "2026-03-07T23:37:02.214Z"
     }
   ]
 }
