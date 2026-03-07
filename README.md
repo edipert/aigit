@@ -7,6 +7,7 @@ Stop copying and pasting the same prompts. Hook your AI's brain natively into a 
 ## 🌟 Key Features
 
 *   **Branch-Aware Memory:** Just as `git` tracks code, `aigit` tracks the decisions, architectural notes, and semantic memories bound to a specific Git branch. AI agents no longer pollute the main context with exploratory feature work.
+*   **Smart Hybrid Git Hooks:** The `pre-commit` hook intelligently detects who is committing. AI Agents (headless) are strictly blocked from committing without semantic summaries to enforce compliance, while Human Developers are seamlessly paused inline for a quick summary without losing their terminal momentum.
 *   **Semantic Parity:** Evolve your architecture collaboratively. `aigit merge feature/auth main` carries the AI's learned intelligence back into the trunk just like code.
 *   **Conflict Checking:** See if an AI agent on a feature branch logged divergent architectural decisions before executing physical `git pull` commands. (`aigit check-conflicts`)
 *   **Seamless Sync (`dump` & `load`):** `aigit` serializes binary vectors into flat `ledger.json` structures, integrating out-of-the-box with `.git/hooks`. Check out a different branch, and your AI context instantly repopulates inline.

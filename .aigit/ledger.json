@@ -222,6 +222,16 @@
       "content": "Added explicit 'FATAL CONSEQUENCE' warnings directly into the AI agent prompt files (AGENTS.md, GEMINI.md). This ensures headless AI agents are aware of the strict isTTY git hook and do not waste tokens attempting raw git commits.",
       "embedding": null,
       "createdAt": "2026-03-07T23:18:10.745Z"
+    },
+    {
+      "id": "48f0016f-e7af-4bef-85c0-983380348359",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Documented the new Smart Hybrid Git Hooks in both the main README and the context-server README to highlight the split AI/Human developer experience.",
+      "embedding": null,
+      "createdAt": "2026-03-07T23:23:26.910Z"
     }
   ]
 }
