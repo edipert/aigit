@@ -103,10 +103,18 @@ export async function generateArchitectureDocs(projectName: string, branch: stri
         md += `*No tasks recorded yet.*\n\n`;
     } else {
         tasks.forEach(task => {
-            const statusIcon = task.status === 'DONE' ? '✅' : task.status === 'BLOCKED' ? '⚠️' : '🔄';
+            const statusIcon =
+                task.status === 'DONE' ? '✅' :
+                task.status === 'BLOCKED' ? '⚠️' :
+                task.status === 'CANCELLED' ? '❌' :
+                task.status === 'PLANNING' ? '📋' :
+                task.status === 'REVIEW' ? '🔍' :
+                '🔄'; // IN_PROGRESS
             md += `### ${statusIcon} ${task.title} (\`${task.slug}\`)\n`;
             md += `- **Status**: ${task.status}\n`;
+            md += `- **Branch**: ${task.gitBranch}\n`;
             md += `- **Created**: ${task.createdAt.toISOString().split('T')[0]}\n`;
+            md += `- **Plan**: \`.aigit/tasks/${task.slug}.md\`\n`;
             if (task.decisions.length > 0) {
                 md += `- **Outcomes**:\n`;
                 task.decisions.forEach(d => {

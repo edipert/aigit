@@ -70,10 +70,16 @@ To truly master aigit, you should understand its advanced orchestration paradigm
 
 #### 📝 Working with Tasks (Agent Handoffs)
 When a feature is too complex for a single prompt, you need a task plan.
-1. **Create the Task**: Start by defining what needs to be built: \`aigit commit task "Implement User Dashboard"\`
-2. **Author the Plan**: Instruct your orchestrator agent to create a \`[task-slug].md\` file detailing the sub-tasks in your workspace.
-3. **The Handoff**: When Agent A (Orchestrator) finishes planning, they can hand off execution to Agent B (Frontend Specialist). Agent B queries the task status via MCP and resumes exactly where Agent A left off.
-4. **Update Status**: Keep the ledger in sync by running \`aigit update task <slug> DONE\` (or \`IN_PROGRESS\`, \`BLOCKED\`) as you progress.
+1. **Create the Task**: \`aigit commit task "Implement User Dashboard"\`  
+   This creates both a DB record **and** a plan file at \`.aigit/tasks/implement-user-dashboard.md\` with a pre-filled scaffold (Objective / Sub-tasks / Notes).
+2. **Author the Plan**: Open \`.aigit/tasks/{slug}.md\` and fill in the sub-tasks. Your agent can edit it directly like any other file.
+3. **Generate the Handoff Block**: Run \`aigit handoff implement-user-dashboard\` to get a copy-paste context block for Agent B — includes task metadata, the plan file inline, last 5 memories, last 5 decisions, and pre-built MCP tool calls with the real project ID.
+4. **Update Status**: Keep the ledger in sync as you progress:
+\`\`\`bash
+aigit update task implement-user-dashboard IN_PROGRESS
+aigit update task implement-user-dashboard DONE
+# Statuses: PLANNING | IN_PROGRESS | REVIEW | DONE | BLOCKED | CANCELLED
+\`\`\`
 
 #### 🐝 Working with Swarm (Multi-Agent Orchestration)
 When a task requires disparate domains of expertise simultaneously, you bring in the Swarm.
@@ -127,27 +133,65 @@ npm install -g aigit-core
 npx aigit-core init
 \`\`\`
 
-### Initialize Semantic DB
+### Initialize with the Setup Wizard
 Navigate to any git repository and run:
 \`\`\`bash
 aigit init
 \`\`\`
 
-This will create a lightweight local Vector DB (PGlite) in the \`.aigit/\` folder to store your project's semantic memory.
+The interactive wizard walks you through every step automatically:
 
-### Install Git Hooks
-To ensure your memory stays perfectly synchronized with your branch changes:
+\`\`\`
+🚀 aigit — Project Setup Wizard
+Setting up semantic memory for your AI coding workflow.
+
+✔ Project detected: my-app — My application
+✔ .aigit/ directory ready
+✔ Database ready (.aigit/memory.db)
+✔ Project created   ID: abc123-...
+✔ Git hooks installed (semantic commit enforcement)
+✔ .gitignore already excludes memory.db
+
+─────────────────────────────────────────────────
+  ✅  aigit initialized! What to do next:
+─────────────────────────────────────────────────
+
+1. Add aigit to your AI tool's MCP config
+   { mcpServers: { aigit: { command: "aigit", args: ["mcp", "/path/to/project"] } } }
+
+2. Give your agent context on day 1
+   Prompt: "Call get_hydrated_context, then commit a memory
+            summarizing this codebase's architecture."
+
+3. Track your first task
+   $ aigit commit task "My First Feature"
+   $ aigit handoff my-first-feature
+
+4. Build your knowledge graph
+   $ aigit docs   → ARCHITECTURE.md
+
+Your Project ID: abc123-...
+\`\`\`
+
+### Hooks Only (optional)
+If you already have a DB and only need to reinstall the git hooks:
 \`\`\`bash
 aigit init-hook
 \`\`\`
 This installs native \`pre-commit\`, \`post-checkout\`, and \`pre-push\` hooks.
 
 ### Start the MCP Server
-If you are using an AI IDE like Cursor or Windsurf, connect them to aigit's real-time memory by running:
+Connect aigit to your AI IDE:
 \`\`\`bash
+# All tools (default)
 aigit mcp
+
+# Focused profile — fewer tools, faster routing
+aigit mcp --profile core     # semantic memory only
+aigit mcp --profile swarm    # multi-agent orchestration
+aigit mcp --profile ops      # healing, deps, security
 \`\`\`
-Then, add the local server URL to your IDE's MCP configuration.`
+Then add to Claude Desktop, Cursor, or Windsurf MCP config.`
   },
   {
     id: 'cli-core',
@@ -566,16 +610,14 @@ A dedicated adversarial AI profile (\`security-auditor\`) that hunts for loophol
   {
     id: 'mcp',
     title: 'MCP Integration',
-    content: `### Model Context Protocol
-
-aigit runs as an MCP server, making your semantic memory available to any MCP-compatible AI tool.
-
-### CLI Command
-
-You can run the MCP server directly from the terminal for testing or standalone use:
+    content: `### MCP Server Profiles
+Run the MCP server with a focused subset of tools to reduce noise and improve agent routing:
 
 \`\`\`bash
-aigit mcp
+aigit mcp --profile core    # 13 tools: semantic memory, context, AST
+aigit mcp --profile swarm   # 12 tools: multi-agent orchestration
+aigit mcp --profile ops     # 8 tools: healing, deps, security
+aigit mcp                   # all tools (default)
 \`\`\`
 
 ### IDE Configuration
@@ -587,8 +629,7 @@ Add aigit to your AI IDE's MCP settings (e.g., Claude Desktop, Cursor):
   "mcpServers": {
     "aigit": {
       "command": "aigit",
-      "args": ["mcp"],
-      "cwd": "/path/to/your/project"
+      "args": ["mcp", "/path/to/your/project"]
     }
   }
 }
@@ -601,7 +642,9 @@ Add aigit to your AI IDE's MCP settings (e.g., Claude Desktop, Cursor):
 | \`take_note\` | Instantly capture a context note or decision — supports \`issueRef\` for tracker linking |
 | \`commit_memory\` | Save a memory — auto-anchors to code symbols if filePath+lineNumber provided |
 | \`commit_decision\` | Log a decision — auto-resolves enclosing function/class via AST |
-| \`hydrate_context\` | Get branch-aware, symbol-enriched context prompt |
+| \`commit_task\` | Create a new task stub — writes DB record + .aigit/tasks/{slug}.md plan file |
+| \`get_active_task_state\` | Get all active (non-done) tasks for a project — Agent B's first MCP call on handoff |
+| \`get_hydrated_context\` | Get branch-aware, symbol-enriched context prompt |
 | \`query_context\` | Semantic search across live project memory |
 | \`query_historical\` | Time-travel: query memory at a specific Git commit |
 | \`get_symbol_context\` | Get all linked context for a specific code symbol at file+line |
@@ -611,7 +654,6 @@ Add aigit to your AI IDE's MCP settings (e.g., Claude Desktop, Cursor):
 | \`check_conflicts\` | Detect semantic conflicts between branches before merging |
 | \`merge_context\` | Port context (memories, decisions, tasks) between branches |
 | \`scan_agents\` | Detect all AI coding tools configured in the workspace |
-| \`commit_task\` | Create a new task stub for context handoff |
 | \`get_project_history\` | Retrieve all memories and decisions for a project |
 | \`create_swarm\` | Create a multi-agent swarm session with sub-tasks |
 | \`register_agent\` | Register an agent into a swarm with a role |
@@ -624,7 +666,7 @@ Add aigit to your AI IDE's MCP settings (e.g., Claude Desktop, Cursor):
 | \`resolve_conflict\` | Resolve a conflict and resume the swarm |
 
 ### Supported Tools
-Cursor, Windsurf, Claude Code, Cline/Roo, VS Code with Copilot, and any tool supporting MCP.`
+Cursor, Windsurf, Claude Desktop, Claude Code, Cline/Roo, VS Code with Copilot, and any tool supporting MCP.`
   },
   /*
     {

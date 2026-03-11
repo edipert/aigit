@@ -1,27 +1,26 @@
 #!/usr/bin/env node
 
-import { compileHydratedContext } from './hydration';
-import { initializeDatabase, prisma, findWorkspaceRoot } from '../db';
 import * as Sentry from '@sentry/node';
-import { PostHog } from 'posthog-node';
+import * as os from 'os';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as os from 'os';
 import * as crypto from 'crypto';
+import { PostHog } from 'posthog-node';
 import { performance } from 'perf_hooks';
+import { Command } from 'commander';
+import { initializeDatabase, findWorkspaceRoot } from '../db';
+import { showTip } from './output';
 
-// Get CLI Version
+// ── Version ────────────────────────────────────────────────────
 let cliVersion = 'unknown';
 try {
     const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '../../package.json'), 'utf-8'));
     cliVersion = pkg.version || 'unknown';
-} catch (e) {
-    // Ignore if package.json not found
-}
+} catch { /* ignore */ }
 
+// ── Telemetry ──────────────────────────────────────────────────
 const POSTHOG_KEY = process.env.AIGIT_POSTHOG_KEY || 'phc_vgRl0mE57cbfKhECqT55sep3xVwggbmUvM82YK9781Y';
-const client = new PostHog(POSTHOG_KEY, { host: 'https://eu.i.posthog.com' });
-
+const phClient = new PostHog(POSTHOG_KEY, { host: 'https://eu.i.posthog.com' });
 const isTelemetryEnabled = process.env.DO_NOT_TRACK !== '1' && process.env.DO_NOT_TRACK !== 'true';
 
 function getOrGenerateTelemetryId(): string {
@@ -37,7 +36,7 @@ function getOrGenerateTelemetryId(): string {
         const distinctId = crypto.randomUUID();
         fs.writeFileSync(configFile, JSON.stringify({ distinctId }));
         return distinctId;
-    } catch (e) {
+    } catch {
         return 'anonymous_cli_user_fallback';
     }
 }
@@ -45,28 +44,20 @@ function getOrGenerateTelemetryId(): string {
 const TELEMETRY_ID = getOrGenerateTelemetryId();
 
 if (isTelemetryEnabled) {
-    client.identify({
+    phClient.identify({
         distinctId: TELEMETRY_ID,
-        properties: {
-            cli_version: cliVersion,
-            node_version: process.version,
-            os_platform: os.platform(),
-            os_release: os.release(),
-        }
+        properties: { cli_version: cliVersion, node_version: process.version, os_platform: os.platform(), os_release: os.release() },
     });
 }
 
-// Initialize Sentry with strict privacy controls
+// ── Sentry ─────────────────────────────────────────────────────
 Sentry.init({
-    dsn: process.env.AIGIT_SENTRY_DSN || 'https://b7b2bf74b578153299cf94bc66e89175@o4510993965907968.ingest.de.sentry.io/4510993978490960', // Provided by user
+    dsn: process.env.AIGIT_SENTRY_DSN || 'https://b7b2bf74b578153299cf94bc66e89175@o4510993965907968.ingest.de.sentry.io/4510993978490960',
     tracesSampleRate: 1.0,
     beforeSend(event) {
-        // Path scrubbing: remove the user's local directory paths from exceptions
         const workspacePath = findWorkspaceRoot(process.cwd());
         const scrubbedEvent = JSON.parse(JSON.stringify(event));
-
         const scrubString = (str: string) => str.split(workspacePath).join('[SECURE_WORKSPACE]');
-
         if (scrubbedEvent.exception?.values) {
             scrubbedEvent.exception.values.forEach((val: any) => {
                 if (val.value) val.value = scrubString(val.value);
@@ -82,864 +73,444 @@ Sentry.init({
     },
 });
 
-if (isTelemetryEnabled) {
-    Sentry.setUser({ id: TELEMETRY_ID });
-}
+if (isTelemetryEnabled) Sentry.setUser({ id: TELEMETRY_ID });
 
-const args = process.argv.slice(2);
-const command = args[0];
+// ── Helpers ────────────────────────────────────────────────────
+const startTime = performance.now();
 
-let startTime = performance.now();
-
-async function main() {
+async function run(commandName: string, action: () => Promise<void>) {
     await initializeDatabase();
 
-    // Anonymous Telemetry (Respects DO_NOT_TRACK)
-    if (isTelemetryEnabled) {
-        try {
-            client.capture({
-                distinctId: TELEMETRY_ID,
-                event: 'cli_command_executed',
-                properties: {
-                    command,
-                    cli_version: cliVersion,
-                    node_version: process.version,
-                    os_platform: os.platform(),
-                    os_release: os.release()
-                }
-            });
-        } catch (e) {
-            // Silently fail telemetry if network issue
-        }
-    }
-
-    if (command === 'hydrate') {
-        const workspacePath = findWorkspaceRoot(process.cwd());
-        const activeFile = args[1];
-        const context = await compileHydratedContext(workspacePath, activeFile);
-        console.log(context);
-    } else if (command === 'mcp') {
-        // Simply requiring the main index file kicks off the StdioServerTransport
-        require('../index');
-    } else if (command === 'init') {
-        const workspacePath = findWorkspaceRoot(process.cwd());
-        const { installGitHook } = require('./hooks');
-        installGitHook(workspacePath);
-        console.log('✅ aigit initialized. Hooks installed, .aigit/ directory ready.');
-    } else if (command === 'init-hook') {
-        const workspacePath = findWorkspaceRoot(process.cwd());
-        const { installGitHook } = require('./hooks');
-        installGitHook(workspacePath);
-    } else if (command === 'check-conflicts') {
-        const targetBranch = args[1] || 'main';
-        const workspacePath = findWorkspaceRoot(process.cwd());
-        const { checkContextConflicts } = require('./conflict');
-        await checkContextConflicts(workspacePath, targetBranch);
-    } else if (command === 'merge') {
-        const sourceBranch = args[1];
-        if (!sourceBranch) {
-            console.error('⚠️  Error: You must specify a source branch to merge from.');
-            console.log('Usage: aigit merge <source-branch> [target-branch]');
-            process.exit(1);
-        }
-        const targetBranch = args[2] || 'main';
-        const workspacePath = findWorkspaceRoot(process.cwd());
-        const { mergeContextBranches } = require('./merge');
-        await mergeContextBranches(workspacePath, sourceBranch, targetBranch);
-    } else if (command === 'dump') {
-        const workspacePath = findWorkspaceRoot(process.cwd());
-        const { dumpContextLedger } = require('./sync');
-        await dumpContextLedger(workspacePath);
-    } else if (command === 'load') {
-        const workspacePath = findWorkspaceRoot(process.cwd());
-        const { loadContextLedger } = require('./sync');
-        await loadContextLedger(workspacePath);
-    } else if (command === 'log') {
-        const workspacePath = findWorkspaceRoot(process.cwd());
-        const { showContextLog } = require('./history');
-        await showContextLog(workspacePath);
-    } else if (command === 'status') {
-        const workspacePath = findWorkspaceRoot(process.cwd());
-        const { showContextStatus } = require('./history');
-        await showContextStatus(workspacePath);
-    } else if (command === 'revert') {
-        const targetId = args[1];
-        if (!targetId) {
-            console.error('⚠️  Error: You must specify a Context ID to revert.');
-            console.log('Usage: aigit revert <context-id>');
-            process.exit(1);
-        }
-        const workspacePath = findWorkspaceRoot(process.cwd());
-        const { revertContextId } = require('./history');
-        await revertContextId(workspacePath, targetId);
-    } else if (command === 'scan') {
-        const workspacePath = findWorkspaceRoot(process.cwd());
-        const { detectAgents, printScanReport } = require('../agents/registry');
-        const agents = detectAgents(workspacePath);
-        printScanReport(agents);
-    } else if (command === 'sync') {
-        const workspacePath = findWorkspaceRoot(process.cwd());
-        const { syncAgents } = require('../agents/sync');
-        const dryRun = args.includes('--dry-run');
-        const skillsMigrate = args.includes('--skills');
-        const fromIdx = args.indexOf('--from');
-        const toIdx = args.indexOf('--to');
-        const from = fromIdx !== -1 ? args[fromIdx + 1] : undefined;
-        const to = toIdx !== -1 ? args[toIdx + 1] : undefined;
-
-        syncAgents(workspacePath, { dryRun, from, to });
-
-        if (skillsMigrate && !dryRun) {
-            const { migrateSkills } = require('../agents/migration');
-            const result = migrateSkills(workspacePath);
-            if (result.migrated.length > 0) {
-                console.log(`\n✅ Unified skills into .aigit/skills and created symlinks for:\n  - ${result.migrated.join('\n  - ')}\n`);
-            } else if (result.errors.length === 0) {
-                console.log('\n✅ No skill folders required migration.\n');
-            }
-            if (result.errors.length > 0) {
-                console.error('\n⚠️  Migration encountered errors:');
-                result.errors.forEach((err: string) => console.error(`  - ${err}`));
-                console.log();
-            }
-        }
-    } else if (command === 'conflicts') {
-        const workspacePath = findWorkspaceRoot(process.cwd());
-        const { loadConflicts, printConflicts } = require('../agents/conflicts');
-        const conflicts = loadConflicts(workspacePath);
-        printConflicts(conflicts);
-    } else if (command === 'query') {
-        const queryText = args[1];
-        if (!queryText) {
-            console.error('⚠️  Error: You must provide a query.');
-            console.log('Usage: aigit query "<question>" [--commit <hash>] [--top <n>]');
-            process.exit(1);
-        }
-        const workspacePath = findWorkspaceRoot(process.cwd());
-        const commitIdx = args.indexOf('--commit');
-        const topIdx = args.indexOf('--top');
-        const commitHash = commitIdx !== -1 ? args[commitIdx + 1] : undefined;
-        const topK = topIdx !== -1 ? Number(args[topIdx + 1]) : 5;
-
-        if (commitHash) {
-            // Time-traveling query
-            const { queryHistoricalContext } = require('../rag/timeTravel');
-            const result = queryHistoricalContext({ query: queryText, commitHash, workspacePath, topK });
-            if (!result.success) {
-                console.error(`\n❌ ${result.error}\n`);
-                process.exit(1);
-            }
-            console.log(`\n🕰️  Time-Travel Query @ ${commitHash}:\n`);
-            if (result.results.length === 0) {
-                console.log('No matching context found at this commit.');
-            } else {
-                result.results.forEach((r: any, i: number) => {
-                    console.log(`  ${i + 1}. (score: ${r.score.toFixed(2)}) ${r.text}`);
-                    if (r.filePath) console.log(`     📁 ${r.filePath}${r.symbolName ? ` ⚓ @${r.symbolName}` : ''}`);
-                });
-            }
-            console.log();
-        } else {
-            // Live semantic search
-            const { semanticSearch } = require('../rag/search');
-            const results = await semanticSearch({ query: queryText, topK });
-            console.log(`\n🔍 Semantic Search Results:\n`);
-            if (results.length === 0) {
-                console.log('No matching context found.');
-            } else {
-                results.forEach((r: any, i: number) => {
-                    console.log(`  ${i + 1}. [${r.type.toUpperCase()}] (score: ${r.score.toFixed(2)}) ${r.text}`);
-                    if (r.filePath) console.log(`     📁 ${r.filePath}${r.symbolName ? ` ⚓ @${r.symbolName}` : ''}`);
-                });
-            }
-            console.log();
-        }
-    } else if (command === 'anchor') {
-        const targetFile = args[1];
-        if (!targetFile) {
-            console.error('⚠️  Error: You must specify a file to anchor symbols to.');
-            console.log('Usage: aigit anchor <file>');
-            process.exit(1);
-        }
-        const workspacePath = findWorkspaceRoot(process.cwd());
-        const path = require('path');
-        const fullPath = path.isAbsolute(targetFile) ? targetFile : path.join(workspacePath, targetFile);
-        const { anchorFileToSymbols } = require('../ast/resolver');
-        const result = await anchorFileToSymbols(fullPath, workspacePath);
-        console.log(`\n⚓ [aigit anchor] Scanned: ${targetFile}`);
-        console.log(`   Anchored ${result.anchored}/${result.total} unlinked entries to code symbols.\n`);
-
-    } else if (command === 'swarm') {
-        const { createSwarm, getSwarmStatus, haltSwarm, resumeSwarm, listActiveSwarms } = require('../swarm/swarm');
-        const { listConflicts, resolveConflict } = require('../swarm/conflict');
-        const subCommand = args[1];
-        const workspacePath = findWorkspaceRoot(process.cwd());
-        const { getActiveBranch } = require('./git');
-
-        if (subCommand === 'status') {
-            // Find active swarms
-            const projects = await prisma.project.findMany();
-            for (const project of projects) {
-                const swarms = await listActiveSwarms(project.id);
-                if (swarms.length === 0) continue;
-                for (const swarm of swarms) {
-                    const statusEmoji: Record<string, string> = { PENDING: '⏳', ACTIVE: '🔄', HALTED: '⚠️', DONE: '✅', FAILED: '❌' };
-                    console.log(`\n🐝 SWARM: ${swarm.goal}`);
-                    console.log(`   Status: ${statusEmoji[swarm.status] || '❓'} ${swarm.status} — Turn ${swarm.currentTurn}/${swarm.totalTurns}`);
-                    console.log(`   Branch: ${swarm.gitBranch}\n`);
-                    console.log('   AGENTS:');
-                    for (const agent of swarm.agents) {
-                        const emoji: Record<string, string> = { IDLE: '⏳', WORKING: '🔄', DONE: '✅', BLOCKED: '🚫' };
-                        console.log(`   ${agent.turnOrder}. ${emoji[agent.status] || '❓'} ${agent.agentName} (${agent.role}) — ${agent.status} [${agent.taskSlug || 'no task'}]`);
-                    }
-                }
-            }
-
-        } else if (subCommand === 'halt') {
-            const swarmId = args[2];
-            if (!swarmId) { console.error('Usage: aigit swarm halt <swarmId>'); process.exit(1); }
-            await haltSwarm(swarmId);
-            console.log(`⛔ Swarm ${swarmId} halted.`);
-
-        } else if (subCommand === 'resume') {
-            const swarmId = args[2];
-            if (!swarmId) { console.error('Usage: aigit swarm resume <swarmId>'); process.exit(1); }
-            await resumeSwarm(swarmId);
-            console.log(`▶️ Swarm ${swarmId} resumed.`);
-
-        } else if (subCommand === 'conflicts') {
-            const projects = await prisma.project.findMany();
-            let totalConflicts = 0;
-            for (const project of projects) {
-                const swarms = await listActiveSwarms(project.id);
-                for (const swarm of swarms) {
-                    const conflicts = await listConflicts(swarm.id);
-                    if (conflicts.length === 0) continue;
-                    totalConflicts += conflicts.length;
-                    console.log(`\n⚠️  ${conflicts.length} conflict(s) in swarm "${swarm.goal}":\n`);
-                    for (const c of conflicts) {
-                        try {
-                            const payload = JSON.parse(c.payload);
-                            console.log(`   CONFLICT ${c.id.substring(0, 8)}:`);
-                            console.log(`   ${c.fromAgent.role}: ${payload.reason}`);
-                            console.log(`   Blocked: ${payload.blockedDecision}`);
-                            if (payload.filePath) console.log(`   📁 ${payload.filePath}${payload.symbolName ? ` ⚓ @${payload.symbolName}` : ''}`);
-                            console.log('');
-                        } catch { /* skip unparseable */ }
-                    }
-                }
-            }
-            if (totalConflicts === 0) console.log('✅ No unresolved swarm conflicts.');
-
-        } else if (subCommand === 'resolve') {
-            const conflictId = args[2];
-            const resolution = args.slice(3).join(' ');
-            if (!conflictId || !resolution) {
-                console.error('Usage: aigit swarm resolve <conflictId> <resolution>');
-                process.exit(1);
-            }
-            await resolveConflict(conflictId, resolution);
-            console.log(`✅ Conflict resolved: ${resolution}`);
-
-        } else if (subCommand && subCommand !== '--help') {
-            // Treat as a goal — create a swarm
-            const goal = subCommand;
-            const branch = getActiveBranch(workspacePath);
-            const projects = await prisma.project.findMany({ take: 1 });
-            if (projects.length === 0) {
-                console.error('No project found. Run `aigit init` first.');
-                process.exit(1);
-            }
-            const swarm = await createSwarm(projects[0].id, goal, branch, []);
-            console.log(`\n🐝 [aigit swarm] Session created: ${swarm.id.substring(0, 12)}`);
-            console.log(`   Goal: ${goal}`);
-            console.log(`   Branch: ${branch}`);
-            console.log(`   Status: PENDING — waiting for agents to register`);
-            console.log(`\n   Agents can join via MCP: register_agent(swarmId: '${swarm.id}', role: '...')\n`);
-
-        } else {
-            console.log(`
-🐝 aigit swarm — Multi-Agent Orchestration
-
-Commands:
-  swarm "<goal>"          Create a new swarm session
-  swarm status            View swarm state (agents, turns, conflicts)
-  swarm halt <id>         Halt an active swarm
-  swarm resume <id>       Resume a halted swarm
-  swarm conflicts         List unresolved swarm conflicts
-  swarm resolve <id> <r>  Resolve a conflict with resolution text
-            `);
-        }
-
-    } else if (command === 'heal') {
-        const { healFromTestFailure, getHealingHistory, retryHealingEvent } = require('../healing/runner');
-        const workspacePath = findWorkspaceRoot(process.cwd());
-
-        const subCommand = args[1];
-        if (subCommand === 'status') {
-            const history = await getHealingHistory();
-            console.log(history);
-            return;
-        }
-
-        if (subCommand === 'retry') {
-            const eventId = args[2];
-            if (!eventId) {
-                console.error('⚠️  Error: Please provide a healing event ID to retry.');
-                return process.exit(1);
-            }
-            const auto = args.includes('--auto');
-            const result = await retryHealingEvent(eventId, workspacePath, { auto });
-            console.log(result.report);
-            return;
-        }
-
-        const auto = args.includes('--auto');
-        let cmd = undefined;
-        const cmdIndex = args.indexOf('--cmd');
-        if (cmdIndex !== -1 && args[cmdIndex + 1]) {
-            cmd = args[cmdIndex + 1];
-        }
-
-        const result = await healFromTestFailure(workspacePath, { auto, cmd });
-        console.log(result.report);
-        if (!result.success && !auto) {
-            console.log('👉 Run `aigit heal --auto` to automatically commit fixes (if strategies are implemented by an agent).');
-            process.exit(1);
-        }
-
-    } else if (command === 'deps') {
-        const { runAudit, buildDepHealPlan, formatDepReport, executeDepAutoHeal } = require('../healing/depAudit');
-        const workspacePath = findWorkspaceRoot(process.cwd());
-
-        const auto = args.includes('--auto');
-
-        console.log('\n📦 Running dependency audit...\n');
-        const audit = runAudit(workspacePath);
-        const plan = await buildDepHealPlan(audit, workspacePath);
-
-        console.log(formatDepReport(plan));
-
-        if (auto) {
-            if (audit.fixableCount === 0) {
-                console.log('✅ No auto-fixable vulnerabilities found. Nothing to auto-heal.');
-                return;
-            }
-            console.log(`\n⚙️  Auto-healing ${audit.fixableCount} vulnerabilities on branch: ${plan.branchName}...\n`);
-            const result = executeDepAutoHeal(workspacePath, plan.branchName);
-            console.log(result.message);
-        } else if (audit.fixableCount > 0) {
-            console.log('👉 Run `aigit deps --auto` to automatically branch and fix these vulnerabilities.');
-        }
-
-    } else if (command === 'docs' || command === 'export-docs') {
-        const { exportDocs } = require('./docs');
-        const outIdx = args.indexOf('--out');
-        const out = outIdx !== -1 ? args[outIdx + 1] : undefined;
-        await exportDocs({ out });
-
-    } else if (command === 'replay') {
-        const targetPath = args[1];
-        if (!targetPath) {
-            console.error('⚠️  Error: You must provide a file or directory path to replay.');
-            console.log('Usage: aigit replay <path>');
-            process.exit(1);
-        }
-        const { buildTimeline, formatReplayNarrative } = require('../agents/storyteller');
-        const timeline = await buildTimeline(targetPath);
-        const narrative = formatReplayNarrative(targetPath, timeline);
-        console.log(narrative);
-
-    } else if (command === 'note') {
-        const message = args[1];
-        if (!message) {
-            console.error('⚠️  Error: You must provide a note message.');
-            console.log('Usage: aigit note "<message>" [--scope <path>] [--decision] [--issue <ref>]');
-            process.exit(1);
-        }
-
-        const workspacePath = findWorkspaceRoot(process.cwd());
-        const { getActiveBranch } = require('./git');
-        const branch = getActiveBranch(workspacePath);
-
-        // Ensure a default project exists
-        let project = await prisma.project.findFirst();
-        if (!project) {
-            const pathModule = require('path');
-            project = await prisma.project.create({
-                data: { name: pathModule.basename(workspacePath) }
-            });
-        }
-
-        const scopeIdx = args.indexOf('--scope');
-        const issueIdx = args.indexOf('--issue');
-        const isDecision = args.includes('--decision');
-        const filePath = scopeIdx !== -1 ? args[scopeIdx + 1] : null;
-        const issueRef = issueIdx !== -1 ? args[issueIdx + 1] : null;
-
-        const memory = await prisma.memory.create({
-            data: {
-                projectId: project.id,
-                gitBranch: branch,
-                type: isDecision ? 'architecture' : 'human_note',
-                content: message,
-                filePath,
-                issueRef,
-            }
-        });
-
-        const { dumpContextLedger } = require('./sync');
-        await dumpContextLedger(workspacePath);
-
-        console.log(`\n📝 [aigit note] Context captured on branch [${branch}]`);
-        if (filePath) console.log(`   Scope: 📁 ${filePath}`);
-        if (isDecision) console.log(`   Tag: Architecture Decision`);
-        if (issueRef) console.log(`   🔗 Issue: ${issueRef}`);
-        console.log(`   ID: ${memory.id}\n`);
-
-    } else if (command === 'commit') {
-        const subCommand = args[1]; // memory | decision | task
-        const workspacePath = findWorkspaceRoot(process.cwd());
-        const { getActiveBranch } = require('./git');
-        const branch = getActiveBranch(workspacePath);
-
-        // Ensure a default project exists
-        let project = await prisma.project.findFirst();
-        if (!project) {
-            const pathModule = require('path');
-            project = await prisma.project.create({
-                data: { name: pathModule.basename(workspacePath) }
-            });
-        }
-
-        if (subCommand === 'memory') {
-            const content = args[2];
-            if (!content) {
-                console.error('⚠️  Error: You must provide the memory content.');
-                console.log('Usage: aigit commit memory "<content>" [--type <type>] [--file <path>]');
-                process.exit(1);
-            }
-            const typeIdx = args.indexOf('--type');
-            const fileIdx = args.indexOf('--file');
-            const memType = typeIdx !== -1 ? args[typeIdx + 1] : 'architecture';
-            const filePath = fileIdx !== -1 ? args[fileIdx + 1] : null;
-
-            const memory = await prisma.memory.create({
-                data: {
-                    projectId: project.id,
-                    gitBranch: branch,
-                    type: memType,
-                    content,
-                    filePath,
-                }
-            });
-
-            const { dumpContextLedger } = require('./sync');
-            await dumpContextLedger(workspacePath);
-
-            console.log(`\n✅ [aigit commit] Memory committed to branch [${branch}]`);
-            console.log(`   Type: ${memType}`);
-            console.log(`   ID: ${memory.id}`);
-            if (filePath) console.log(`   📁 ${filePath}`);
-            console.log();
-
-        } else if (subCommand === 'decision') {
-            const context = args[2];
-            const chosen = args[3];
-            if (!context || !chosen) {
-                console.error('⚠️  Error: You must provide the decision context and chosen option.');
-                console.log('Usage: aigit commit decision "<context>" "<chosen>" [--reasoning "<text>"]');
-                process.exit(1);
-            }
-            const reasoningIdx = args.indexOf('--reasoning');
-            const fileIdx = args.indexOf('--file');
-            const reasoning = reasoningIdx !== -1 ? args[reasoningIdx + 1] : '';
-            const filePath = fileIdx !== -1 ? args[fileIdx + 1] : null;
-
-            // Decisions need a task — create or reuse a default one
-            let task = await prisma.task.findFirst({ where: { projectId: project.id, gitBranch: branch } });
-            if (!task) {
-                task = await prisma.task.create({
-                    data: { projectId: project.id, slug: 'default', title: 'General', gitBranch: branch, status: 'IN_PROGRESS' }
-                });
-            }
-
-            const decision = await prisma.decision.create({
-                data: {
-                    taskId: task.id,
-                    gitBranch: branch,
-                    context,
-                    chosen,
-                    reasoning,
-                    filePath,
-                }
-            });
-
-            const { dumpContextLedger } = require('./sync');
-            await dumpContextLedger(workspacePath);
-
-            console.log(`\n✅ [aigit commit] Decision recorded on branch [${branch}]`);
-            console.log(`   Context: ${context}`);
-            console.log(`   Chosen: ${chosen}`);
-            if (reasoning) console.log(`   Reasoning: ${reasoning}`);
-            console.log(`   ID: ${decision.id}`);
-            console.log();
-
-        } else if (subCommand === 'task') {
-            const title = args[2];
-            if (!title) {
-                console.error('⚠️  Error: You must provide a task title.');
-                console.log('Usage: aigit commit task "<title>" [--slug <slug>]');
-                process.exit(1);
-            }
-            const slugIdx = args.indexOf('--slug');
-            const slug = slugIdx !== -1 ? args[slugIdx + 1] : title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30);
-
-            const task = await prisma.task.create({
-                data: {
-                    projectId: project.id,
-                    slug,
-                    title,
-                    gitBranch: branch,
-                    status: 'PLANNING'
-                }
-            });
-
-            const { dumpContextLedger } = require('./sync');
-            await dumpContextLedger(workspacePath);
-
-            console.log(`\n✅ [aigit commit] Task created on branch [${branch}]`);
-            console.log(`   Title: ${title}`);
-            console.log(`   Slug: ${slug}`);
-            console.log(`   ID: ${task.id}`);
-            console.log();
-
-        } else if (subCommand === 'update') {
-            const updateType = args[2];
-            if (updateType === 'task') {
-                const slug = args[3];
-                const status = args[4];
-                if (!slug || !status) {
-                    console.error('⚠️  Error: You must provide a task slug and new status.');
-                    console.log('Usage: aigit commit update task <slug> <status>');
-                    console.log('       Statuses: PLANNING, IN_PROGRESS, REVIEW, DONE, BLOCKED, CANCELLED');
-                    process.exit(1);
-                }
-
-                const validStatuses = ['PLANNING', 'IN_PROGRESS', 'REVIEW', 'DONE', 'BLOCKED', 'CANCELLED'];
-                if (!validStatuses.includes(status)) {
-                    console.error(`⚠️  Error: Invalid status '${status}'.`);
-                    console.log(`Available statuses: ${validStatuses.join(', ')}`);
-                    process.exit(1);
-                }
-
-                try {
-                    const updateResult = await prisma.task.updateMany({
-                        where: { projectId: project.id, gitBranch: branch, slug },
-                        data: { status }
-                    });
-                    if (updateResult.count === 0) {
-                        console.log(`⚠️  Warning: No task found with slug '${slug}' on branch [${branch}].`);
-                    } else {
-                        console.log(`\n✅ [aigit update task] Task '${slug}' marked as ${status} on branch [${branch}]`);
-                    }
-                    const { dumpContextLedger } = require('./sync');
-                    await dumpContextLedger(workspacePath);
-                } catch (error: any) {
-                    console.error('⚠️  Failed to update task:', error.message);
-                    process.exit(1);
-                }
-            } else {
-                console.error(`⚠️  Error: Unknown update type '${updateType}'.`);
-                console.log('Usage: aigit commit update task <slug> <status>');
-                process.exit(1);
-            }
-        } else if (subCommand === 'staged') {
-            const { execSync } = require('child_process');
-
-            try {
-                // Check if an AI Agent already supplied a semantic semantic memory in the last 5 minutes
-                const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-                const recentAgentMemory = await prisma.memory.findFirst({
-                    where: {
-                        projectId: project!.id,
-                        gitBranch: branch,
-                        type: { in: ['capability', 'architecture', 'context'] },
-                        createdAt: { gte: fiveMinutesAgo }
-                    }
-                });
-
-                if (recentAgentMemory) {
-                    console.log(`\n⏭️  [aigit commit] Skipping automatic raw diff generation.`);
-                    console.log(`   └─ Found recent Agent-authored memory: "${recentAgentMemory.content.slice(0, 50)}..."`);
-                    process.exit(0);
-                } else {
-                    let isTTY = false;
-                    try {
-                        const fs = require('fs');
-                        fs.accessSync('/dev/tty', fs.constants.R_OK | fs.constants.W_OK);
-                        isTTY = true;
-                    } catch (e) {
-                        isTTY = false;
-                    }
-
-                    if (isTTY) {
-                        const fs = require('fs');
-                        const ttyFd = fs.openSync('/dev/tty', 'rs+');
-                        fs.writeSync(ttyFd, `\n[Aigit] No semantic memory detected for this commit.\n`);
-                        fs.writeSync(ttyFd, `[Aigit] Please briefly summarize the architectural changes you made (or press ENTER to abort):\n> `);
-
-                        let summary = '';
-                        const buffer = Buffer.alloc(1);
-                        while (true) {
-                            const bytesRead = fs.readSync(ttyFd, buffer, 0, 1, null);
-                            if (bytesRead === 0 || buffer[0] === 10 || buffer[0] === 13) {
-                                break;
-                            }
-                            summary += buffer.toString('utf8');
-                        }
-                        fs.closeSync(ttyFd);
-
-                        const trimmedSummary = summary.trim();
-                        if (!trimmedSummary) {
-                            console.error(`\n🛑 [Aigit] Commit aborted. Semantic summary is required.\n`);
-                            process.exit(1);
-                        }
-
-                        console.log(`\n[Aigit] Saving semantic memory...`);
-                        const { execSync } = require('child_process');
-                        try {
-                            const safeSummary = trimmedSummary.replace(/"/g, '\\"');
-                            execSync(`npx --no-install aigit commit memory "${safeSummary}"`, { stdio: 'inherit' });
-                            console.log(`⏭️  [aigit commit] Resuming git commit...\n`);
-                            process.exit(0);
-                        } catch (err) {
-                            console.error(`🛑 [Aigit] Failed to save semantic memory.`);
-                            process.exit(1);
-                        }
-                    } else {
-                        console.error(`\n======================================================`);
-                        console.error(`🛑 [Aigit] ERROR: Agent-Driven Commit Summaries are REQUIRED.`);
-                        console.error(`======================================================`);
-                        console.error(`To maintain a clean and token-efficient semantic ledger, you`);
-                        console.error(`are not allowed to generate noisy raw 'git diff' payloads.\n`);
-                        console.error(`🤖 AI Agents & Developers MUST run this command FIRST:\n`);
-                        console.error(`   aigit commit memory "<semantic architectural summary>"\n`);
-                        console.error(`Please run the command above, then try your 'git commit' again.`);
-                        console.error(`======================================================\n`);
-                        process.exit(1);
-                    }
-                }
-
-                // Get the list of staged files and their status (A, M, D, etc.)
-                const fileChanges = execSync('git diff --cached --name-status').toString().trim();
-
-                if (!fileChanges) {
-                    process.exit(0);
-                }
-
-                // Get the diff stats (insertions/deletions)
-                const diffStats = execSync('git diff --cached --stat').toString().trim();
-
-                const semanticSummary = `Automatic Git Commit Context (Staged Changes)
-Files Changed:
-${fileChanges}
-
-Statistics:
-${diffStats}`;
-
-                const memory = await prisma.memory.create({
-                    data: {
-                        projectId: project!.id,
-                        gitBranch: branch,
-                        type: 'capability', // using capability to denote functional changes
-                        content: semanticSummary,
-                        filePath: 'git-commit-staged'
-                    }
-                });
-
-                const { dumpContextLedger } = require('./sync');
-                await dumpContextLedger(workspacePath);
-
-                console.log(`\n✅ [aigit commit] Staged context recorded automatically on branch [${branch}]`);
-                console.log(`   ID: ${memory.id}`);
-                console.log(`   Tokens: ~${Math.floor(semanticSummary.length / 4)}`);
-                console.log();
-            } catch (error) {
-                console.error('⚠️  Failed to generate automatic staged context.');
-                process.exit(1);
-            }
-
-        } else if (subCommand === 'auto') {
-            const { execSync } = require('child_process');
-
-            try {
-                // Get the latest commit hash and message
-                const commitInfo = execSync('git log -1 --pretty=format:"%h - %s%n%b"').toString().trim();
-
-                // Get the list of files changed and their status (A, M, D, etc.)
-                const fileChanges = execSync('git diff-tree --no-commit-id --name-status -r HEAD').toString().trim();
-
-                // Get the diff stats (insertions/deletions)
-                const diffStats = execSync('git diff --stat HEAD~1 HEAD').toString().trim();
-
-                const semanticSummary = `Automatic Git Commit Context
-Commit:
-${commitInfo}
-
-Files Changed:
-${fileChanges}
-
-Statistics:
-${diffStats}`;
-
-                const memory = await prisma.memory.create({
-                    data: {
-                        projectId: project.id,
-                        gitBranch: branch,
-                        type: 'capability', // using capability to denote functional changes
-                        content: semanticSummary,
-                        filePath: 'git-commit-auto'
-                    }
-                });
-
-                const { dumpContextLedger } = require('./sync');
-                await dumpContextLedger(workspacePath);
-
-                console.log(`\n✅ [aigit commit] Git context recorded automatically on branch [${branch}]`);
-                console.log(`   ID: ${memory.id}`);
-                console.log(`   Tokens: ~${Math.floor(semanticSummary.length / 4)}`);
-                console.log();
-            } catch (error) {
-                console.error('⚠️  Failed to generate automatic Git commit context. Are you in a Git repository with at least one commit?');
-                console.error(error);
-                process.exit(1);
-            }
-
-        } else {
-            console.log(`
-🧠 aigit commit — Commit context to your semantic memory
-
-Commands:
-  commit auto
-      Automatically generate a rich semantic context from the latest git commit (message, files, diff stats)
-  
-  commit memory "<content>" [--type <type>] [--file <path>]
-      Commit a memory (architecture, capability, pattern, etc.)
-      Types: architecture, capability, pattern, convention (default: architecture)
-
-  commit decision "<context>" "<chosen>" [--reasoning "<text>"] [--file <path>]
-      Record an architectural decision with context and chosen path.
-
-  commit task "<title>" [--slug <slug>]
-      Create a new tracked task on the current branch.
-
-  commit update task <slug> <status>
-      Update the status of an existing task.
-      Statuses: PLANNING, IN_PROGRESS, REVIEW, DONE, BLOCKED, CANCELLED
-
-Examples:
-  aigit commit memory "Using Redis for session caching" --type architecture
-  aigit commit decision "API protocol" "REST" --reasoning "Team prefers REST for simplicity"
-  aigit commit task "Implement JWT authentication"
-  aigit commit update task "jwt-auth" IN_PROGRESS
-            `);
-        }
-
-    } else if (command === 'telemetry') {
-        const sub = args[1];
-        if (sub === 'off') {
-            console.log('🛑 [aigit telemetry] To opt-out of anonymous usage data, set the standard environment variable:');
-            console.log('\n   export DO_NOT_TRACK=1\n');
-            console.log('You can add this to your ~/.bashrc or ~/.zshrc file to make it permanent.');
-        } else {
-            console.log('aigit telemetry off  — Show instructions to disable anonymous usage tracking');
-        }
-    } else {
-        console.log(`
-aigit — The AI Context Engine for Git
-
-Commands:
-  init                          Initialize aigit in current repo (hooks + .aigit/)
-  hydrate [file]                Compile branch-aware context prompt
-  dump                          Serialize memory DB → .aigit/ledger.json
-  load                          Reconstruct memory DB ← .aigit/ledger.json
-  log                           Show semantic memory timeline
-  status                        Show pending AI tasks
-  revert <id>                   Remove a specific context entry
-  check-conflicts [branch]      Check for semantic conflicts vs branch
-  merge <source> [target]       Port AI context between branches
-  init-hook                     Install Git hooks only
-  anchor <file>                 Re-anchor existing memories to AST symbols
-  query "<question>"            Semantic search across memory
-  query "<question>" --commit <hash>  Time-travel: search memory at a past commit
-  replay <path>                 Replay the chronological evolution of a file/module
-  docs [--out <path>]           Auto-generate ARCHITECTURE.md from memory ledger
-
-Context:
-  note "<message>"              Instantly capture a manual context note
-  commit memory "<text>"        Commit a memory entry to current branch
-  commit decision "<ctx>" "<chosen>"  Record an architectural decision
-  commit task "<title>"         Create a tracked task
-
-Agent Sync:
-  scan                          Detect active AI tools in the workspace
-  sync [--dry-run] [--skills]   Bidirectional sync across all detected tools
-  sync --from <tool> --to <tool>  One-directional targeted sync
-  conflicts                     Show unresolved sync conflicts
-
-Swarm Orchestration:
-  swarm "<goal>"                Create a multi-agent swarm session
-  swarm status                  View swarm state (agents, turns, messages)
-  swarm halt <id>               Halt an active swarm
-  swarm resume <id>             Resume a halted swarm
-  swarm conflicts               List unresolved swarm conflicts
-  swarm resolve <id> <text>     Resolve a conflict
-  
-Self-Healing Codebases:
-  heal                          Run tests, diagnose failures, map AST context, propose fixes
-  heal --auto                   Auto-commit fixes derived from memory
-  heal status                   List test-failure healing history
-  deps                          Audit npm dependencies & correlate with past context
-  deps --auto                   Auto-branch and fix vulnerabilities
-  
-Other:
-  telemetry off                 Show instructions to disable anonymous usage tracking
-        `);
-    }
-    if (command !== 'mcp' && isTelemetryEnabled) {
-        // Track success with duration
-        try {
-            client.capture({
+        try { phClient.capture({
+            distinctId: TELEMETRY_ID,
+            event: 'cli_command_executed',
+            properties: { command: commandName, cli_version: cliVersion, node_version: process.version, os_platform: os.platform() },
+        }); } catch { }
+
+    try {
+        await action();
+        showTip(commandName);
+
+        if (isTelemetryEnabled) {
+        try { phClient.capture({
                 distinctId: TELEMETRY_ID,
                 event: 'cli_command_completed',
-                properties: {
-                    command,
-                    duration_ms: Math.round(performance.now() - startTime)
-                }
-            });
-        } catch (e) { }
-
-        await client.shutdown();
+                properties: { command: commandName, duration_ms: Math.round(performance.now() - startTime) },
+            }); } catch { }
+            await phClient.shutdown();
+        }
+    } catch (err: any) {
+        if (isTelemetryEnabled) {
+            try { phClient.capture({
+                distinctId: TELEMETRY_ID,
+                event: 'cli_command_failed',
+                properties: { command: commandName, error: err.message, duration_ms: Math.round(performance.now() - startTime) },
+            }); } catch { }
+            await phClient.shutdown();
+        }
+        console.error('aigit error:', err.message);
+        process.exit(1);
     }
 }
 
-main().catch(async (err) => {
-    if (isTelemetryEnabled) {
-        try {
-            client.capture({
-                distinctId: TELEMETRY_ID,
-                event: 'cli_command_failed',
-                properties: {
-                    command,
-                    error: err.message,
-                    duration_ms: Math.round(performance.now() - startTime)
-                }
-            });
-            await client.shutdown();
-        } catch (e) { }
-    }
-    console.error('aigit error:', err.message);
-    process.exit(1);
-});
+// ── Command handlers (lazy loaded to keep startup fast) ────────
 
+function ws() {
+    return findWorkspaceRoot(process.cwd());
+}
+
+// ── Commander program ──────────────────────────────────────────
+const program = new Command();
+
+program
+    .name('aigit')
+    .description('The AI Context Engine for Git')
+    .version(cliVersion, '-v, --version', 'Output the current version');
+
+// ── init ─────────────────────────────────────────────────────
+program
+    .command('init')
+    .description('Initialize aigit in the current repository (hooks + .aigit/)')
+    .action(async () => {
+        await run('init', async () => {
+            const { default: handler } = await import('./commands/init');
+            await handler({ args: [], workspacePath: ws(), command: 'init' });
+        });
+    });
+
+program
+    .command('init-hook')
+    .description('Install Git hooks only (no DB init or wizard)')
+    .action(async () => {
+        await run('init-hook', async () => {
+            const { installGitHook } = await import('./hooks');
+            installGitHook(ws());
+            console.log('✅ Git hooks installed.');
+        });
+    });
+
+// ── hydrate ───────────────────────────────────────────────────
+program
+    .command('hydrate [file]')
+    .description('Compile a branch-aware context prompt')
+    .action(async (file?: string) => {
+        await run('hydrate', async () => {
+            const { default: handler } = await import('./commands/hydrate');
+            await handler({ args: file ? [file] : [], workspacePath: ws(), command: 'hydrate' });
+        });
+    });
+
+// ── log / status / revert ─────────────────────────────────────
+program
+    .command('log')
+    .description('Show semantic memory timeline')
+    .action(async () => {
+        await run('log', async () => {
+            const { default: handler } = await import('./commands/history');
+            await handler({ args: [], workspacePath: ws(), command: 'log' });
+        });
+    });
+
+program
+    .command('status')
+    .description('Show pending AI tasks')
+    .action(async () => {
+        await run('status', async () => {
+            const { default: handler } = await import('./commands/history');
+            await handler({ args: [], workspacePath: ws(), command: 'status' });
+        });
+    });
+
+program
+    .command('revert <id>')
+    .description('Remove a specific context entry by UUID')
+    .action(async (id: string) => {
+        await run('revert', async () => {
+            const { default: handler } = await import('./commands/history');
+            await handler({ args: [id], workspacePath: ws(), command: 'revert' });
+        });
+    });
+
+// ── note ──────────────────────────────────────────────────────
+program
+    .command('note <message>')
+    .description('Instantly capture a context note or architectural decision')
+    .option('--scope <path>', 'Bind note to a specific file or directory')
+    .option('--issue <ref>', 'Link to an external issue (e.g. ENG-404)')
+    .option('--decision', 'Flag as an architectural decision')
+    .action(async (message: string, opts: { scope?: string; issue?: string; decision?: boolean }) => {
+        await run('note', async () => {
+            const args: string[] = [message];
+            if (opts.scope) args.push('--scope', opts.scope);
+            if (opts.issue) args.push('--issue', opts.issue);
+            if (opts.decision) args.push('--decision');
+            const { default: handler } = await import('./commands/note');
+            await handler({ args, workspacePath: ws(), command: 'note' });
+        });
+    });
+
+// ── commit ────────────────────────────────────────────────────
+const commit = program.command('commit').description('Commit context to your semantic memory');
+
+commit
+    .command('memory <content>')
+    .description('Commit a memory entry to the current branch')
+    .option('--type <type>', 'Memory type (architecture|capability|pattern|convention)', 'architecture')
+    .option('--file <path>', 'Anchor memory to a specific file')
+    .action(async (content: string, opts: { type: string; file?: string }) => {
+        await run('commit memory', async () => {
+            const args: string[] = ['memory', content, '--type', opts.type];
+            if (opts.file) args.push('--file', opts.file);
+            const { default: handler } = await import('./commands/commit');
+            await handler({ args, workspacePath: ws(), command: 'commit' });
+        });
+    });
+
+commit
+    .command('decision <context> <chosen>')
+    .description('Record an architectural decision')
+    .option('--reasoning <text>', 'Why this approach was chosen')
+    .option('--file <path>', 'Anchor decision to a specific file')
+    .action(async (context: string, chosen: string, opts: { reasoning?: string; file?: string }) => {
+        await run('commit decision', async () => {
+            const args: string[] = ['decision', context, chosen];
+            if (opts.reasoning) args.push('--reasoning', opts.reasoning);
+            if (opts.file) args.push('--file', opts.file);
+            const { default: handler } = await import('./commands/commit');
+            await handler({ args, workspacePath: ws(), command: 'commit' });
+        });
+    });
+
+commit
+    .command('task <title>')
+    .description('Create a new tracked task on the current branch')
+    .option('--slug <slug>', 'Custom slug (auto-derived from title if omitted)')
+    .action(async (title: string, opts: { slug?: string }) => {
+        await run('commit task', async () => {
+            const args: string[] = ['task', title];
+            if (opts.slug) args.push('--slug', opts.slug);
+            const { default: handler } = await import('./commands/commit');
+            await handler({ args, workspacePath: ws(), command: 'commit' });
+        });
+    });
+
+const commitUpdate = commit.command('update').description('Update the status of a tracked item');
+
+commitUpdate
+    .command('task <slug> <status>')
+    .description('Update the status of an existing task (PLANNING|IN_PROGRESS|REVIEW|DONE|BLOCKED|CANCELLED)')
+    .action(async (slug: string, status: string) => {
+        await run('commit update task', async () => {
+            const { default: handler } = await import('./commands/commit');
+            await handler({ args: ['update', 'task', slug, status], workspacePath: ws(), command: 'commit' });
+        });
+    });
+
+commit
+    .command('auto')
+    .description('Auto-generate rich semantic context from the latest git commit')
+    .action(async () => {
+        await run('commit auto', async () => {
+            const { default: handler } = await import('./commands/commit');
+            await handler({ args: ['auto'], workspacePath: ws(), command: 'commit' });
+        });
+    });
+
+commit
+    .command('staged')
+    .description('Git pre-commit hook integration — enforces semantic summaries')
+    .action(async () => {
+        await run('commit staged', async () => {
+            const { default: handler } = await import('./commands/commit');
+            await handler({ args: ['staged'], workspacePath: ws(), command: 'commit' });
+        });
+    });
+
+// ── query ─────────────────────────────────────────────────────
+program
+    .command('query <question>')
+    .description('Semantic search across project memory')
+    .option('--commit <hash>', 'Time-travel: search memory as it existed at a past commit')
+    .option('--top <n>', 'Number of results to return', '5')
+    .action(async (question: string, opts: { commit?: string; top: string }) => {
+        await run('query', async () => {
+            const args: string[] = [question];
+            if (opts.commit) args.push('--commit', opts.commit);
+            args.push('--top', opts.top);
+            const { default: handler } = await import('./commands/query');
+            await handler({ args, workspacePath: ws(), command: 'query' });
+        });
+    });
+
+// ── dump / load / sync / conflicts ────────────────────────────
+program
+    .command('dump')
+    .description('Serialize memory DB → .aigit/ledger.json')
+    .action(async () => {
+        await run('dump', async () => {
+            const { default: handler } = await import('./commands/sync');
+            await handler({ args: [], workspacePath: ws(), command: 'dump' });
+        });
+    });
+
+program
+    .command('load')
+    .description('Reconstruct memory DB ← .aigit/ledger.json')
+    .action(async () => {
+        await run('load', async () => {
+            const { default: handler } = await import('./commands/sync');
+            await handler({ args: [], workspacePath: ws(), command: 'load' });
+        });
+    });
+
+program
+    .command('sync')
+    .description('Bidirectional sync across all detected AI tools')
+    .option('--dry-run', 'Preview changes without writing')
+    .option('--skills', 'Include skills in sync')
+    .option('--from <tool>', 'Source tool for targeted sync')
+    .option('--to <tool>', 'Target tool for targeted sync')
+    .action(async (opts: { dryRun?: boolean; skills?: boolean; from?: string; to?: string }) => {
+        await run('sync', async () => {
+            const args: string[] = [];
+            if (opts.dryRun) args.push('--dry-run');
+            if (opts.skills) args.push('--skills');
+            if (opts.from) args.push('--from', opts.from);
+            if (opts.to) args.push('--to', opts.to);
+            const { default: handler } = await import('./commands/sync');
+            await handler({ args, workspacePath: ws(), command: 'sync' });
+        });
+    });
+
+program
+    .command('conflicts')
+    .description('Show unresolved sync conflicts')
+    .action(async () => {
+        await run('conflicts', async () => {
+            const { default: handler } = await import('./commands/sync');
+            await handler({ args: [], workspacePath: ws(), command: 'conflicts' });
+        });
+    });
+
+// ── branch operations ─────────────────────────────────────────
+program
+    .command('check-conflicts [branch]')
+    .description('Check for semantic conflicts with a target branch (default: main)')
+    .action(async (branch?: string) => {
+        await run('check-conflicts', async () => {
+            const { default: handler } = await import('./commands/branch');
+            await handler({ args: branch ? [branch] : [], workspacePath: ws(), command: 'check-conflicts' });
+        });
+    });
+
+program
+    .command('merge <source> [target]')
+    .description('Port AI context from source branch to target branch')
+    .action(async (source: string, target?: string) => {
+        await run('merge', async () => {
+            const { default: handler } = await import('./commands/branch');
+            await handler({ args: target ? [source, target] : [source], workspacePath: ws(), command: 'merge' });
+        });
+    });
+
+// ── code analysis ─────────────────────────────────────────────
+program
+    .command('anchor <file>')
+    .description('Re-anchor existing memories to AST symbols after refactoring')
+    .action(async (file: string) => {
+        await run('anchor', async () => {
+            const { default: handler } = await import('./commands/anchor');
+            await handler({ args: [file], workspacePath: ws(), command: 'anchor' });
+        });
+    });
+
+program
+    .command('scan')
+    .description('Detect active AI tools in the workspace')
+    .action(async () => {
+        await run('scan', async () => {
+            const { default: handler } = await import('./commands/scan');
+            await handler({ args: [], workspacePath: ws(), command: 'scan' });
+        });
+    });
+
+program
+    .command('replay <path>')
+    .description('Replay the chronological evolution of a file or module')
+    .action(async (filePath: string) => {
+        await run('replay', async () => {
+            const { default: handler } = await import('./commands/replay');
+            await handler({ args: [filePath], workspacePath: ws(), command: 'replay' });
+        });
+    });
+
+// ── docs ──────────────────────────────────────────────────────
+program
+    .command('docs')
+    .description('Auto-generate ARCHITECTURE.md from the memory ledger')
+    .option('--out <path>', 'Output file path')
+    .action(async (opts: { out?: string }) => {
+        await run('docs', async () => {
+            const args: string[] = [];
+            if (opts.out) args.push('--out', opts.out);
+            const { default: handler } = await import('./commands/docs');
+            await handler({ args, workspacePath: ws(), command: 'docs' });
+        });
+    });
+
+program
+    .command('export-docs')
+    .description('Export ARCHITECTURE.md (alias for docs)')
+    .action(async () => {
+        await run('export-docs', async () => {
+            const { default: handler } = await import('./commands/docs');
+            await handler({ args: [], workspacePath: ws(), command: 'export-docs' });
+        });
+    });
+
+// ── swarm ─────────────────────────────────────────────────────
+program
+    .command('swarm [goal]')
+    .description('Create or manage a multi-agent swarm session')
+    .action(async (goal?: string) => {
+        const sub = goal ?? '';
+        await run('swarm', async () => {
+            const { default: handler } = await import('./commands/swarm');
+            await handler({ args: sub ? [sub] : [], workspacePath: ws(), command: 'swarm' });
+        });
+    });
+
+// ── self-healing ──────────────────────────────────────────────
+program
+    .command('heal')
+    .description('Run tests, diagnose failures, and propose fixes')
+    .option('--auto', 'Auto-commit fixes derived from memory')
+    .action(async (opts: { auto?: boolean }) => {
+        await run('heal', async () => {
+            const args = opts.auto ? ['--auto'] : [];
+            const { default: handler } = await import('./commands/heal');
+            await handler({ args, workspacePath: ws(), command: 'heal' });
+        });
+    });
+
+program
+    .command('deps')
+    .description('Audit npm dependencies & correlate with past context')
+    .option('--auto', 'Auto-branch and fix vulnerabilities')
+    .action(async (opts: { auto?: boolean }) => {
+        await run('deps', async () => {
+            const args = opts.auto ? ['--auto'] : [];
+            const { default: handler } = await import('./commands/deps');
+            await handler({ args, workspacePath: ws(), command: 'deps' });
+        });
+    });
+
+// ── handoff ───────────────────────────────────────────────────
+program
+    .command('handoff <slug>')
+    .description('Generate a copy-paste agent context block for a task handoff')
+    .action(async (slug: string) => {
+        await run('handoff', async () => {
+            const { default: handler } = await import('./commands/handoff');
+            await handler({ args: [slug], workspacePath: ws(), command: 'handoff' });
+        });
+    });
+
+// ── update (shorthand for agents) ───────────────────────────
+
+const update = program.command('update').description('Update the status of a tracked item');
+
+update
+    .command('task <slug> <status>')
+    .description('Update task status (PLANNING|IN_PROGRESS|REVIEW|DONE|BLOCKED|CANCELLED)')
+    .action(async (slug: string, status: string) => {
+        await run('update task', async () => {
+            const { default: handler } = await import('./commands/commit');
+            await handler({ args: ['update', 'task', slug, status], workspacePath: ws(), command: 'commit' });
+        });
+    });
+
+// ── mcp ───────────────────────────────────────────────────────
+
+program
+    .command('mcp [directory]')
+    .description('Start the MCP server via STDIO transport')
+    .option('--profile <profile>', 'Tool subset to expose: core | swarm | ops | all', 'all')
+    .action(async () => {
+        await initializeDatabase();
+        require('../index');
+    });
+
+// ── telemetry ─────────────────────────────────────────────────
+program
+    .command('telemetry <command>')
+    .description('Manage anonymous usage telemetry')
+    .action(async (cmd: string) => {
+        await run('telemetry', async () => {
+            const { default: handler } = await import('./commands/telemetry');
+            await handler({ args: [cmd], workspacePath: ws(), command: 'telemetry' });
+        });
+    });
+
+// ── Parse ──────────────────────────────────────────────────────
+program.parse(process.argv);

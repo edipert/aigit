@@ -44,8 +44,19 @@ const search_1 = require("./rag/search");
 const timeTravel_1 = require("./rag/timeTravel");
 const swarm_1 = require("./swarm/swarm");
 const conflict_1 = require("./swarm/conflict");
+const diagnosis_1 = require("./healing/diagnosis");
+const strategy_1 = require("./healing/strategy");
+const runner_1 = require("./healing/runner");
+const depAudit_1 = require("./healing/depAudit");
+const generator_1 = require("./docs/generator");
+const schemas_1 = require("./tools/schemas");
+const symbolUtils_1 = require("./tools/symbolUtils");
+const profiles_1 = require("./tools/profiles");
+const argUtils_1 = require("./tools/argUtils");
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
+const ACTIVE_PROFILE = (0, profiles_1.resolveProfile)();
+const ACTIVE_TOOLS = (0, profiles_1.filterByProfile)(schemas_1.TOOL_SCHEMAS, ACTIVE_PROFILE);
 const server = new index_js_1.Server({
     name: 'ai-context-protocol-engine',
     version: '1.0.0',
@@ -54,587 +65,132 @@ const server = new index_js_1.Server({
         tools: {},
     },
 });
-// Provide the Tool list over MCP
-server.setRequestHandler(types_js_1.ListToolsRequestSchema, async () => {
+// ── Tool registry ─────────────────────────────────────────────────────────────
+server.setRequestHandler(types_js_1.ListToolsRequestSchema, async () => ({ tools: ACTIVE_TOOLS }));
+// ── Validation error response helper ─────────────────────────────────────────
+function validationError(toolName, error) {
     return {
-        tools: [
-            {
-                name: 'get_project_history',
-                description: 'Read the long-term semantic memory and architectural decisions made previously on the project.',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        projectId: { type: 'string', description: 'The UUID of the project.' }
-                    },
-                    required: ['projectId']
-                }
-            },
-            {
-                name: 'get_active_task_state',
-                description: 'Read the currently active (incomplete) tasks and handovers assigned to agents.',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        projectId: { type: 'string', description: 'The UUID of the project.' }
-                    },
-                    required: ['projectId']
-                }
-            },
-            {
-                name: 'commit_decision',
-                description: 'Contextually log an architectural or code decision to the active task (equivalent to `aigit commit decision`). Externalizes the intent. If filePath and lineNumber are provided, the decision will be auto-anchored to the enclosing code symbol (function, class, method).',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        taskId: { type: 'string', description: 'The UUID of the current task.' },
-                        context: { type: 'string', description: 'What problem required a decision?' },
-                        chosen: { type: 'string', description: 'What approach was ultimately chosen?' },
-                        rejected: { type: 'array', items: { type: 'string' }, description: 'What approaches were rejected?' },
-                        reasoning: { type: 'string', description: 'Why was that approach chosen over the rejected ones?' },
-                        filePath: { type: 'string', description: 'Optional. The file path this decision is anchored to.' },
-                        lineNumber: { type: 'number', description: 'Optional. The line number this decision is anchored to.' },
-                        symbolName: { type: 'string', description: 'Optional. The code symbol name to anchor this decision to (e.g. "initRedisClient"). Auto-resolved from filePath+lineNumber if omitted.' },
-                        symbolType: { type: 'string', description: 'Optional. Symbol type: function, class, method, export, variable.' }
-                    },
-                    required: ['taskId', 'context', 'chosen', 'rejected', 'reasoning']
-                }
-            },
-            {
-                name: 'commit_task',
-                description: 'Orchestrate a context handoff by creating a new task stub to offload work to a separate specialized agent (equivalent to `aigit commit task`).',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        projectId: { type: 'string', description: 'The UUID of the project.' },
-                        slug: { type: 'string', description: 'The task-slug identifier, mapping to the markdown file (e.g., auth-setup).' },
-                        title: { type: 'string', description: 'Human-readable title for the task.' }
-                    },
-                    required: ['projectId', 'slug', 'title']
-                }
-            },
-            {
-                name: 'get_hydrated_context',
-                description: 'Compile an environment-aware system prompt dynamically based on Git branch, active files, and project type.',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        workspacePath: { type: 'string', description: 'The root directory of the workspace.' },
-                        activeFile: { type: 'string', description: 'Optional path to the file currently being edited.' }
-                    },
-                    required: ['workspacePath']
-                }
-            },
-            {
-                name: 'take_note',
-                description: 'Instantly capture a manual context note, architectural decision, or mid-sprint "why" directly into the semantic vector space without waiting for a commit hook (equivalent to `aigit note`).',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        projectId: { type: 'string', description: 'The UUID of the project.' },
-                        workspacePath: { type: 'string', description: 'The root directory of the workspace.' },
-                        message: { type: 'string', description: 'The note message to capture.' },
-                        scope: { type: 'string', description: 'Optional. A specific directory or file to bind the note to.' },
-                        isDecision: { type: 'boolean', description: 'Optional. Set to true to categorize this note as an architectural decision.' },
-                        issueRef: { type: 'string', description: 'Optional. An external issue tracker reference (e.g. "ENG-404", "#45").' }
-                    },
-                    required: ['projectId', 'workspacePath', 'message']
-                }
-            },
-            {
-                name: 'commit_memory',
-                description: 'Explicitly commits learned patterns, architectural rules, or documentation into the workspace Git-aligned memory (equivalent to `aigit commit memory`). If filePath and lineNumber are provided, the memory will be auto-anchored to the enclosing code symbol.',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        projectId: { type: 'string', description: 'The UUID of the project.' },
-                        workspacePath: { type: 'string', description: 'The root directory of the workspace (used to detect current git branch).' },
-                        type: { type: 'string', description: 'Memory type (e.g. pattern, architectural-rule, context).' },
-                        content: { type: 'string', description: 'The explicit memory learned to store.' },
-                        filePath: { type: 'string', description: 'Optional. The file path this memory is anchored to.' },
-                        lineNumber: { type: 'number', description: 'Optional. The line number this memory is anchored to.' },
-                        symbolName: { type: 'string', description: 'Optional. The code symbol name to anchor this memory to. Auto-resolved from filePath+lineNumber if omitted.' },
-                        symbolType: { type: 'string', description: 'Optional. Symbol type: function, class, method, export, variable.' }
-                    },
-                    required: ['projectId', 'workspacePath', 'type', 'content']
-                }
-            },
-            {
-                name: 'query_context',
-                description: 'Semantic search across the current project memory. Ask questions like "Why did we choose Redis?" and get ranked results.',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        query: { type: 'string', description: 'Natural language question to search for.' },
-                        branch: { type: 'string', description: 'Optional. Filter to a specific branch.' },
-                        filePath: { type: 'string', description: 'Optional. Filter to memories linked to a specific file.' },
-                        symbolName: { type: 'string', description: 'Optional. Filter to memories linked to a specific code symbol.' },
-                        topK: { type: 'number', description: 'Number of results to return (default: 5).' }
-                    },
-                    required: ['query']
-                }
-            },
-            {
-                name: 'query_historical',
-                description: 'Time-traveling semantic search. Query the project memory as it existed at a specific Git commit hash.',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        query: { type: 'string', description: 'Natural language question to search for.' },
-                        commitHash: { type: 'string', description: 'The Git commit hash to travel back to.' },
-                        workspacePath: { type: 'string', description: 'The root directory of the workspace.' },
-                        topK: { type: 'number', description: 'Number of results to return (default: 5).' }
-                    },
-                    required: ['query', 'commitHash', 'workspacePath']
-                }
-            },
-            {
-                name: 'get_symbol_context',
-                description: 'Get all linked memories and decisions for a specific code symbol. Provide a file path and line number, and this tool returns all context anchored to the enclosing function/class/method.',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        filePath: { type: 'string', description: 'Absolute or relative path to the source file.' },
-                        lineNumber: { type: 'number', description: 'Line number within the file to resolve the enclosing symbol.' },
-                        symbolName: { type: 'string', description: 'Optional. Directly query by symbol name instead of resolving from line number.' }
-                    },
-                    required: ['filePath']
-                }
-            },
-            {
-                name: 'anchor_file',
-                description: 'Retroactively link existing memories and decisions to code symbols in a file via AST extraction. Use after refactoring to rebind context to new symbol locations.',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        filePath: { type: 'string', description: 'Absolute path to the source file to anchor.' },
-                        workspacePath: { type: 'string', description: 'The root directory of the workspace.' }
-                    },
-                    required: ['filePath', 'workspacePath']
-                }
-            },
-            {
-                name: 'list_symbols',
-                description: 'Extract and list all code symbols (functions, classes, methods, exports) from a source file using AST parsing.',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        filePath: { type: 'string', description: 'Absolute path to the source file.' }
-                    },
-                    required: ['filePath']
-                }
-            },
-            {
-                name: 'revert_context',
-                description: 'Delete a specific memory, decision, or task by UUID. Use to correct mistakes or remove outdated context.',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        id: { type: 'string', description: 'The UUID of the memory, decision, or task to delete.' }
-                    },
-                    required: ['id']
-                }
-            },
-            {
-                name: 'check_conflicts',
-                description: 'Detect semantic conflicts between the current branch and a target branch. Finds decisions that might conflict before merging.',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        projectId: { type: 'string', description: 'The UUID of the project.' },
-                        workspacePath: { type: 'string', description: 'The root directory of the workspace.' },
-                        targetBranch: { type: 'string', description: 'The branch to compare against (e.g. "main").' }
-                    },
-                    required: ['projectId', 'workspacePath', 'targetBranch']
-                }
-            },
-            {
-                name: 'merge_context',
-                description: 'Port memories, decisions, and tasks from one branch to another. Use to carry architectural knowledge across branches.',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        projectId: { type: 'string', description: 'The UUID of the project.' },
-                        sourceBranch: { type: 'string', description: 'The branch to copy context from.' },
-                        targetBranch: { type: 'string', description: 'The branch to copy context to.' }
-                    },
-                    required: ['projectId', 'sourceBranch', 'targetBranch']
-                }
-            },
-            {
-                name: 'scan_agents',
-                description: 'Detect all AI coding tools configured in the workspace (Gemini, Claude, Cursor, Windsurf, Cline, Copilot, Codex). Returns their config files and detected features.',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        workspacePath: { type: 'string', description: 'The root directory of the workspace.' }
-                    },
-                    required: ['workspacePath']
-                }
-            },
-            // ── Swarm Orchestration Tools ────────────────────
-            {
-                name: 'register_agent',
-                description: 'Register an AI agent into a swarm session with a specific role. Each agent declares its role (e.g. backend-specialist, security-auditor) to participate in turn-taking.',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        swarmId: { type: 'string', description: 'The swarm session ID to join.' },
-                        role: { type: 'string', description: 'Agent role (e.g. orchestrator, backend-specialist, frontend-specialist, security-auditor).' },
-                        agentName: { type: 'string', description: 'Human-readable name for this agent.' }
-                    },
-                    required: ['swarmId', 'role', 'agentName']
-                }
-            },
-            {
-                name: 'unregister_agent',
-                description: 'Remove an agent from a swarm session.',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        agentId: { type: 'string', description: 'The agent ID to unregister.' }
-                    },
-                    required: ['agentId']
-                }
-            },
-            {
-                name: 'create_swarm',
-                description: 'Create a multi-agent swarm session with a goal and sub-tasks. Each sub-task is assigned to a role. Agents register to fill the slots.',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        projectId: { type: 'string', description: 'The UUID of the project.' },
-                        goal: { type: 'string', description: 'The high-level goal for the swarm.' },
-                        workspacePath: { type: 'string', description: 'Workspace root for branch detection.' },
-                        subTasks: {
-                            type: 'array',
-                            description: 'List of sub-tasks with role, slug, and description.',
-                            items: {
-                                type: 'object',
-                                properties: {
-                                    role: { type: 'string' },
-                                    slug: { type: 'string' },
-                                    description: { type: 'string' }
-                                },
-                                required: ['role', 'slug', 'description']
-                            }
-                        }
-                    },
-                    required: ['projectId', 'goal', 'subTasks']
-                }
-            },
-            {
-                name: 'publish_message',
-                description: 'Publish a message to the swarm message bus. Messages can be broadcast to all agents or targeted to a specific role.',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        agentId: { type: 'string', description: 'The sending agent ID.' },
-                        type: { type: 'string', description: 'Message type: context, decision, directive, status.' },
-                        channel: { type: 'string', description: 'Target: "broadcast" for all or a specific role name.' },
-                        payload: { type: 'string', description: 'JSON message payload.' }
-                    },
-                    required: ['agentId', 'type', 'channel', 'payload']
-                }
-            },
-            {
-                name: 'poll_messages',
-                description: 'Poll the message bus for messages addressed to this agent (broadcast + role-specific). Returns messages since the last poll.',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        agentId: { type: 'string', description: 'The polling agent ID.' },
-                        since: { type: 'string', description: 'Optional ISO timestamp to filter messages after.' }
-                    },
-                    required: ['agentId']
-                }
-            },
-            {
-                name: 'update_agent_status',
-                description: 'Update agent status (IDLE, WORKING, DONE, BLOCKED). Setting DONE advances the swarm to the next turn.',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        agentId: { type: 'string', description: 'The agent ID.' },
-                        status: { type: 'string', description: 'New status: IDLE, WORKING, DONE, or BLOCKED.' }
-                    },
-                    required: ['agentId', 'status']
-                }
-            },
-            {
-                name: 'get_swarm_status',
-                description: 'Get the full status of a swarm session including all agents, recent messages, and conflicts.',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        swarmId: { type: 'string', description: 'The swarm session ID.' }
-                    },
-                    required: ['swarmId']
-                }
-            },
-            {
-                name: 'report_conflict',
-                description: 'Report a semantic conflict in the swarm. Automatically halts the swarm and pages the developer for resolution.',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        agentId: { type: 'string', description: 'The reporting agent ID.' },
-                        reason: { type: 'string', description: 'Why this is a conflict.' },
-                        blockedDecision: { type: 'string', description: 'The decision being blocked.' },
-                        filePath: { type: 'string', description: 'Optional file path related to the conflict.' },
-                        symbolName: { type: 'string', description: 'Optional code symbol related to the conflict.' }
-                    },
-                    required: ['agentId', 'reason', 'blockedDecision']
-                }
-            },
-            {
-                name: 'resolve_conflict',
-                description: 'Resolve a swarm conflict. Accepts the conflict message ID and a resolution. Resumes the swarm if all conflicts are resolved.',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        messageId: { type: 'string', description: 'The conflict message ID to resolve.' },
-                        resolution: { type: 'string', description: 'The resolution decision.' }
-                    },
-                }
-            },
-            // ── Self-Healing Codebases Tools ─────────────────
-            {
-                name: 'diagnose_test_failure',
-                description: 'Diagnose a test failure by parsing the stack trace, extracting symbols, and querying semantic memory for related decisions/architecture.',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        workspacePath: { type: 'string', description: 'The root directory of the workspace.' },
-                        rawTestOutput: { type: 'string', description: 'The raw stack trace or test error output.' },
-                        branch: { type: 'string', description: 'The git branch (defaults to main).' }
-                    },
-                    required: ['workspacePath', 'rawTestOutput']
-                }
-            },
-            {
-                name: 'get_healing_plan',
-                description: 'Generate a structured healing plan from a raw test output string. Provides suggested actions and contextual knowledge.',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        workspacePath: { type: 'string', description: 'The root directory of the workspace.' },
-                        rawTestOutput: { type: 'string', description: 'The raw stack trace or test error output.' }
-                    },
-                    required: ['workspacePath', 'rawTestOutput']
-                }
-            },
-            {
-                name: 'execute_healing',
-                description: 'Orchestrator tool that runs tests, diagnoses any failures, and optionally auto-commits simple fixes to the semantic memory.',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        workspacePath: { type: 'string', description: 'The root directory of the workspace.' },
-                        autoCommit: { type: 'boolean', description: 'True to automatically update memory with fixes.' },
-                        cmd: { type: 'string', description: 'Optional custom test command (defaults to npm test)' }
-                    },
-                    required: ['workspacePath']
-                }
-            },
-            {
-                name: 'audit_dependencies',
-                description: 'Run an npm audit, classify vulnerabilities by severity, and cross-reference with aigit architectural decisions.',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        workspacePath: { type: 'string', description: 'The root directory of the workspace.' },
-                        autoFix: { type: 'boolean', description: 'True to auto-branch and run npm audit fix.' }
-                    },
-                    required: ['workspacePath']
-                }
-            },
-            {
-                name: 'get_healing_history',
-                description: 'Retrieve the history of past test failures and dependency heal events.',
-                inputSchema: {
-                    type: 'object',
-                    properties: {} // No arguments required
-                }
-            },
-            // ── Red-Teaming & Security Tools ─────────────────
-            {
-                name: 'audit_semantic_decisions',
-                description: 'Fetch the latest context decisions to review them for security loopholes, leaked secrets, or poor architectural patterns.',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        projectId: { type: 'string', description: 'The UUID of the project.' },
-                        limit: { type: 'number', description: 'Number of recent decisions to review (default: 50).' }
-                    },
-                    required: ['projectId']
-                }
-            },
-            {
-                name: 'flag_vulnerability',
-                description: 'Log a specific security warning or task into the database based on an audited semantic decision.',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        projectId: { type: 'string', description: 'The UUID of the project.' },
-                        title: { type: 'string', description: 'Short title of the vulnerability or risk found.' },
-                        description: { type: 'string', description: 'Detailed description of the risk, including which decision it stems from.' },
-                        severity: { type: 'string', description: 'Severity level (e.g. LOW, MEDIUM, HIGH, CRITICAL).' }
-                    },
-                    required: ['projectId', 'title', 'description', 'severity']
-                }
-            },
-            {
-                name: 'generate_architecture_docs',
-                description: 'Generate ARCHITECTURE.md and a Mermaid DAG from the semantic memory ledger.',
-                inputSchema: {
-                    type: 'object',
-                    properties: {},
-                }
-            }
-        ]
+        content: [{ type: 'text', text: `❌ [${toolName}] Invalid arguments: ${error}` }],
+        isError: true,
     };
-});
-// Implement Tool routing logic over MCP
+}
+// ── Tool routing ──────────────────────────────────────────────────────────────
 server.setRequestHandler(types_js_1.CallToolRequestSchema, async (request) => {
+    const raw = request.params.arguments;
+    const tool = request.params.name;
     try {
-        switch (request.params.name) {
+        switch (tool) {
             case 'get_project_history': {
-                const args = request.params.arguments;
-                const pId = String(args?.projectId);
-                const branch = args?.workspacePath ? (0, git_1.getActiveBranch)(String(args.workspacePath)) : 'main';
-                // Fetch context belonging to 'main' AND the active branch
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.GetProjectHistoryArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
+                const { projectId, workspacePath } = v.data;
+                const branch = workspacePath ? (0, git_1.getActiveBranch)(workspacePath) : 'main';
                 const branches = branch === 'main' ? ['main'] : ['main', branch];
                 const [memories, decisions] = await Promise.all([
-                    db_1.prisma.memory.findMany({ where: { projectId: pId, gitBranch: { in: branches } } }),
-                    db_1.prisma.decision.findMany({ where: { task: { projectId: pId }, gitBranch: { in: branches } } })
+                    db_1.prisma.memory.findMany({ where: { projectId, gitBranch: { in: branches } } }),
+                    db_1.prisma.decision.findMany({ where: { task: { projectId }, gitBranch: { in: branches } } })
                 ]);
                 return { content: [{ type: 'text', text: JSON.stringify({ memories, decisions }, null, 2) }] };
             }
             case 'get_active_task_state': {
-                const args = request.params.arguments;
-                const pId = String(args?.projectId);
-                const branch = args?.workspacePath ? (0, git_1.getActiveBranch)(String(args.workspacePath)) : 'main';
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.GetActiveTaskStateArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
+                const { projectId, workspacePath } = v.data;
+                const branch = workspacePath ? (0, git_1.getActiveBranch)(workspacePath) : 'main';
                 const tasks = await db_1.prisma.task.findMany({
-                    where: { projectId: pId, status: { not: 'DONE' }, gitBranch: branch },
+                    where: { projectId, status: { not: 'DONE' }, gitBranch: branch },
                     include: { decisions: true }
                 });
                 return { content: [{ type: 'text', text: JSON.stringify(tasks, null, 2) }] };
             }
             case 'commit_decision': {
-                const args = request.params.arguments;
-                const branch = args?.workspacePath ? (0, git_1.getActiveBranch)(String(args.workspacePath)) : 'main';
-                // Phase 23: Auto-resolve symbol from filePath + lineNumber
-                let symName = args?.symbolName ? String(args.symbolName) : null;
-                let symType = args?.symbolType ? String(args.symbolType) : null;
-                let symRange = null;
-                if (!symName && args?.filePath && args?.lineNumber) {
-                    try {
-                        const resolved = (0, resolver_1.resolveSymbolAtLine)(String(args.filePath), Number(args.lineNumber));
-                        if (resolved) {
-                            symName = resolved.qualifiedName;
-                            symType = resolved.type;
-                            symRange = (0, resolver_1.formatRange)(resolved.range);
-                        }
-                    }
-                    catch { /* graceful fallback */ }
-                }
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.CommitDecisionArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
+                const { taskId, context, chosen, rejected, reasoning, filePath, lineNumber, workspacePath } = v.data;
+                const branch = workspacePath ? (0, git_1.getActiveBranch)(workspacePath) : 'main';
+                const { symName, symType, symRange } = (0, symbolUtils_1.resolveSymbolContext)(v.data);
                 const decision = await db_1.prisma.decision.create({
                     data: {
-                        taskId: String(args?.taskId),
-                        gitBranch: branch,
-                        context: String(args?.context),
-                        chosen: String(args?.chosen),
-                        rejected: args?.rejected,
-                        reasoning: String(args?.reasoning),
-                        filePath: args?.filePath ? String(args.filePath) : null,
-                        lineNumber: args?.lineNumber ? Number(args.lineNumber) : null,
-                        symbolName: symName,
-                        symbolType: symType,
-                        symbolRange: symRange,
+                        taskId, gitBranch: branch, context, chosen,
+                        rejected: rejected,
+                        reasoning,
+                        filePath: filePath ?? null,
+                        lineNumber: lineNumber ?? null,
+                        symbolName: symName, symbolType: symType, symbolRange: symRange,
                     }
                 });
-                const anchor = symName ? ` [⚓ @${symName}]` : (decision.filePath ? ` [📎 ${decision.filePath}]` : '');
+                const anchor = symName ? ` [⚓ @${symName}]` : (filePath ? ` [📎 ${filePath}]` : '');
                 return { content: [{ type: 'text', text: `Decision recorded correctly.${anchor} ID: ${decision.id}` }] };
             }
             case 'commit_task': {
-                const args = request.params.arguments;
-                const branch = args?.workspacePath ? (0, git_1.getActiveBranch)(String(args.workspacePath)) : 'main';
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.CommitTaskArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
+                const { projectId, slug, title, workspacePath } = v.data;
+                const branch = workspacePath ? (0, git_1.getActiveBranch)(workspacePath) : 'main';
                 const task = await db_1.prisma.task.create({
-                    data: {
-                        projectId: String(args?.projectId),
-                        slug: String(args?.slug),
-                        title: String(args?.title),
-                        gitBranch: branch,
-                        status: 'PLANNING'
-                    }
+                    data: { projectId, slug, title, gitBranch: branch, status: 'PLANNING' }
                 });
                 return { content: [{ type: 'text', text: `Task Context successfully created on branch [${branch}]. ID: ${task.id} (Slug: ${task.slug}.md)` }] };
             }
             case 'take_note': {
-                const args = request.params.arguments;
-                const branch = args?.workspacePath ? (0, git_1.getActiveBranch)(String(args.workspacePath)) : 'main';
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.TakeNoteArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
+                const { projectId, workspacePath, message, scope, isDecision, issueRef } = v.data;
+                const branch = (0, git_1.getActiveBranch)(workspacePath);
+                const { dumpContextLedger } = await Promise.resolve().then(() => __importStar(require('./cli/sync')));
                 const memory = await db_1.prisma.memory.create({
                     data: {
-                        projectId: String(args?.projectId),
-                        gitBranch: branch,
-                        type: args?.isDecision ? 'architecture' : 'human_note',
-                        content: String(args?.message),
-                        filePath: args?.scope ? String(args.scope) : null,
-                        issueRef: args?.issueRef ? String(args.issueRef) : null,
+                        projectId, gitBranch: branch,
+                        type: isDecision ? 'architecture' : 'human_note',
+                        content: message,
+                        filePath: scope ?? null,
+                        issueRef: issueRef ?? null,
                     }
                 });
-                const { dumpContextLedger } = require('./cli/sync');
-                await dumpContextLedger(String(args?.workspacePath));
+                await dumpContextLedger(workspacePath);
                 const issueTag = memory.issueRef ? ` 🔗 ${memory.issueRef}` : '';
                 return { content: [{ type: 'text', text: `✅ [aigit note] Context captured on branch [${branch}].${issueTag} ID: ${memory.id}` }] };
             }
             case 'commit_memory': {
-                const args = request.params.arguments;
-                const branch = args?.workspacePath ? (0, git_1.getActiveBranch)(String(args.workspacePath)) : 'main';
-                // Phase 23: Auto-resolve symbol from filePath + lineNumber
-                let cSymName = args?.symbolName ? String(args.symbolName) : null;
-                let cSymType = args?.symbolType ? String(args.symbolType) : null;
-                let cSymRange = null;
-                if (!cSymName && args?.filePath && args?.lineNumber) {
-                    try {
-                        const resolved = (0, resolver_1.resolveSymbolAtLine)(String(args.filePath), Number(args.lineNumber));
-                        if (resolved) {
-                            cSymName = resolved.qualifiedName;
-                            cSymType = resolved.type;
-                            cSymRange = (0, resolver_1.formatRange)(resolved.range);
-                        }
-                    }
-                    catch { /* graceful fallback */ }
-                }
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.CommitMemoryArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
+                const { projectId, workspacePath, type, content, filePath, lineNumber } = v.data;
+                const branch = (0, git_1.getActiveBranch)(workspacePath);
+                const { symName, symType, symRange } = (0, symbolUtils_1.resolveSymbolContext)(v.data);
                 const memory = await db_1.prisma.memory.create({
                     data: {
-                        projectId: String(args?.projectId),
-                        gitBranch: branch,
-                        type: String(args?.type),
-                        content: String(args?.content),
-                        filePath: args?.filePath ? String(args.filePath) : null,
-                        lineNumber: args?.lineNumber ? Number(args.lineNumber) : null,
-                        symbolName: cSymName,
-                        symbolType: cSymType,
-                        symbolRange: cSymRange,
+                        projectId, gitBranch: branch, type, content,
+                        filePath: filePath ?? null,
+                        lineNumber: lineNumber ?? null,
+                        symbolName: symName, symbolType: symType, symbolRange: symRange,
                     }
                 });
-                const anchor = cSymName ? ` [⚓ @${cSymName}]` : (memory.filePath ? ` [📎 ${memory.filePath}]` : '');
+                const anchor = symName ? ` [⚓ @${symName}]` : (filePath ? ` [📎 ${filePath}]` : '');
                 return { content: [{ type: 'text', text: `✅ Context committed to branch [${branch}].${anchor} ID: ${memory.id}` }] };
             }
             case 'get_hydrated_context': {
-                const args = request.params.arguments;
-                const contextPayload = await (0, hydration_1.compileHydratedContext)(String(args?.workspacePath), args?.activeFile ? String(args?.activeFile) : undefined);
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.GetHydratedContextArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
+                const contextPayload = await (0, hydration_1.compileHydratedContext)(v.data.workspacePath, v.data.activeFile);
                 return { content: [{ type: 'text', text: contextPayload }] };
             }
             case 'query_context': {
-                const args = request.params.arguments;
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.QueryContextArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
                 const results = await (0, search_1.semanticSearch)({
-                    query: String(args?.query),
-                    branch: args?.branch ? String(args.branch) : undefined,
-                    filePath: args?.filePath ? String(args.filePath) : undefined,
-                    symbolName: args?.symbolName ? String(args.symbolName) : undefined,
-                    topK: args?.topK ? Number(args.topK) : 5,
+                    query: v.data.query,
+                    branch: v.data.branch,
+                    filePath: v.data.filePath,
+                    symbolName: v.data.symbolName,
+                    topK: v.data.topK ?? 5,
                 });
                 if (results.length === 0) {
                     return { content: [{ type: 'text', text: 'No matching context found for your query.' }] };
@@ -643,12 +199,14 @@ server.setRequestHandler(types_js_1.CallToolRequestSchema, async (request) => {
                 return { content: [{ type: 'text', text: `🔍 Semantic Search Results:\n\n${formatted}` }] };
             }
             case 'query_historical': {
-                const args = request.params.arguments;
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.QueryHistoricalArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
                 const result = (0, timeTravel_1.queryHistoricalContext)({
-                    query: String(args?.query),
-                    commitHash: String(args?.commitHash),
-                    workspacePath: String(args?.workspacePath),
-                    topK: args?.topK ? Number(args.topK) : 5,
+                    query: v.data.query,
+                    commitHash: v.data.commitHash,
+                    workspacePath: v.data.workspacePath,
+                    topK: v.data.topK ?? 5,
                 });
                 if (!result.success) {
                     return { content: [{ type: 'text', text: `❌ ${result.error}` }], isError: true };
@@ -660,12 +218,13 @@ server.setRequestHandler(types_js_1.CallToolRequestSchema, async (request) => {
                 return { content: [{ type: 'text', text: `🕰️ Time-Travel Query @ ${result.commitHash}:\n\n${formatted}` }] };
             }
             case 'get_symbol_context': {
-                const args = request.params.arguments;
-                const filePath = String(args?.filePath);
-                let symName = args?.symbolName ? String(args.symbolName) : null;
-                // Resolve symbol from line number if not provided directly
-                if (!symName && args?.lineNumber) {
-                    const resolved = (0, resolver_1.resolveSymbolAtLine)(filePath, Number(args.lineNumber));
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.GetSymbolContextArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
+                const { filePath, lineNumber, symbolName } = v.data;
+                let symName = symbolName ?? null;
+                if (!symName && lineNumber) {
+                    const resolved = (0, resolver_1.resolveSymbolAtLine)(filePath, lineNumber);
                     if (resolved)
                         symName = resolved.qualifiedName;
                 }
@@ -680,25 +239,30 @@ server.setRequestHandler(types_js_1.CallToolRequestSchema, async (request) => {
                 return { content: [{ type: 'text', text: JSON.stringify({ symbol: symName, ...linked }, null, 2) }] };
             }
             case 'anchor_file': {
-                const args = request.params.arguments;
-                const result = await (0, resolver_1.anchorFileToSymbols)(String(args?.filePath), String(args?.workspacePath));
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.AnchorFileArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
+                const result = await (0, resolver_1.anchorFileToSymbols)(v.data.filePath, v.data.workspacePath);
                 return {
-                    content: [{ type: 'text', text: `⚓ Anchored ${result.anchored}/${result.total} unlinked entries to code symbols in ${path.basename(String(args?.filePath))}.` }]
+                    content: [{ type: 'text', text: `⚓ Anchored ${result.anchored}/${result.total} unlinked entries to code symbols in ${path.basename(v.data.filePath)}.` }]
                 };
             }
             case 'list_symbols': {
-                const args = request.params.arguments;
-                const symbols = (0, resolver_1.extractAllSymbols)(String(args?.filePath));
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.ListSymbolsArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
+                const symbols = (0, resolver_1.extractAllSymbols)(v.data.filePath);
                 if (symbols.length === 0) {
                     return { content: [{ type: 'text', text: 'No symbols found in this file.' }] };
                 }
                 const formatted = symbols.map(s => `${s.type} ${s.qualifiedName} (L${s.range.startLine}-${s.range.endLine})`).join('\n');
-                return { content: [{ type: 'text', text: `📋 ${symbols.length} symbols in ${path.basename(String(args?.filePath))}:\n\n${formatted}` }] };
+                return { content: [{ type: 'text', text: `📋 ${symbols.length} symbols in ${path.basename(v.data.filePath)}:\n\n${formatted}` }] };
             }
             case 'revert_context': {
-                const args = request.params.arguments;
-                const targetId = String(args?.id);
-                // Try memory first, then decision, then task
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.RevertContextArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
+                const targetId = v.data.id;
                 const memory = await db_1.prisma.memory.findUnique({ where: { id: targetId } });
                 if (memory) {
                     await db_1.prisma.memory.delete({ where: { id: targetId } });
@@ -718,16 +282,15 @@ server.setRequestHandler(types_js_1.CallToolRequestSchema, async (request) => {
                 return { content: [{ type: 'text', text: `⚠️ No memory, decision, or task found with ID: ${targetId}` }] };
             }
             case 'check_conflicts': {
-                const args = request.params.arguments;
-                const pId = String(args?.projectId);
-                const currentBranch = (0, git_1.getActiveBranch)(String(args?.workspacePath));
-                const targetBranch = String(args?.targetBranch);
-                // Get decisions unique to each branch
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.CheckConflictsArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
+                const { projectId, workspacePath, targetBranch } = v.data;
+                const currentBranch = (0, git_1.getActiveBranch)(workspacePath);
                 const [currentDecisions, targetDecisions] = await Promise.all([
-                    db_1.prisma.decision.findMany({ where: { task: { projectId: pId }, gitBranch: currentBranch } }),
-                    db_1.prisma.decision.findMany({ where: { task: { projectId: pId }, gitBranch: targetBranch } }),
+                    db_1.prisma.decision.findMany({ where: { task: { projectId }, gitBranch: currentBranch } }),
+                    db_1.prisma.decision.findMany({ where: { task: { projectId }, gitBranch: targetBranch } }),
                 ]);
-                // Find conflicts: decisions touching the same file or symbol
                 const conflicts = [];
                 for (const cd of currentDecisions) {
                     for (const td of targetDecisions) {
@@ -752,21 +315,19 @@ server.setRequestHandler(types_js_1.CallToolRequestSchema, async (request) => {
                 };
             }
             case 'merge_context': {
-                const args = request.params.arguments;
-                const pId = String(args?.projectId);
-                const src = String(args?.sourceBranch);
-                const tgt = String(args?.targetBranch);
-                // Get all context from source branch
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.MergeContextArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
+                const { projectId, sourceBranch: src, targetBranch: tgt } = v.data;
                 const [memories, decisions, tasks] = await Promise.all([
-                    db_1.prisma.memory.findMany({ where: { projectId: pId, gitBranch: src } }),
-                    db_1.prisma.decision.findMany({ where: { task: { projectId: pId }, gitBranch: src } }),
-                    db_1.prisma.task.findMany({ where: { projectId: pId, gitBranch: src } }),
+                    db_1.prisma.memory.findMany({ where: { projectId, gitBranch: src } }),
+                    db_1.prisma.decision.findMany({ where: { task: { projectId }, gitBranch: src } }),
+                    db_1.prisma.task.findMany({ where: { projectId, gitBranch: src } }),
                 ]);
                 let ported = 0;
-                // Port memories
                 for (const m of memories) {
                     const exists = await db_1.prisma.memory.findFirst({
-                        where: { projectId: pId, gitBranch: tgt, content: m.content }
+                        where: { projectId, gitBranch: tgt, content: m.content }
                     });
                     if (!exists) {
                         await db_1.prisma.memory.create({
@@ -779,10 +340,9 @@ server.setRequestHandler(types_js_1.CallToolRequestSchema, async (request) => {
                         ported++;
                     }
                 }
-                // Port tasks and their decisions
                 for (const t of tasks) {
                     const exists = await db_1.prisma.task.findFirst({
-                        where: { projectId: pId, gitBranch: tgt, slug: t.slug }
+                        where: { projectId, gitBranch: tgt, slug: t.slug }
                     });
                     if (!exists) {
                         const newTask = await db_1.prisma.task.create({
@@ -790,7 +350,6 @@ server.setRequestHandler(types_js_1.CallToolRequestSchema, async (request) => {
                                 projectId: t.projectId, gitBranch: tgt, slug: t.slug, title: t.title, status: t.status,
                             }
                         });
-                        // Port decisions for this task
                         const taskDecisions = decisions.filter(d => d.taskId === t.id);
                         for (const d of taskDecisions) {
                             await db_1.prisma.decision.create({
@@ -811,8 +370,10 @@ server.setRequestHandler(types_js_1.CallToolRequestSchema, async (request) => {
                 };
             }
             case 'scan_agents': {
-                const args = request.params.arguments;
-                const ws = String(args?.workspacePath);
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.ScanAgentsArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
+                const { workspacePath: ws } = v.data;
                 const toolDefs = [
                     { id: 'gemini', name: 'Google Gemini', files: ['GEMINI.md', 'AGENTS.md', '.gemini'] },
                     { id: 'claude', name: 'Claude Code', files: ['CLAUDE.md', '.claude'] },
@@ -824,9 +385,9 @@ server.setRequestHandler(types_js_1.CallToolRequestSchema, async (request) => {
                     { id: 'aider', name: 'Aider', files: ['.aider.conf.yml', 'CONVENTIONS.md'] },
                 ];
                 const detected = toolDefs
-                    .map(tool => {
-                    const found = tool.files.filter(f => fs.existsSync(path.join(ws, f)));
-                    return found.length > 0 ? { ...tool, foundFiles: found } : null;
+                    .map(t => {
+                    const found = t.files.filter(f => fs.existsSync(path.join(ws, f)));
+                    return found.length > 0 ? { ...t, foundFiles: found } : null;
                 })
                     .filter(Boolean);
                 if (detected.length === 0) {
@@ -837,28 +398,34 @@ server.setRequestHandler(types_js_1.CallToolRequestSchema, async (request) => {
                     content: [{ type: 'text', text: `🔍 Detected ${detected.length} AI tool(s):\n\n${formatted}` }]
                 };
             }
-            // ── Swarm Orchestration Handlers ────────────────
+            // ── Swarm Orchestration Handlers ──────────────────────────────────
             case 'register_agent': {
-                const args = request.params.arguments;
-                const agent = await (0, swarm_1.registerAgent)(String(args?.swarmId), String(args?.role), String(args?.agentName));
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.RegisterAgentArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
+                const agent = await (0, swarm_1.registerAgent)(v.data.swarmId, v.data.role, v.data.agentName);
                 const swarm = await (0, swarm_1.getSwarmStatus)(agent.swarmId);
                 return {
                     content: [{ type: 'text', text: `🐝 Agent registered: ${agent.agentName} as ${agent.role} (Turn ${agent.turnOrder})\nSwarm status: ${swarm?.status}\nAgent ID: ${agent.id}` }]
                 };
             }
             case 'unregister_agent': {
-                const args = request.params.arguments;
-                const agent = await (0, swarm_1.unregisterAgent)(String(args?.agentId));
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.UnregisterAgentArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
+                const agent = await (0, swarm_1.unregisterAgent)(v.data.agentId);
                 if (!agent) {
                     return { content: [{ type: 'text', text: '⚠️ Agent not found.' }] };
                 }
                 return { content: [{ type: 'text', text: `✅ Agent ${agent.agentName} (${agent.role}) removed from swarm.` }] };
             }
             case 'create_swarm': {
-                const args = request.params.arguments;
-                const branch = args?.workspacePath ? (0, git_1.getActiveBranch)(String(args.workspacePath)) : 'main';
-                const subTasks = args?.subTasks || [];
-                const swarm = await (0, swarm_1.createSwarm)(String(args?.projectId), String(args?.goal), branch, subTasks);
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.CreateSwarmArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
+                const { projectId, goal, workspacePath, subTasks } = v.data;
+                const branch = workspacePath ? (0, git_1.getActiveBranch)(workspacePath) : 'main';
+                const swarm = await (0, swarm_1.createSwarm)(projectId, goal, branch, subTasks);
                 const agentList = swarm?.agents.map(a => `   ${a.turnOrder}. 🔧 ${a.role}: ${a.taskSlug}`).join('\n') || '';
                 return {
                     content: [{
@@ -868,16 +435,20 @@ server.setRequestHandler(types_js_1.CallToolRequestSchema, async (request) => {
                 };
             }
             case 'publish_message': {
-                const args = request.params.arguments;
-                const msg = await (0, swarm_1.publishMessage)(String(args?.agentId), String(args?.type), String(args?.channel), String(args?.payload));
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.PublishMessageArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
+                const msg = await (0, swarm_1.publishMessage)(v.data.agentId, v.data.type, v.data.channel, v.data.payload);
                 return {
                     content: [{ type: 'text', text: `📨 Message published (${msg.type} → ${msg.channel}). ID: ${msg.id}` }]
                 };
             }
             case 'poll_messages': {
-                const args = request.params.arguments;
-                const since = args?.since ? new Date(String(args.since)) : undefined;
-                const messages = await (0, swarm_1.pollMessages)(String(args?.agentId), since);
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.PollMessagesArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
+                const since = v.data.since ? new Date(v.data.since) : undefined;
+                const messages = await (0, swarm_1.pollMessages)(v.data.agentId, since);
                 if (messages.length === 0) {
                     return { content: [{ type: 'text', text: 'No new messages.' }] };
                 }
@@ -885,16 +456,20 @@ server.setRequestHandler(types_js_1.CallToolRequestSchema, async (request) => {
                 return { content: [{ type: 'text', text: `📬 ${messages.length} message(s):\n\n${formatted}` }] };
             }
             case 'update_agent_status': {
-                const args = request.params.arguments;
-                const agent = await (0, swarm_1.updateAgentStatus)(String(args?.agentId), String(args?.status));
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.UpdateAgentStatusArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
+                const agent = await (0, swarm_1.updateAgentStatus)(v.data.agentId, v.data.status);
                 const emoji = { IDLE: '⏳', WORKING: '🔄', DONE: '✅', BLOCKED: '🚫' }[agent.status] || '❓';
                 return {
                     content: [{ type: 'text', text: `${emoji} Agent ${agent.agentName} status: ${agent.status}` }]
                 };
             }
             case 'get_swarm_status': {
-                const args = request.params.arguments;
-                const swarm = await (0, swarm_1.getSwarmStatus)(String(args?.swarmId));
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.GetSwarmStatusArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
+                const swarm = await (0, swarm_1.getSwarmStatus)(v.data.swarmId);
                 if (!swarm) {
                     return { content: [{ type: 'text', text: '⚠️ Swarm not found.' }] };
                 }
@@ -902,8 +477,8 @@ server.setRequestHandler(types_js_1.CallToolRequestSchema, async (request) => {
                     const emoji = { IDLE: '⏳', WORKING: '🔄', DONE: '✅', BLOCKED: '🚫' }[a.status] || '❓';
                     return `   ${a.turnOrder}. ${emoji} ${a.agentName} (${a.role}) — ${a.status} [${a.taskSlug || 'no task'}]`;
                 }).join('\n');
-                const conflicts = swarm.messages.filter(m => m.isConflict && !m.resolved);
-                const conflictInfo = conflicts.length > 0 ? `\n\n⚠️ ${conflicts.length} unresolved conflict(s)` : '';
+                const unresolved = swarm.messages.filter(m => m.isConflict && !m.resolved);
+                const conflictInfo = unresolved.length > 0 ? `\n\n⚠️ ${unresolved.length} unresolved conflict(s)` : '';
                 const recentMsgs = swarm.messages.slice(0, 5).map(m => `   [${m.fromAgent.role}→${m.channel}] ${m.type}: ${m.payload.substring(0, 80)}...`).join('\n');
                 return {
                     content: [{
@@ -913,76 +488,84 @@ server.setRequestHandler(types_js_1.CallToolRequestSchema, async (request) => {
                 };
             }
             case 'report_conflict': {
-                const args = request.params.arguments;
-                const conflict = await (0, conflict_1.reportConflict)(String(args?.agentId), String(args?.reason), String(args?.blockedDecision), args?.filePath ? String(args.filePath) : undefined, args?.symbolName ? String(args.symbolName) : undefined);
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.ReportConflictArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
+                const conflict = await (0, conflict_1.reportConflict)(v.data.agentId, v.data.reason, v.data.blockedDecision, v.data.filePath, v.data.symbolName);
                 return {
                     content: [{
                             type: 'text',
-                            text: `⚠️ Conflict reported! Swarm HALTED.\n   Reason: ${args?.reason}\n   Blocked: ${args?.blockedDecision}\n   Conflict ID: ${conflict.id}\n\n   Developer must resolve via: resolve_conflict(messageId: '${conflict.id}', resolution: '...')`
+                            text: `⚠️ Conflict reported! Swarm HALTED.\n   Reason: ${v.data.reason}\n   Blocked: ${v.data.blockedDecision}\n   Conflict ID: ${conflict.id}\n\n   Developer must resolve via: resolve_conflict(messageId: '${conflict.id}', resolution: '...')`
                         }]
                 };
             }
             case 'resolve_conflict': {
-                const args = request.params.arguments;
-                const resolved = await (0, conflict_1.resolveConflict)(String(args?.messageId), String(args?.resolution));
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.ResolveConflictArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
+                const resolved = await (0, conflict_1.resolveConflict)(v.data.messageId, v.data.resolution);
                 return {
                     content: [{
                             type: 'text',
-                            text: `✅ Conflict resolved: ${args?.resolution}\n   Message ID: ${resolved.id}\n   Swarm resumed.`
+                            text: `✅ Conflict resolved: ${v.data.resolution}\n   Message ID: ${resolved.id}\n   Swarm resumed.`
                         }]
                 };
             }
+            // ── Self-Healing Codebases Handlers ───────────────────────────────
             case 'diagnose_test_failure': {
-                const args = request.params.arguments;
-                const { diagnoseTestFailure } = require('./healing/diagnosis');
-                const branch = args?.branch ? String(args.branch) : (0, git_1.getActiveBranch)(String(args?.workspacePath));
-                const diagnosis = await diagnoseTestFailure(String(args?.rawTestOutput), String(args?.workspacePath), branch);
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.DiagnoseTestFailureArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
+                const branch = v.data.branch ?? (0, git_1.getActiveBranch)(v.data.workspacePath);
+                const diagnosis = await (0, diagnosis_1.diagnoseTestFailure)(v.data.rawTestOutput, v.data.workspacePath, branch);
                 return { content: [{ type: 'text', text: JSON.stringify(diagnosis, null, 2) }] };
             }
             case 'get_healing_plan': {
-                const args = request.params.arguments;
-                const { diagnoseTestFailure } = require('./healing/diagnosis');
-                const { buildHealingPlan, formatHealPayload } = require('./healing/strategy');
-                const branch = (0, git_1.getActiveBranch)(String(args?.workspacePath));
-                const diagnosis = await diagnoseTestFailure(String(args?.rawTestOutput), String(args?.workspacePath), branch);
-                const plan = buildHealingPlan(diagnosis);
-                return { content: [{ type: 'text', text: formatHealPayload(plan) }] };
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.GetHealingPlanArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
+                const branch = (0, git_1.getActiveBranch)(v.data.workspacePath);
+                const diagnosis = await (0, diagnosis_1.diagnoseTestFailure)(v.data.rawTestOutput, v.data.workspacePath, branch);
+                const plan = (0, strategy_1.buildHealingPlan)(diagnosis);
+                return { content: [{ type: 'text', text: (0, strategy_1.formatHealPayload)(plan) }] };
             }
             case 'execute_healing': {
-                const args = request.params.arguments;
-                const { healFromTestFailure } = require('./healing/runner');
-                const result = await healFromTestFailure(String(args?.workspacePath), {
-                    auto: !!args?.autoCommit,
-                    cmd: args?.cmd ? String(args.cmd) : undefined,
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.ExecuteHealingArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
+                const result = await (0, runner_1.healFromTestFailure)(v.data.workspacePath, {
+                    auto: !!v.data.autoCommit,
+                    cmd: v.data.cmd,
                     quiet: true
                 });
                 return { content: [{ type: 'text', text: result.report }] };
             }
             case 'audit_dependencies': {
-                const args = request.params.arguments;
-                const { runAudit, buildDepHealPlan, executeDepAutoHeal } = require('./healing/depAudit');
-                const workspacePath = String(args?.workspacePath);
-                const audit = runAudit(workspacePath);
-                const plan = await buildDepHealPlan(audit, workspacePath);
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.AuditDependenciesArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
+                const { workspacePath } = v.data;
+                const audit = (0, depAudit_1.runAudit)(workspacePath);
+                const plan = await (0, depAudit_1.buildDepHealPlan)(audit, workspacePath);
                 let resultText = JSON.stringify(plan, null, 2);
-                if (args?.autoFix && audit.fixableCount > 0) {
-                    const healResult = executeDepAutoHeal(workspacePath, plan.branchName);
+                if (v.data.autoFix && audit.fixableCount > 0) {
+                    const healResult = (0, depAudit_1.executeDepAutoHeal)(workspacePath, plan.branchName);
                     resultText += `\n\nAUTO-HEAL RESULT:\n${healResult.message}`;
                 }
                 return { content: [{ type: 'text', text: resultText }] };
             }
             case 'get_healing_history': {
-                const { getHealingHistory } = require('./healing/runner');
-                const history = await getHealingHistory();
+                const history = await (0, runner_1.getHealingHistory)();
                 return { content: [{ type: 'text', text: history }] };
             }
-            // ── Red-Teaming & Security Handlers ─────────────────
+            // ── Red-Teaming & Security Handlers ──────────────────────────────
             case 'audit_semantic_decisions': {
-                const args = request.params.arguments;
-                const pId = String(args?.projectId);
-                const limit = args?.limit ? Number(args.limit) : 50;
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.AuditSemanticDecisionsArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
+                const { projectId, limit = 50 } = v.data;
                 const decisions = await db_1.prisma.decision.findMany({
-                    where: { task: { projectId: pId } },
+                    where: { task: { projectId } },
                     orderBy: { createdAt: 'desc' },
                     take: limit,
                     include: { task: { select: { slug: true } } }
@@ -994,38 +577,40 @@ server.setRequestHandler(types_js_1.CallToolRequestSchema, async (request) => {
                 return { content: [{ type: 'text', text: `🛡️ Security Audit Target:\n\n${formatted}` }] };
             }
             case 'flag_vulnerability': {
-                const args = request.params.arguments;
-                const pId = String(args?.projectId);
-                // Create a special auto-generated task for the security vulnerability
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.FlagVulnerabilityArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
+                const { projectId, title, description, severity } = v.data;
                 const task = await db_1.prisma.task.create({
                     data: {
-                        projectId: pId,
+                        projectId,
                         slug: `security-audit-${Date.now()}`,
-                        title: `[${args?.severity}] ${args?.title}`,
-                        status: 'BLOCKED', // Require human or agent review
+                        title: `[${severity}] ${title}`,
+                        status: 'BLOCKED',
                     }
                 });
-                // Add the vulnerability detail as a synthetic "decision" / context blob
                 await db_1.prisma.decision.create({
                     data: {
                         taskId: task.id,
-                        context: `Security Audit Finding: ${args?.title}`,
+                        context: `Security Audit Finding: ${title}`,
                         chosen: 'VULNERABILITY FLAGGED',
                         rejected: [],
-                        reasoning: String(args?.description),
+                        reasoning: description,
                     }
                 });
                 return { content: [{ type: 'text', text: `🚨 Vulnerability flagged successfully and assigned to task [${task.slug}] (ID: ${task.id}).` }] };
             }
             case 'generate_architecture_docs': {
-                const { generateArchitectureDocs } = require('./docs/generator');
+                const v = (0, argUtils_1.parseArgs)(argUtils_1.GenerateArchitectureDocsArgs, raw);
+                if (!v.ok)
+                    return validationError(tool, v.error);
+                const { workspacePath } = v.data;
                 const project = await db_1.prisma.project.findFirst();
                 if (!project)
                     return { content: [{ type: 'text', text: 'No project initialized.' }] };
-                const workspacePath = process.cwd();
                 const branch = (0, git_1.getActiveBranch)(workspacePath);
                 try {
-                    const mdContent = await generateArchitectureDocs(project.name, branch);
+                    const mdContent = await (0, generator_1.generateArchitectureDocs)(project.name, branch);
                     const outPath = path.join(workspacePath, 'ARCHITECTURE.md');
                     fs.writeFileSync(outPath, mdContent, 'utf-8');
                     return { content: [{ type: 'text', text: `✅ Successfully generated documentation at ${outPath}` }] };
@@ -1035,12 +620,12 @@ server.setRequestHandler(types_js_1.CallToolRequestSchema, async (request) => {
                 }
             }
             default:
-                throw new types_js_1.McpError(types_js_1.ErrorCode.MethodNotFound, `Unknown tool mapping: ${request.params.name}`);
+                throw new types_js_1.McpError(types_js_1.ErrorCode.MethodNotFound, `Unknown tool: ${tool}`);
         }
     }
     catch (error) {
         return {
-            content: [{ type: 'text', text: `MCP Server Error executing ${request.params.name}: ${error.message}` }],
+            content: [{ type: 'text', text: `MCP Server Error in ${tool}: ${error.message}` }],
             isError: true,
         };
     }
@@ -1049,6 +634,9 @@ async function main() {
     await (0, db_1.initializeDatabase)();
     const transport = new stdio_js_1.StdioServerTransport();
     await server.connect(transport);
-    console.error('[AI Context Protocol Engine] MCP Server running securely via STDIO.');
+    const profileLabel = ACTIVE_PROFILE === 'all'
+        ? `all ${ACTIVE_TOOLS.length} tools`
+        : `${ACTIVE_PROFILE} profile (${ACTIVE_TOOLS.length} tools)`;
+    console.error(`[AI Context Protocol Engine] MCP Server running — ${profileLabel}.`);
 }
 main().catch(console.error);

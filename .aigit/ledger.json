@@ -6,303 +6,90 @@
       "description": null,
       "createdAt": "2026-03-02T19:51:19.528Z",
       "updatedAt": "2026-03-02T19:51:19.528Z"
+    },
+    {
+      "id": "7243e2cc-0e94-4768-8e81-ff1360c47d92",
+      "name": "aigit-monorepo",
+      "description": "Root workspace to execute tests across sub-packages",
+      "createdAt": "2026-03-11T21:14:31.128Z",
+      "updatedAt": "2026-03-11T21:14:31.124Z"
     }
   ],
   "agents": [],
   "sessions": [],
   "tasks": [
     {
-      "id": "7bcd2685-2f78-4433-b063-23a5dfbaf92f",
-      "slug": "clean-architecture-generator",
+      "id": "4a14ecc4-450a-45c8-8a35-cffe2d68f1c5",
+      "slug": "implement-user-dashboard",
       "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "title": "clean-architecture-generator",
+      "title": "Implement User Dashboard",
       "gitBranch": "main",
       "status": "DONE",
-      "createdAt": "2026-03-11T07:52:30.028Z",
-      "updatedAt": "2026-03-11T08:03:05.480Z"
+      "createdAt": "2026-03-11T20:36:05.066Z",
+      "updatedAt": "2026-03-11T20:52:06.053Z"
     }
   ],
   "decisions": [],
   "memories": [
     {
-      "id": "691f28c6-a7ba-4a7a-96cf-b6fe0dcb9dde",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "capability",
-      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tcontext-server/dist/cli/index.js\nA\tcontext-server/dist/cli/index.test.js\nM\tcontext-server/package-lock.json\nM\tcontext-server/package.json\nA\tcontext-server/scan-db.js\nA\tcontext-server/src/cli/index.test.ts\nM\tcontext-server/src/cli/index.ts\nA\tcontext-server/vitest.config.ts\nM\tfrontend/src/FeedbackPage.tsx\n\nStatistics:\ncontext-server/dist/cli/index.js      |   90 ++\n context-server/dist/cli/index.test.js |   11 +\n context-server/package-lock.json      | 2286 ++++++++++++++++++++++++++++++++-\n context-server/package.json           |    8 +-\n context-server/scan-db.js             |    9 +\n context-server/src/cli/index.test.ts  |   10 +\n context-server/src/cli/index.ts       |   59 +\n context-server/vitest.config.ts       |    9 +\n frontend/src/FeedbackPage.tsx         |   13 +\n 9 files changed, 2464 insertions(+), 31 deletions(-)",
-      "embedding": null,
-      "createdAt": "2026-03-05T21:30:07.217Z"
-    },
-    {
-      "id": "40cd5a6e-3412-4ced-836c-62cf1a978e21",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "capability",
-      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tcontext-server/dist/cli/index.js\nA\tcontext-server/dist/cli/index.test.js\nM\tcontext-server/package-lock.json\nM\tcontext-server/package.json\nA\tcontext-server/scan-db.js\nA\tcontext-server/src/cli/index.test.ts\nM\tcontext-server/src/cli/index.ts\nA\tcontext-server/vitest.config.ts\nM\tfrontend/src/main.tsx\n\nStatistics:\ncontext-server/dist/cli/index.js      |   90 ++\n context-server/dist/cli/index.test.js |   11 +\n context-server/package-lock.json      | 2286 ++++++++++++++++++++++++++++++++-\n context-server/package.json           |    8 +-\n context-server/scan-db.js             |    9 +\n context-server/src/cli/index.test.ts  |   10 +\n context-server/src/cli/index.ts       |   59 +\n context-server/vitest.config.ts       |    9 +\n frontend/src/main.tsx                 |   15 +-\n 9 files changed, 2463 insertions(+), 34 deletions(-)",
-      "embedding": null,
-      "createdAt": "2026-03-05T21:33:56.766Z"
-    },
-    {
-      "id": "7007cce8-0ea6-4cb5-93eb-9061712cf962",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "capability",
-      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tfrontend/dist/index.html\n\nStatistics:\nfrontend/dist/index.html | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)",
-      "embedding": null,
-      "createdAt": "2026-03-05T21:47:32.727Z"
-    },
-    {
-      "id": "f3f4409e-df1b-44df-aada-1ab916c39637",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "capability",
-      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tfrontend/src/main.tsx\n\nStatistics:\nfrontend/src/main.tsx | 10 +---------\n 1 file changed, 1 insertion(+), 9 deletions(-)",
-      "embedding": null,
-      "createdAt": "2026-03-05T22:11:27.457Z"
-    },
-    {
-      "id": "4d4ab24e-e7d8-429f-9318-5fb61934b464",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "capability",
-      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tfrontend/dist/index.html\nM\tfrontend/index.html\nM\tfrontend/package-lock.json\nM\tfrontend/package.json\nA\tfrontend/public/robots.txt\nA\tfrontend/public/sitemap.xml\nM\tfrontend/src/App.tsx\nM\tfrontend/src/DocsPage.tsx\nM\tfrontend/src/FeedbackPage.tsx\nM\tfrontend/src/NotFoundPage.tsx\nA\tfrontend/src/SEO.tsx\nM\tfrontend/src/main.tsx\n\nStatistics:\nfrontend/dist/index.html      | 33 ++++++++++++++++++++++++++++-\n frontend/index.html           | 31 +++++++++++++++++++++++++++\n frontend/package-lock.json    | 49 ++++++++++++++++++++++++++++++++++++++++++-\n frontend/package.json         |  1 +\n frontend/public/robots.txt    |  4 ++++\n frontend/public/sitemap.xml   | 27 ++++++++++++++++++++++++\n frontend/src/App.tsx          |  9 ++++++--\n frontend/src/DocsPage.tsx     |  7 +++++++\n frontend/src/FeedbackPage.tsx |  6 ++++++\n frontend/src/NotFoundPage.tsx |  6 ++++++\n frontend/src/SEO.tsx          | 42 +++++++++++++++++++++++++++++++++++++\n frontend/src/main.tsx         |  6 +++++-\n 12 files changed, 216 insertions(+), 5 deletions(-)",
-      "embedding": null,
-      "createdAt": "2026-03-05T22:30:25.320Z"
-    },
-    {
-      "id": "78e50f73-d306-431b-bd4a-342a2f520707",
+      "id": "657f2fe1-db2d-4a8c-9c18-4b66e37486ec",
       "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
       "sessionId": null,
       "gitBranch": "main",
       "type": "architecture",
-      "content": "Refined frontend UI to support a professional Light Mode. Abstracted hardcoded transparent dark grays into CSS variables and customized the contrast of terminal simulation blocks, documentation grids, and feature cards.",
+      "content": "Test tip system 1",
       "embedding": null,
-      "createdAt": "2026-03-08T18:57:23.779Z"
+      "createdAt": "2026-03-11T21:25:36.344Z"
     },
     {
-      "id": "fd3e3e0c-e4c2-4619-a75c-795110236c40",
+      "id": "0aef5f77-f70b-42c5-95dc-362152c54298",
       "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
       "sessionId": null,
       "gitBranch": "main",
       "type": "architecture",
-      "content": "Optimized context-server/ARCHITECTURE.md generator to strip redundant git stats and truncate bloated Git Commit Contexts from file-based tracking structure directly.",
+      "content": "Test tip system 2",
       "embedding": null,
-      "createdAt": "2026-03-11T07:44:47.763Z"
+      "createdAt": "2026-03-11T21:25:38.072Z"
     },
     {
-      "id": "ee7f15d5-3257-4178-a53a-ab25369bd2ad",
+      "id": "49593b89-8499-46ae-adfc-8cb57476c306",
       "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
       "sessionId": null,
       "gitBranch": "main",
       "type": "architecture",
-      "content": "Refactored DocsPage UI to split usage funnels into 'Core Capabilities' and introduced new workflows for Self-Healing, Agent Sync, and Security Auditing. Redirected all multi-agent Task file generation from root to .aigit/tasks directory.",
+      "content": "Test tip system 3",
       "embedding": null,
-      "createdAt": "2026-03-11T08:34:46.139Z"
+      "createdAt": "2026-03-11T21:25:38.764Z"
     },
     {
-      "id": "e0696389-ada9-4846-b8df-61f2dab5936a",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "capability",
-      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tcontext-server/dist/cli/index.js\nA\tcontext-server/dist/cli/index.test.js\nM\tcontext-server/package-lock.json\nM\tcontext-server/package.json\nA\tcontext-server/scan-db.js\nA\tcontext-server/src/cli/index.test.ts\nM\tcontext-server/src/cli/index.ts\nA\tcontext-server/vitest.config.ts\n\nStatistics:\ncontext-server/dist/cli/index.js      |   90 ++\n context-server/dist/cli/index.test.js |   11 +\n context-server/package-lock.json      | 2286 ++++++++++++++++++++++++++++++++-\n context-server/package.json           |    8 +-\n context-server/scan-db.js             |    9 +\n context-server/src/cli/index.test.ts  |   10 +\n context-server/src/cli/index.ts       |   59 +\n context-server/vitest.config.ts       |    9 +\n 8 files changed, 2451 insertions(+), 31 deletions(-)",
-      "embedding": null,
-      "createdAt": "2026-03-05T21:11:18.022Z"
-    },
-    {
-      "id": "41aba1d6-2b9b-494b-a4c1-55500bfcf1b0",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "capability",
-      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tfrontend/src/main.tsx\n\nStatistics:\nfrontend/src/main.tsx | 5 +++++\n 1 file changed, 5 insertions(+)",
-      "embedding": null,
-      "createdAt": "2026-03-05T21:42:02.973Z"
-    },
-    {
-      "id": "614dd17f-8670-4bb6-96c7-0182f0b9f9fe",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "capability",
-      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tfrontend/src/main.tsx\n\nStatistics:\nfrontend/src/main.tsx | 10 ++++++++++\n 1 file changed, 10 insertions(+)",
-      "embedding": null,
-      "createdAt": "2026-03-05T21:43:30.700Z"
-    },
-    {
-      "id": "43b67e79-5f29-41f1-a30c-7ca626c81da6",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "capability",
-      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nA\t.claude/AGENTS.md\nM\t.clinerules\nM\t.cursorrules\nM\t.gitignore\nM\t.windsurfrules\nM\tAGENTS.md\nM\tCLAUDE.md\nM\tGEMINI.md\nM\tcontext-server/dist/agents/registry.js\nM\tcontext-server/dist/cli/index.js\nM\tcontext-server/package-lock.json\nM\tcontext-server/package.json\nM\tcontext-server/src/agents/registry.ts\nM\tcontext-server/src/cli/index.ts\n\nStatistics:\n.claude/AGENTS.md                      | 252 +++++++++++++++++++++++++++++++++\n .clinerules                            |  71 ++++------\n .cursorrules                           |  71 ++++------\n .gitignore                             |   3 +\n .windsurfrules                         |  71 ++++------\n AGENTS.md                              |  48 ++++---\n CLAUDE.md                              |  70 ++++-----\n GEMINI.md                              |  96 ++++++-------\n context-server/dist/agents/registry.js |  32 +++++\n context-server/dist/cli/index.js       | 119 ++++++++++++++--\n context-server/package-lock.json       |   6 +-\n context-server/package.json            |   2 +-\n context-server/src/agents/registry.ts  |  32 +++++\n context-server/src/cli/index.ts        | 123 ++++++++++++++--\n 14 files changed, 742 insertions(+), 254 deletions(-)",
-      "embedding": null,
-      "createdAt": "2026-03-07T21:39:32.021Z"
-    },
-    {
-      "id": "2a9396dc-5aa7-4d3a-9d87-a6e8585628c7",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "capability",
-      "content": "Testing fixed ledger dump for Agent-Driven workflow (Attempt 2)",
-      "embedding": null,
-      "createdAt": "2026-03-07T21:53:54.635Z"
-    },
-    {
-      "id": "f3443c23-c6f0-498d-b4ff-acd12bd9facc",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "capability",
-      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tfrontend/src/DocsPage.tsx\n\nStatistics:\nfrontend/src/DocsPage.tsx | 16 +++++++++-------\n 1 file changed, 9 insertions(+), 7 deletions(-)",
-      "embedding": null,
-      "createdAt": "2026-03-07T22:03:12.145Z"
-    },
-    {
-      "id": "1e5d8068-b273-4106-834e-0cbb825d7002",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "capability",
-      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tvscode-aigit/dist/extension.js\nM\tvscode-aigit/dist/extension.js.map\nM\tvscode-aigit/package-lock.json\nM\tvscode-aigit/package.json\nM\tvscode-aigit/src/extension.ts\nA\tvscode-aigit/vscode-aigit-1.0.1.vsix\n\nStatistics:\nvscode-aigit/dist/extension.js       |  13 +++++++++++++\n vscode-aigit/dist/extension.js.map   |   2 +-\n vscode-aigit/package-lock.json       |   4 ++--\n vscode-aigit/package.json            |   9 +++++++--\n vscode-aigit/src/extension.ts        |  17 +++++++++++++++++\n vscode-aigit/vscode-aigit-1.0.1.vsix | Bin 0 -> 40233 bytes\n 6 files changed, 40 insertions(+), 5 deletions(-)",
-      "embedding": null,
-      "createdAt": "2026-03-07T22:09:51.913Z"
-    },
-    {
-      "id": "0d1a9818-9d35-4dd1-bd31-ee7238a875b3",
+      "id": "4fd953ad-5a46-4323-a2cd-f34ed2c847e9",
       "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
       "sessionId": null,
       "gitBranch": "main",
       "type": "architecture",
-      "content": "Updated frontend/src/DocsPage.tsx to document the new Agent-Driven commit workflow.",
+      "content": "Test tip system 4",
       "embedding": null,
-      "createdAt": "2026-03-07T22:19:36.342Z"
+      "createdAt": "2026-03-11T21:25:39.453Z"
     },
     {
-      "id": "b2f63370-cfb0-48da-ab44-702f43481629",
+      "id": "c8c63320-abd7-4840-8dff-98d442f9b1a8",
       "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
       "sessionId": null,
       "gitBranch": "main",
       "type": "architecture",
-      "content": "Added aigit.commitMemory command to vscode-aigit extension allowing developers to commit semantic memory via Command Palette.",
+      "content": "Test tip system 5",
       "embedding": null,
-      "createdAt": "2026-03-07T22:19:37.496Z"
+      "createdAt": "2026-03-11T21:25:40.186Z"
     },
     {
-      "id": "7b7c43c0-ddc9-4e2f-adb5-c1a9e15b3f94",
+      "id": "05ae03d7-49cc-464e-8f52-a3034ca16139",
       "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
       "sessionId": null,
       "gitBranch": "main",
       "type": "architecture",
-      "content": "Dummy summary for strict validation test",
+      "content": "Implemented complete task handoff funnel: commit task now creates .aigit/tasks/{slug}.md plan file, new aigit handoff command generates copy-paste agent context blocks, aigit update task shorthand added, commander routing bug fixed for 3-level subcommands, aigit init interactive wizard with 6 spinner steps and next-steps summary, contextual tips system fires after each command, DocsPage updated with all new workflows and MCP --profile documentation.",
       "embedding": null,
-      "createdAt": "2026-03-07T22:38:21.917Z"
-    },
-    {
-      "id": "27ca22f5-987f-4d91-ac13-36dceb170e71",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "architecture",
-      "content": "Replaced interactive bypass prompt with a strict process.exit(1) hard block in the pre-commit hook to physically prevent AI agents from skipping the semantic commit rule.",
-      "embedding": null,
-      "createdAt": "2026-03-07T22:38:48.785Z"
-    },
-    {
-      "id": "da45941d-6e2c-4de6-858d-860ca2c33733",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "architecture",
-      "content": "Implemented strict non-bypassable git hooks. Replaced interactive TTY prompts with a hard process.exit(1) block to forcefully prevent AI agents from skipping semantic commit requirements.",
-      "embedding": null,
-      "createdAt": "2026-03-07T22:40:09.089Z"
-    },
-    {
-      "id": "0f566571-ee73-49ea-8dab-f25a2609f0e0",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "architecture",
-      "content": "Testing the smart hybrid fallback path.",
-      "embedding": null,
-      "createdAt": "2026-03-07T22:49:43.908Z"
-    },
-    {
-      "id": "6c5435ad-254d-4fcf-9ec3-433714daa419",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "architecture",
-      "content": "Replaced the strict commit hard-block with a Smart Hybrid TTY check. Human devs are seamlessly prompted inline for a semantic summary to save their commit momentum, while headless AI agents are strictly blocked to enforce compliance.",
-      "embedding": null,
-      "createdAt": "2026-03-07T22:50:09.192Z"
-    },
-    {
-      "id": "b066c954-0e3a-41cd-aaff-d34bbb0b4949",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "architecture",
-      "content": "Updated the DocsPage frontend to detail the new Smart Hybrid Commit Enforcement approach for pre-commit hooks.",
-      "embedding": null,
-      "createdAt": "2026-03-07T22:57:45.226Z"
-    },
-    {
-      "id": "74cefc04-fbdd-4c98-a0c8-072f9e7d0b35",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "architecture",
-      "content": "Added explicit 'FATAL CONSEQUENCE' warnings directly into the AI agent prompt files (AGENTS.md, GEMINI.md). This ensures headless AI agents are aware of the strict isTTY git hook and do not waste tokens attempting raw git commits.",
-      "embedding": null,
-      "createdAt": "2026-03-07T23:18:10.745Z"
-    },
-    {
-      "id": "48f0016f-e7af-4bef-85c0-983380348359",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "architecture",
-      "content": "Documented the new Smart Hybrid Git Hooks in both the main README and the context-server README to highlight the split AI/Human developer experience.",
-      "embedding": null,
-      "createdAt": "2026-03-07T23:23:26.910Z"
-    },
-    {
-      "id": "9ec96b6b-6f43-4788-88aa-924bb7dfa056",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "architecture",
-      "content": "Added a root package.json router to allow 'npm test' to correctly trigger child package tests, enabling the local CI 'aigit heal' workflow on pre-push.",
-      "embedding": null,
-      "createdAt": "2026-03-07T23:33:57.189Z"
-    },
-    {
-      "id": "57fa7b0c-c97a-4941-a118-76b85dc56755",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "architecture",
-      "content": "Bumped aigit-core version to 1.1.3 to release the new Smart Hybrid Git Hooks (pre-commit  logic) to the npm registry.",
-      "embedding": null,
-      "createdAt": "2026-03-07T23:37:02.214Z"
-    },
-    {
-      "id": "e082dcd4-4995-4848-bc75-66c121db8434",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "architecture",
-      "content": "Added GitHub repository link to Navbar. Resolved context drift across AI instruction files by standardizing synced rules. Ignored scripts directory in git.",
-      "embedding": null,
-      "createdAt": "2026-03-10T22:36:44.777Z"
+      "createdAt": "2026-03-11T21:37:30.822Z"
     }
   ]
 }
