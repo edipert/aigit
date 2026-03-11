@@ -60,7 +60,7 @@ fi
 
 echo "[aigit] Running self-healing diagnostics..."
 
-npx --no-install aigit heal --quiet || npx --no-install aigit heal --quiet || true
+npx --no-install aigit heal || npx --no-install aigit heal || true
 
 # If tests failed, print a warning but usually don't block the push aggressively unless configured to
 echo "[aigit] Diagnostics complete. Proceeding with push..."
