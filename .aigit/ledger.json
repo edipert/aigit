@@ -340,6 +340,16 @@
       "content": "Updated context-server/ARCHITECTURE.md with restored project history and new task status. Verified mermaid DAG connectivity for all 335 lines of historical memory.",
       "embedding": null,
       "createdAt": "2026-03-11T21:55:26.205Z"
+    },
+    {
+      "id": "23d30a67-0437-4288-91c4-0eb843590384",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Released aigit-core 1.1.6 to npm registry.",
+      "embedding": null,
+      "createdAt": "2026-03-11T22:00:16.492Z"
     }
   ],
   "healingEvents": []
