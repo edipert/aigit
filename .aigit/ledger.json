@@ -34,9 +34,9 @@
       "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
       "title": "Implement User Dashboard",
       "gitBranch": "main",
-      "status": "PLANNING",
+      "status": "DONE",
       "createdAt": "2026-03-11T21:48:05.315Z",
-      "updatedAt": "2026-03-11T21:48:05.315Z"
+      "updatedAt": "2026-03-11T21:53:37.195Z"
     }
   ],
   "decisions": [],
@@ -330,6 +330,16 @@
       "content": "Implemented complete task handoff funnel: commit task now creates .aigit/tasks/{slug}.md plan file, new aigit handoff command generates copy-paste agent context blocks, aigit update task shorthand added, commander routing bug fixed for 3-level subcommands, aigit init interactive wizard with 6 spinner steps and next-steps summary, contextual tips system fires after each command, DocsPage updated with all new workflows and MCP --profile documentation.",
       "embedding": null,
       "createdAt": "2026-03-11T21:48:06.029Z"
+    },
+    {
+      "id": "89506b8b-bf6b-42d1-b236-15820441d963",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Updated context-server/ARCHITECTURE.md with restored project history and new task status. Verified mermaid DAG connectivity for all 335 lines of historical memory.",
+      "embedding": null,
+      "createdAt": "2026-03-11T21:55:26.205Z"
     }
   ],
   "healingEvents": []

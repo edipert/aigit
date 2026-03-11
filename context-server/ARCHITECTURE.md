@@ -12,6 +12,7 @@ flowchart TD
 
   %% Nodes
   Task_7bcd26852f784433b06323a5dfbaf92f["📋 clean-architecture-generator"]:::task
+  Task_4828678b56244a738b7cc35430c6f4de["📋 Implement User Dashboard"]:::task
   Mem_e0696389ada94846b8df61f2dab5936a("🧠 Automatic Git Commit Context (Staged Cha..."):::memory
   Mem_691f28c6a7ba4a7a96cfb6fe0dcb9dde("🧠 Automatic Git Commit Context (Staged Cha..."):::memory
   Mem_40cd5a6e34124ced836c62cf1a978e21("🧠 Automatic Git Commit Context (Staged Cha..."):::memory
@@ -39,24 +40,12 @@ flowchart TD
   Mem_78e50f73d306431bbd4a342a2f520707("🧠 Refined frontend UI to support a profess..."):::memory
   Mem_e082dcd449954848bc7566c121db8434("🧠 Added GitHub repository link to Navbar. ..."):::memory
   Mem_fd3e3e0ce4c24619a75c795110236c40("🧠 Optimized context-server/ARCHITECTURE.md..."):::memory
+  Mem_ee7f15d532574178a53aab25369bd2ad("🧠 Refactored DocsPage UI to split usage fu..."):::memory
+  Mem_36b954dbde944b2aa63604bfc2cbe3c6("🧠 Implemented complete task handoff funnel..."):::memory
 
   %% Causal Links
 
   %% Subgraphs by File Path
-  subgraph File0 ["📁 git-commit-staged"]
-    Mem_e0696389ada94846b8df61f2dab5936a
-    Mem_691f28c6a7ba4a7a96cfb6fe0dcb9dde
-    Mem_40cd5a6e34124ced836c62cf1a978e21
-    Mem_41aba1d62b9b494ba4c155500bfcf1b0
-    Mem_614dd17f86704bb696c70182f0b9f9fe
-    Mem_7007cce80ea64cb593eb9061712cf962
-    Mem_f3f4409edf1b44dfaada1ab916c39637
-    Mem_4d4ab24ee7d8429f93185fb61934b464
-    Mem_43b67e795f2941f1a30c7ca626c81da6
-    Mem_f3443c23c6f0498db4ffacd12bd9facc
-    Mem_1e5d8068b2734106834e0cbb825d7002
-  end
-
   %% Styling
   classDef task fill:#4f46e5,stroke:#fff,stroke-width:2px,color:#fff,rx:5,ry:5
   classDef memory fill:#059669,stroke:#fff,stroke-width:2px,color:#fff,rx:20,ry:20
@@ -66,7 +55,188 @@ flowchart TD
 
 ## Core Principles & Memories
 
+- **[capability]**: Automatic Git Commit Context (Staged Changes)
+Files Changed:
+M	context-server/dist/cli/index.js
+A	context-server/dist/cli/index.test.js
+M	context-server/package-lock.json
+M	context-server/package.json
+A	context-server/scan-db.js
+A	context-server/src/cli/index.test.ts
+M	context-server/src/cli/index.ts
+A	context-server/vitest.config.ts
+
+Statistics:
+context-server/dist/cli/index.js      |   90 ++
+ context-server/dist/cli/index.test.js |   11 +
+ context-server/package-lock.json      | 2286 ++++++++++++++++++++++++++++++++-
+ context-server/package.json           |    8 +-
+ context-server/scan-db.js             |    9 +
+ context-server/src/cli/index.test.ts  |   10 +
+ context-server/src/cli/index.ts       |   59 +
+ context-server/vitest.config.ts       |    9 +
+ 8 files changed, 2451 insertions(+), 31 deletions(-) *(Added: 2026-03-05)*
+- **[capability]**: Automatic Git Commit Context (Staged Changes)
+Files Changed:
+M	context-server/dist/cli/index.js
+A	context-server/dist/cli/index.test.js
+M	context-server/package-lock.json
+M	context-server/package.json
+A	context-server/scan-db.js
+A	context-server/src/cli/index.test.ts
+M	context-server/src/cli/index.ts
+A	context-server/vitest.config.ts
+M	frontend/src/FeedbackPage.tsx
+
+Statistics:
+context-server/dist/cli/index.js      |   90 ++
+ context-server/dist/cli/index.test.js |   11 +
+ context-server/package-lock.json      | 2286 ++++++++++++++++++++++++++++++++-
+ context-server/package.json           |    8 +-
+ context-server/scan-db.js             |    9 +
+ context-server/src/cli/index.test.ts  |   10 +
+ context-server/src/cli/index.ts       |   59 +
+ context-server/vitest.config.ts       |    9 +
+ frontend/src/FeedbackPage.tsx         |   13 +
+ 9 files changed, 2464 insertions(+), 31 deletions(-) *(Added: 2026-03-05)*
+- **[capability]**: Automatic Git Commit Context (Staged Changes)
+Files Changed:
+M	context-server/dist/cli/index.js
+A	context-server/dist/cli/index.test.js
+M	context-server/package-lock.json
+M	context-server/package.json
+A	context-server/scan-db.js
+A	context-server/src/cli/index.test.ts
+M	context-server/src/cli/index.ts
+A	context-server/vitest.config.ts
+M	frontend/src/main.tsx
+
+Statistics:
+context-server/dist/cli/index.js      |   90 ++
+ context-server/dist/cli/index.test.js |   11 +
+ context-server/package-lock.json      | 2286 ++++++++++++++++++++++++++++++++-
+ context-server/package.json           |    8 +-
+ context-server/scan-db.js             |    9 +
+ context-server/src/cli/index.test.ts  |   10 +
+ context-server/src/cli/index.ts       |   59 +
+ context-server/vitest.config.ts       |    9 +
+ frontend/src/main.tsx                 |   15 +-
+ 9 files changed, 2463 insertions(+), 34 deletions(-) *(Added: 2026-03-05)*
+- **[capability]**: Automatic Git Commit Context (Staged Changes)
+Files Changed:
+M	frontend/src/main.tsx
+
+Statistics:
+frontend/src/main.tsx | 5 +++++
+ 1 file changed, 5 insertions(+) *(Added: 2026-03-05)*
+- **[capability]**: Automatic Git Commit Context (Staged Changes)
+Files Changed:
+M	frontend/src/main.tsx
+
+Statistics:
+frontend/src/main.tsx | 10 ++++++++++
+ 1 file changed, 10 insertions(+) *(Added: 2026-03-05)*
+- **[capability]**: Automatic Git Commit Context (Staged Changes)
+Files Changed:
+M	frontend/dist/index.html
+
+Statistics:
+frontend/dist/index.html | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-) *(Added: 2026-03-05)*
+- **[capability]**: Automatic Git Commit Context (Staged Changes)
+Files Changed:
+M	frontend/src/main.tsx
+
+Statistics:
+frontend/src/main.tsx | 10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-) *(Added: 2026-03-05)*
+- **[capability]**: Automatic Git Commit Context (Staged Changes)
+Files Changed:
+M	frontend/dist/index.html
+M	frontend/index.html
+M	frontend/package-lock.json
+M	frontend/package.json
+A	frontend/public/robots.txt
+A	frontend/public/sitemap.xml
+M	frontend/src/App.tsx
+M	frontend/src/DocsPage.tsx
+M	frontend/src/FeedbackPage.tsx
+M	frontend/src/NotFoundPage.tsx
+A	frontend/src/SEO.tsx
+M	frontend/src/main.tsx
+
+Statistics:
+frontend/dist/index.html      | 33 ++++++++++++++++++++++++++++-
+ frontend/index.html           | 31 +++++++++++++++++++++++++++
+ frontend/package-lock.json    | 49 ++++++++++++++++++++++++++++++++++++++++++-
+ frontend/package.json         |  1 +
+ frontend/public/robots.txt    |  4 ++++
+ frontend/public/sitemap.xml   | 27 ++++++++++++++++++++++++
+ frontend/src/App.tsx          |  9 ++++++--
+ frontend/src/DocsPage.tsx     |  7 +++++++
+ frontend/src/FeedbackPage.tsx |  6 ++++++
+ frontend/src/NotFoundPage.tsx |  6 ++++++
+ frontend/src/SEO.tsx          | 42 +++++++++++++++++++++++++++++++++++++
+ frontend/src/main.tsx         |  6 +++++-
+ 12 files changed, 216 insertions(+), 5 deletions(-) *(Added: 2026-03-05)*
+- **[capability]**: Automatic Git Commit Context (Staged Changes)
+Files Changed:
+A	.claude/AGENTS.md
+M	.clinerules
+M	.cursorrules
+M	.gitignore
+M	.windsurfrules
+M	AGENTS.md
+M	CLAUDE.md
+M	GEMINI.md
+M	context-server/dist/agents/registry.js
+M	context-server/dist/cli/index.js
+M	context-server/package-lock.json
+M	context-server/package.json
+M	context-server/src/agents/registry.ts
+M	context-server/src/cli/index.ts
+
+Statistics:
+.claude/AGENTS.md                      | 252 +++++++++++++++++++++++++++++++++
+ .clinerules                            |  71 ++++------
+ .cursorrules                           |  71 ++++------
+ .gitignore                             |   3 +
+ .windsurfrules                         |  71 ++++------
+ AGENTS.md                              |  48 ++++---
+ CLAUDE.md                              |  70 ++++-----
+ GEMINI.md                              |  96 ++++++-------
+ context-server/dist/agents/registry.js |  32 +++++
+ context-server/dist/cli/index.js       | 119 ++++++++++++++--
+ context-server/package-lock.json       |   6 +-
+ context-server/package.json            |   2 +-
+ context-server/src/agents/registry.ts  |  32 +++++
+ context-server/src/cli/index.ts        | 123 ++++++++++++++--
+ 14 files changed, 742 insertions(+), 254 deletions(-) *(Added: 2026-03-07)*
 - **[capability]**: Testing fixed ledger dump for Agent-Driven workflow (Attempt 2) *(Added: 2026-03-07)*
+- **[capability]**: Automatic Git Commit Context (Staged Changes)
+Files Changed:
+M	frontend/src/DocsPage.tsx
+
+Statistics:
+frontend/src/DocsPage.tsx | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-) *(Added: 2026-03-07)*
+- **[capability]**: Automatic Git Commit Context (Staged Changes)
+Files Changed:
+M	vscode-aigit/dist/extension.js
+M	vscode-aigit/dist/extension.js.map
+M	vscode-aigit/package-lock.json
+M	vscode-aigit/package.json
+M	vscode-aigit/src/extension.ts
+A	vscode-aigit/vscode-aigit-1.0.1.vsix
+
+Statistics:
+vscode-aigit/dist/extension.js       |  13 +++++++++++++
+ vscode-aigit/dist/extension.js.map   |   2 +-
+ vscode-aigit/package-lock.json       |   4 ++--
+ vscode-aigit/package.json            |   9 +++++++--
+ vscode-aigit/src/extension.ts        |  17 +++++++++++++++++
+ vscode-aigit/vscode-aigit-1.0.1.vsix | Bin 0 -> 40233 bytes
+ 6 files changed, 40 insertions(+), 5 deletions(-) *(Added: 2026-03-07)*
 - **[architecture]**: Updated frontend/src/DocsPage.tsx to document the new Agent-Driven commit workflow. *(Added: 2026-03-07)*
 - **[architecture]**: Added aigit.commitMemory command to vscode-aigit extension allowing developers to commit semantic memory via Command Palette. *(Added: 2026-03-07)*
 - **[architecture]**: Dummy summary for strict validation test *(Added: 2026-03-07)*
@@ -82,14 +252,24 @@ flowchart TD
 - **[architecture]**: Refined frontend UI to support a professional Light Mode. Abstracted hardcoded transparent dark grays into CSS variables and customized the contrast of terminal simulation blocks, documentation grids, and feature cards. *(Added: 2026-03-08)*
 - **[architecture]**: Added GitHub repository link to Navbar. Resolved context drift across AI instruction files by standardizing synced rules. Ignored scripts directory in git. *(Added: 2026-03-10)*
 - **[architecture]**: Optimized context-server/ARCHITECTURE.md generator to strip redundant git stats and truncate bloated Git Commit Contexts from file-based tracking structure directly. *(Added: 2026-03-11)*
+- **[architecture]**: Refactored DocsPage UI to split usage funnels into 'Core Capabilities' and introduced new workflows for Self-Healing, Agent Sync, and Security Auditing. Redirected all multi-agent Task file generation from root to .aigit/tasks directory. *(Added: 2026-03-11)*
+- **[architecture]**: Implemented complete task handoff funnel: commit task now creates .aigit/tasks/{slug}.md plan file, new aigit handoff command generates copy-paste agent context blocks, aigit update task shorthand added, commander routing bug fixed for 3-level subcommands, aigit init interactive wizard with 6 spinner steps and next-steps summary, contextual tips system fires after each command, DocsPage updated with all new workflows and MCP --profile documentation. *(Added: 2026-03-11)*
 
 ## Implementation Details (By File)
 
-### `git-commit-staged`
+*No file-specific context recorded yet.*
 
 ## Task History
 
 ### ✅ clean-architecture-generator (`clean-architecture-generator`)
 - **Status**: DONE
+- **Branch**: main
 - **Created**: 2026-03-11
+- **Plan**: `.aigit/tasks/clean-architecture-generator.md`
+
+### ✅ Implement User Dashboard (`implement-user-dashboard`)
+- **Status**: DONE
+- **Branch**: main
+- **Created**: 2026-03-11
+- **Plan**: `.aigit/tasks/implement-user-dashboard.md`
 
