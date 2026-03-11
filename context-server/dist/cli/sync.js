@@ -17,6 +17,7 @@ async function dumpContextLedger(workspacePath) {
         const sessions = await db_1.prisma.session.findMany();
         const tasks = await db_1.prisma.task.findMany();
         const decisions = await db_1.prisma.decision.findMany();
+        const healingEvents = await db_1.prisma.healingEvent.findMany();
         // Fetch memories including their raw stringified vector embeddings
         const memories = await db_1.prisma.$queryRaw `
             SELECT id, "projectId", "sessionId", "gitBranch", type, content, embedding::text, "createdAt"
@@ -30,7 +31,8 @@ async function dumpContextLedger(workspacePath) {
             sessions,
             tasks,
             decisions: sanitizedDecisions,
-            memories: sanitizedMemories
+            memories: sanitizedMemories,
+            healingEvents
         };
         const aigitDir = path_1.default.join(workspacePath, '.aigit');
         if (!fs_1.default.existsSync(aigitDir)) {
@@ -67,6 +69,7 @@ async function loadContextLedger(workspacePath) {
         await (0, db_1.initializeDatabase)();
         console.log(`\n🔄 [aigit] Hydrating semantic memory from Git-tracked ledger...`);
         // Wipe current DB deterministically to prevent duplicate clashes during load
+        await db_1.prisma.healingEvent.deleteMany();
         await db_1.prisma.memory.deleteMany();
         await db_1.prisma.decision.deleteMany();
         await db_1.prisma.task.deleteMany();
@@ -97,6 +100,8 @@ async function loadContextLedger(workspacePath) {
             await db_1.prisma.task.createMany({ data: reviveDates(ledger.tasks) });
         if (ledger.decisions?.length > 0)
             await db_1.prisma.decision.createMany({ data: reviveDates(ledger.decisions) });
+        if (ledger.healingEvents?.length > 0)
+            await db_1.prisma.healingEvent.createMany({ data: reviveDates(ledger.healingEvents) });
         // Load Memories bypassing 'embedding' initially since it's an Unsupported type
         if (ledger.memories?.length > 0) {
             const safeMemories = ledger.memories.map((m) => {

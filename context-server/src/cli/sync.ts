@@ -12,6 +12,7 @@ export async function dumpContextLedger(workspacePath: string) {
         const sessions = await prisma.session.findMany();
         const tasks = await prisma.task.findMany();
         const decisions = await prisma.decision.findMany();
+        const healingEvents = await prisma.healingEvent.findMany();
 
         // Fetch memories including their raw stringified vector embeddings
         const memories = await prisma.$queryRaw<any[]>`
@@ -28,7 +29,8 @@ export async function dumpContextLedger(workspacePath: string) {
             sessions,
             tasks,
             decisions: sanitizedDecisions,
-            memories: sanitizedMemories
+            memories: sanitizedMemories,
+            healingEvents
         };
 
         const aigitDir = path.join(workspacePath, '.aigit');
@@ -71,6 +73,7 @@ export async function loadContextLedger(workspacePath: string) {
         console.log(`\n🔄 [aigit] Hydrating semantic memory from Git-tracked ledger...`);
 
         // Wipe current DB deterministically to prevent duplicate clashes during load
+        await prisma.healingEvent.deleteMany();
         await prisma.memory.deleteMany();
         await prisma.decision.deleteMany();
         await prisma.task.deleteMany();
@@ -94,6 +97,7 @@ export async function loadContextLedger(workspacePath: string) {
         if (ledger.sessions?.length > 0) await prisma.session.createMany({ data: reviveDates(ledger.sessions) });
         if (ledger.tasks?.length > 0) await prisma.task.createMany({ data: reviveDates(ledger.tasks) });
         if (ledger.decisions?.length > 0) await prisma.decision.createMany({ data: reviveDates(ledger.decisions) });
+        if (ledger.healingEvents?.length > 0) await prisma.healingEvent.createMany({ data: reviveDates(ledger.healingEvents) });
 
         // Load Memories bypassing 'embedding' initially since it's an Unsupported type
         if (ledger.memories?.length > 0) {

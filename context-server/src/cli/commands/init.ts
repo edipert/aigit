@@ -90,7 +90,16 @@ const handler: CommandHandler = async ({ workspacePath }) => {
     // ── Step 3: Initialize DB ─────────────────────────────────────────────────
     const s3 = spinner('Initializing semantic memory database…');
     await initializeDatabase();
-    s3.succeed('Database ready (.aigit/memory.db)');
+
+    // Proactively load existing ledger if the DB was just created fresh
+    const ledgerPath = path.join(aigitDir, 'ledger.json');
+    if (fs.existsSync(ledgerPath)) {
+        const { loadContextLedger } = await import('../sync');
+        await loadContextLedger(workspacePath);
+        s3.succeed('Database ready (Restored from existing ledger.json)');
+    } else {
+        s3.succeed('Database ready (.aigit/memory.db)');
+    }
 
     // ── Step 4: Create default project ────────────────────────────────────────
     const s4 = spinner(`Creating project "${projectName}" in memory DB…`);
