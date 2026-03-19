@@ -15,9 +15,53 @@ export interface CachedSymbolContext {
     createdAt?: string;
 }
 
+interface AigitRawMemory {
+    id?: string;
+    content?: string;
+    filePath?: string;
+    lineNumber?: number;
+    symbolName?: string;
+    symbolType?: string;
+    createdAt?: string;
+}
+
+interface AigitRawDecision {
+    id?: string;
+    context?: string;
+    filePath?: string;
+    lineNumber?: number;
+    symbolName?: string;
+    symbolType?: string;
+    chosen?: string;
+    reasoning?: string;
+    createdAt?: string;
+}
+
 interface PrefetchResult {
     memories: CachedSymbolContext[];
     decisions: CachedSymbolContext[];
+}
+
+interface AigitRawMemory {
+    id?: string;
+    content?: string;
+    filePath?: string;
+    lineNumber?: number;
+    symbolName?: string;
+    symbolType?: string;
+    createdAt?: string;
+}
+
+interface AigitRawDecision {
+    id?: string;
+    context?: string;
+    filePath?: string;
+    lineNumber?: number;
+    symbolName?: string;
+    symbolType?: string;
+    chosen?: string;
+    reasoning?: string;
+    createdAt?: string;
 }
 
 /**
@@ -121,7 +165,7 @@ export class ContextPrefetchCache {
             try {
                 const parsed = JSON.parse(raw.trim());
                 return {
-                    memories: (parsed.memories || []).map((m: any) => ({
+                    memories: (parsed.memories || []).map((m: AigitRawMemory) => ({
                         id: m.id || '',
                         type: 'memory',
                         content: m.content || '',
@@ -131,7 +175,7 @@ export class ContextPrefetchCache {
                         symbolType: m.symbolType || null,
                         createdAt: m.createdAt || null,
                     })),
-                    decisions: (parsed.decisions || []).map((d: any) => ({
+                    decisions: (parsed.decisions || []).map((d: AigitRawDecision) => ({
                         id: d.id || '',
                         type: 'decision',
                         content: d.context || '',

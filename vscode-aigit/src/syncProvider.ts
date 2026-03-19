@@ -37,6 +37,7 @@ export class SyncProvider implements vscode.WebviewViewProvider {
                 case 'aigit.scan': vscode.commands.executeCommand('aigit.scan'); break;
                 case 'aigit.sync': vscode.commands.executeCommand('aigit.sync'); break;
                 case 'aigit.syncDryRun': vscode.commands.executeCommand('aigit.syncDryRun'); break;
+                case 'aigit.syncSkills': vscode.commands.executeCommand('aigit.syncSkills'); break;
                 case 'aigit.showConflicts': vscode.commands.executeCommand('aigit.showConflicts'); break;
                 case 'openFile':
                     if (msg.file) {
@@ -238,6 +239,7 @@ export class SyncProvider implements vscode.WebviewViewProvider {
         <button class="btn" onclick="send('aigit.scan')">🔍 Scan</button>
         <button class="btn" onclick="send('aigit.syncDryRun')">📋 Dry Run</button>
         <button class="btn btn-primary" onclick="send('aigit.sync')">🔄 Sync</button>
+        <button class="btn" onclick="send('aigit.syncSkills')">🛠️ Sync Skills</button>
         <button class="btn" onclick="send('aigit.showConflicts')">⚠️ Conflicts</button>
     </div>
 

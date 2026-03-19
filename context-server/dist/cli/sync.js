@@ -115,6 +115,7 @@ async function loadContextLedger(workspacePath) {
                     await db_1.prisma.$executeRaw `
                         UPDATE "Memory" SET embedding = ${memory.embedding}::vector WHERE id = ${memory.id}
                     `;
+                    await db_1.prisma.$executeRawUnsafe(query, ...values);
                 }
             }
         }
