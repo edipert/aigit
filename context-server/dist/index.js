@@ -325,56 +325,44 @@ server.setRequestHandler(types_js_1.CallToolRequestSchema, async (request) => {
                     db_1.prisma.task.findMany({ where: { projectId, gitBranch: src } }),
                 ]);
                 let ported = 0;
-                // 1. Bulk process memories
-                if (memories.length > 0) {
-                    const existingMemories = await db_1.prisma.memory.findMany({
-                        where: { projectId, gitBranch: tgt },
-                        select: { content: true }
+                for (const m of memories) {
+                    const exists = await db_1.prisma.memory.findFirst({
+                        where: { projectId, gitBranch: tgt, content: m.content }
                     });
-                    const existingContentSet = new Set(existingMemories.map(m => m.content));
-                    const newMemoriesData = memories
-                        .filter(m => !existingContentSet.has(m.content))
-                        .map(m => ({
-                        projectId: m.projectId, gitBranch: tgt, type: m.type, content: m.content,
-                        filePath: m.filePath, lineNumber: m.lineNumber,
-                        symbolName: m.symbolName, symbolType: m.symbolType, symbolRange: m.symbolRange,
-                    }));
-                    if (newMemoriesData.length > 0) {
-                        await db_1.prisma.memory.createMany({ data: newMemoriesData });
-                        ported += newMemoriesData.length;
+                    if (!exists) {
+                        await db_1.prisma.memory.create({
+                            data: {
+                                projectId: m.projectId, gitBranch: tgt, type: m.type, content: m.content,
+                                filePath: m.filePath, lineNumber: m.lineNumber,
+                                symbolName: m.symbolName, symbolType: m.symbolType, symbolRange: m.symbolRange,
+                            }
+                        });
+                        ported++;
                     }
                 }
-                // 2. Bulk process tasks
-                if (tasks.length > 0) {
-                    const existingTasks = await db_1.prisma.task.findMany({
-                        where: { projectId, gitBranch: tgt },
-                        select: { slug: true }
+                for (const t of tasks) {
+                    const exists = await db_1.prisma.task.findFirst({
+                        where: { projectId, gitBranch: tgt, slug: t.slug }
                     });
-                    const existingSlugSet = new Set(existingTasks.map(t => t.slug));
-                    const newTasks = tasks.filter(t => !existingSlugSet.has(t.slug));
-                    if (newTasks.length > 0) {
-                        // Create tasks individually to get their new IDs for associating decisions.
-                        // We still save N queries by not checking existence individually.
-                        for (const t of newTasks) {
-                            const newTask = await db_1.prisma.task.create({
-                                data: {
-                                    projectId: t.projectId, gitBranch: tgt, slug: t.slug, title: t.title, status: t.status,
-                                }
-                            });
-                            ported++;
-                            const taskDecisions = decisions.filter(d => d.taskId === t.id);
-                            if (taskDecisions.length > 0) {
-                                await db_1.prisma.decision.createMany({
-                                    data: taskDecisions.map(d => ({
-                                        taskId: newTask.id, gitBranch: tgt, context: d.context, chosen: d.chosen,
-                                        rejected: d.rejected, reasoning: d.reasoning,
-                                        filePath: d.filePath, lineNumber: d.lineNumber,
-                                        symbolName: d.symbolName, symbolType: d.symbolType, symbolRange: d.symbolRange,
-                                    }))
-                                });
-                                ported += taskDecisions.length;
+                    if (!exists) {
+                        const newTask = await db_1.prisma.task.create({
+                            data: {
+                                projectId: t.projectId, gitBranch: tgt, slug: t.slug, title: t.title, status: t.status,
                             }
+                        });
+                        const taskDecisions = decisions.filter(d => d.taskId === t.id);
+                        if (taskDecisions.length > 0) {
+                            await db_1.prisma.decision.createMany({
+                                data: taskDecisions.map(d => ({
+                                    taskId: newTask.id, gitBranch: tgt, context: d.context, chosen: d.chosen,
+                                    rejected: d.rejected, reasoning: d.reasoning,
+                                    filePath: d.filePath, lineNumber: d.lineNumber,
+                                    symbolName: d.symbolName, symbolType: d.symbolType, symbolRange: d.symbolRange,
+                                }))
+                            });
+                            ported += taskDecisions.length;
                         }
+                        ported++;
                     }
                 }
                 return {
