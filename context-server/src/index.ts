@@ -372,11 +372,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                 const v = parseArgs(MergeContextArgs, raw);
                 if (!v.ok) return validationError(tool, v.error);
                 const { projectId, sourceBranch: src, targetBranch: tgt } = v.data;
+                const { v4: uuidv4 } = await import('uuid');
 
-                const [memories, decisions, tasks] = await Promise.all([
+                const [memories, decisions, tasks, targetMemories, targetTasks] = await Promise.all([
                     prisma.memory.findMany({ where: { projectId, gitBranch: src } }),
                     prisma.decision.findMany({ where: { task: { projectId }, gitBranch: src } }),
                     prisma.task.findMany({ where: { projectId, gitBranch: src } }),
+                    prisma.memory.findMany({ where: { projectId, gitBranch: tgt }, select: { content: true } }),
+                    prisma.task.findMany({ where: { projectId, gitBranch: tgt }, select: { slug: true } })
                 ]);
 
                 let ported = 0;
@@ -438,6 +441,15 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                             }
                         }
                     }
+                }
+
+                if (tasksToInsert.length > 0) {
+                    await prisma.task.createMany({ data: tasksToInsert });
+                    ported += tasksToInsert.length;
+                }
+                if (decisionsToInsert.length > 0) {
+                    await prisma.decision.createMany({ data: decisionsToInsert });
+                    ported += decisionsToInsert.length;
                 }
 
                 return {

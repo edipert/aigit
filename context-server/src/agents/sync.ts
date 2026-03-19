@@ -20,10 +20,10 @@ interface SyncResult {
 /**
  * Run a full sync cycle: scan → parse → diff → apply.
  */
-export function syncAgents(
+export async function syncAgents(
     workspacePath: string,
     options: { dryRun?: boolean; from?: string; to?: string } = {}
-): SyncResult {
+): Promise<SyncResult> {
     const agents = detectAgents(workspacePath);
 
     if (agents.length < 2) {
@@ -133,6 +133,8 @@ export function syncAgents(
         groupedByFile.get(fullKey)!.push(diff);
     }
 
+    // Group purely by file to prevent race conditions during concurrent file writing
+    const groupedByRealFile = new Map<string, { toolId: string; file: string; diffs: SyncDiff[] }[]>();
     for (const [key, fileDiffs] of groupedByFile) {
         const [toolId, file] = key.split(':');
         console.log(`  → [${toolId}] ${file}`);
@@ -141,17 +143,41 @@ export function syncAgents(
             console.log(`    + "${diff.heading}"`);
         }
 
-        if (!options.dryRun) {
+        if (!groupedByRealFile.has(file)) groupedByRealFile.set(file, []);
+        groupedByRealFile.get(file)!.push({ toolId, file, diffs: fileDiffs });
+    }
+
+    const writePromises: Promise<void>[] = [];
+
+    if (!options.dryRun) {
+        for (const [file, writes] of groupedByRealFile) {
             const fullPath = path.join(workspacePath, file);
-            const existingContent = fs.existsSync(fullPath) ? fs.readFileSync(fullPath, 'utf8') : '';
 
-            let appended = '\n\n# --- Synced by aigit ---\n\n';
-            for (const diff of fileDiffs) {
-                appended += `## ${diff.heading}\n\n${diff.content}\n\n`;
-            }
+            const writePromise = fs.promises.readFile(fullPath, 'utf8')
+                .catch(err => {
+                    if (err.code === 'ENOENT') return '';
+                    throw err;
+                })
+                .then(existingContent => {
+                    let appended = '';
+                    for (const write of writes) {
+                        appended += '\n\n# --- Synced by aigit ---\n\n';
+                        for (const diff of write.diffs) {
+                            appended += `## ${diff.heading}\n\n${diff.content}\n\n`;
+                        }
+                    }
+                    return fs.promises.writeFile(fullPath, existingContent + appended, 'utf8');
+                });
 
-            fs.writeFileSync(fullPath, existingContent + appended, 'utf8');
+            writePromises.push(writePromise);
         }
+
+        if (writePromises.length > 0) {
+            await Promise.all(writePromises);
+        }
+    }
+
+    for (const _ of groupedByFile) {
         console.log();
     }
 

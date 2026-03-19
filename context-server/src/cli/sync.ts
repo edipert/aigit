@@ -34,12 +34,14 @@ export async function dumpContextLedger(workspacePath: string) {
         };
 
         const aigitDir = path.join(workspacePath, '.aigit');
-        if (!fs.existsSync(aigitDir)) {
-            fs.mkdirSync(aigitDir, { recursive: true });
+        try {
+            await fs.promises.access(aigitDir);
+        } catch {
+            await fs.promises.mkdir(aigitDir, { recursive: true });
         }
 
         const ledgerPath = path.join(aigitDir, 'ledger.json');
-        fs.writeFileSync(ledgerPath, JSON.stringify(ledger, null, 2), 'utf8');
+        await fs.promises.writeFile(ledgerPath, JSON.stringify(ledger, null, 2), 'utf8');
 
         console.log(`\n✅ [aigit] Semantic context deeply serialized to ${ledgerPath}\n`);
     } catch (e) {
@@ -54,12 +56,14 @@ export async function loadContextLedger(workspacePath: string) {
         const aigitDir = path.join(workspacePath, '.aigit');
         const ledgerPath = path.join(aigitDir, 'ledger.json');
 
-        if (!fs.existsSync(ledgerPath)) {
+        try {
+            await fs.promises.access(ledgerPath);
+        } catch {
             console.log(`\n⚠️  [aigit] No ledger.json found at ${ledgerPath}. Existing memory unaffected.\n`);
             return;
         }
 
-        const ledgerData = fs.readFileSync(ledgerPath, 'utf8');
+        const ledgerData = await fs.promises.readFile(ledgerPath, 'utf8');
         let ledger;
         try {
             ledger = JSON.parse(ledgerData);

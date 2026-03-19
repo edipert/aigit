@@ -94,18 +94,22 @@ export async function anchorFileToSymbols(filePath: string, workspacePath: strin
     let anchored = 0;
     const total = memories.length + decisions.length;
 
+    const updatePromises = [];
+
     for (const m of memories) {
         if (!m.lineNumber) continue;
         const sym = findSymbolForLine(symbols, m.lineNumber);
         if (sym) {
-            await prisma.memory.update({
-                where: { id: m.id },
-                data: {
-                    symbolName: sym.qualifiedName,
-                    symbolType: sym.type,
-                    symbolRange: formatRange(sym.range),
-                },
-            });
+            updatePromises.push(
+                prisma.memory.update({
+                    where: { id: m.id },
+                    data: {
+                        symbolName: sym.qualifiedName,
+                        symbolType: sym.type,
+                        symbolRange: formatRange(sym.range),
+                    },
+                })
+            );
             anchored++;
         }
     }
@@ -114,16 +118,22 @@ export async function anchorFileToSymbols(filePath: string, workspacePath: strin
         if (!d.lineNumber) continue;
         const sym = findSymbolForLine(symbols, d.lineNumber);
         if (sym) {
-            await prisma.decision.update({
-                where: { id: d.id },
-                data: {
-                    symbolName: sym.qualifiedName,
-                    symbolType: sym.type,
-                    symbolRange: formatRange(sym.range),
-                },
-            });
+            updatePromises.push(
+                prisma.decision.update({
+                    where: { id: d.id },
+                    data: {
+                        symbolName: sym.qualifiedName,
+                        symbolType: sym.type,
+                        symbolRange: formatRange(sym.range),
+                    },
+                })
+            );
             anchored++;
         }
+    }
+
+    if (updatePromises.length > 0) {
+        await prisma.$transaction(updatePromises);
     }
 
     return { anchored, total };

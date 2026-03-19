@@ -60,8 +60,9 @@ export async function semanticSearch(options: {
     const ranked = rankBySimilarity(query, docs, topK);
 
     // Enrich with metadata
+    const docsMap = new Map(docs.map(d => [d.id, d]));
     return ranked.map(r => {
-        const original = docs.find(d => d.id === r.id)!;
+        const original = docsMap.get(r.id)!;
         return {
             ...r,
             type: original.type,

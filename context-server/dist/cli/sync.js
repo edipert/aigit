@@ -109,11 +109,27 @@ async function loadContextLedger(workspacePath) {
                 return rest;
             });
             await db_1.prisma.memory.createMany({ data: reviveDates(safeMemories) });
-            // Attach embeddings explicitly via raw SQL
-            for (const memory of ledger.memories) {
-                if (memory.embedding) {
-                    await db_1.prisma.$executeRaw `
-                        UPDATE "Memory" SET embedding = ${memory.embedding}::vector WHERE id = ${memory.id}
+            // Attach embeddings explicitly via raw SQL bulk update to avoid N+1 queries
+            const memoriesWithEmbeddings = ledger.memories.filter((m) => m.embedding);
+            if (memoriesWithEmbeddings.length > 0) {
+                // Using parameterized queries with VALUES requires exact unrolling of placeholders
+                // PostgreSQL limits parameters to ~65535. With 2 params per memory, chunk at 10000 to be safe.
+                const CHUNK_SIZE = 10000;
+                for (let i = 0; i < memoriesWithEmbeddings.length; i += CHUNK_SIZE) {
+                    const chunk = memoriesWithEmbeddings.slice(i, i + CHUNK_SIZE);
+                    const placeholders = [];
+                    const values = [];
+                    chunk.forEach((memory, index) => {
+                        const idParam = `$${index * 2 + 1}`;
+                        const embedParam = `$${index * 2 + 2}`;
+                        placeholders.push(`(${idParam}, ${embedParam}::text)`);
+                        values.push(memory.id, memory.embedding);
+                    });
+                    const query = `
+                        UPDATE "Memory" AS m
+                        SET embedding = v.embedding::vector
+                        FROM (VALUES ${placeholders.join(', ')}) AS v(id, embedding)
+                        WHERE m.id = v.id;
                     `;
                     await db_1.prisma.$executeRawUnsafe(query, ...values);
                 }

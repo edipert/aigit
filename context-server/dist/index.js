@@ -319,51 +319,62 @@ server.setRequestHandler(types_js_1.CallToolRequestSchema, async (request) => {
                 if (!v.ok)
                     return validationError(tool, v.error);
                 const { projectId, sourceBranch: src, targetBranch: tgt } = v.data;
-                const [memories, decisions, tasks] = await Promise.all([
+                const { v4: uuidv4 } = await Promise.resolve().then(() => __importStar(require('uuid')));
+                const [memories, decisions, tasks, targetMemories, targetTasks] = await Promise.all([
                     db_1.prisma.memory.findMany({ where: { projectId, gitBranch: src } }),
                     db_1.prisma.decision.findMany({ where: { task: { projectId }, gitBranch: src } }),
                     db_1.prisma.task.findMany({ where: { projectId, gitBranch: src } }),
+                    db_1.prisma.memory.findMany({ where: { projectId, gitBranch: tgt }, select: { content: true } }),
+                    db_1.prisma.task.findMany({ where: { projectId, gitBranch: tgt }, select: { slug: true } })
                 ]);
                 let ported = 0;
-                for (const m of memories) {
-                    const exists = await db_1.prisma.memory.findFirst({
-                        where: { projectId, gitBranch: tgt, content: m.content }
-                    });
-                    if (!exists) {
-                        await db_1.prisma.memory.create({
-                            data: {
-                                projectId: m.projectId, gitBranch: tgt, type: m.type, content: m.content,
-                                filePath: m.filePath, lineNumber: m.lineNumber,
-                                symbolName: m.symbolName, symbolType: m.symbolType, symbolRange: m.symbolRange,
-                            }
-                        });
-                        ported++;
-                    }
+                // Pre-fetch Sets for O(1) lookups
+                const targetMemoryContents = new Set(targetMemories.map(m => m.content));
+                const targetTaskSlugs = new Set(targetTasks.map(t => t.slug));
+                // Process Memories
+                const memoriesToInsert = memories
+                    .filter(m => !targetMemoryContents.has(m.content))
+                    .map(m => ({
+                    projectId: m.projectId, gitBranch: tgt, type: m.type, content: m.content,
+                    filePath: m.filePath, lineNumber: m.lineNumber,
+                    symbolName: m.symbolName, symbolType: m.symbolType, symbolRange: m.symbolRange,
+                }));
+                if (memoriesToInsert.length > 0) {
+                    await db_1.prisma.memory.createMany({ data: memoriesToInsert });
+                    ported += memoriesToInsert.length;
                 }
+                // Process Tasks & Decisions
+                const tasksToInsert = [];
+                const decisionsToInsert = [];
                 for (const t of tasks) {
-                    const exists = await db_1.prisma.task.findFirst({
-                        where: { projectId, gitBranch: tgt, slug: t.slug }
-                    });
-                    if (!exists) {
-                        const newTask = await db_1.prisma.task.create({
-                            data: {
-                                projectId: t.projectId, gitBranch: tgt, slug: t.slug, title: t.title, status: t.status,
-                            }
+                    // Make the slug unique for the target branch to avoid global unique constraint violations.
+                    // If it already exists natively on the target branch (or was already merged), skip it.
+                    const mergedSlug = `${t.slug}-${tgt}`;
+                    const targetSlug = targetTaskSlugs.has(t.slug) ? t.slug : mergedSlug;
+                    if (!targetTaskSlugs.has(targetSlug)) {
+                        const newTaskId = uuidv4();
+                        tasksToInsert.push({
+                            id: newTaskId,
+                            projectId: t.projectId, gitBranch: tgt, slug: mergedSlug, title: t.title, status: t.status,
                         });
                         const taskDecisions = decisions.filter(d => d.taskId === t.id);
                         if (taskDecisions.length > 0) {
-                            await db_1.prisma.decision.createMany({
-                                data: taskDecisions.map(d => ({
-                                    taskId: newTask.id, gitBranch: tgt, context: d.context, chosen: d.chosen,
-                                    rejected: d.rejected, reasoning: d.reasoning,
-                                    filePath: d.filePath, lineNumber: d.lineNumber,
-                                    symbolName: d.symbolName, symbolType: d.symbolType, symbolRange: d.symbolRange,
-                                }))
-                            });
-                            ported += taskDecisions.length;
+                            decisionsToInsert.push(...taskDecisions.map(d => ({
+                                taskId: newTaskId, gitBranch: tgt, context: d.context, chosen: d.chosen,
+                                rejected: d.rejected, reasoning: d.reasoning,
+                                filePath: d.filePath, lineNumber: d.lineNumber,
+                                symbolName: d.symbolName, symbolType: d.symbolType, symbolRange: d.symbolRange,
+                            })));
                         }
-                        ported++;
                     }
+                }
+                if (tasksToInsert.length > 0) {
+                    await db_1.prisma.task.createMany({ data: tasksToInsert });
+                    ported += tasksToInsert.length;
+                }
+                if (decisionsToInsert.length > 0) {
+                    await db_1.prisma.decision.createMany({ data: decisionsToInsert });
+                    ported += decisionsToInsert.length;
                 }
                 return {
                     content: [{ type: 'text', text: `🔀 Merged ${ported} context entries from ${src} → ${tgt}.` }]
