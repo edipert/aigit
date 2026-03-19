@@ -372,55 +372,72 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                 const v = parseArgs(MergeContextArgs, raw);
                 if (!v.ok) return validationError(tool, v.error);
                 const { projectId, sourceBranch: src, targetBranch: tgt } = v.data;
+                const { v4: uuidv4 } = await import('uuid');
 
-                const [memories, decisions, tasks] = await Promise.all([
+                const [memories, decisions, tasks, targetMemories, targetTasks] = await Promise.all([
                     prisma.memory.findMany({ where: { projectId, gitBranch: src } }),
                     prisma.decision.findMany({ where: { task: { projectId }, gitBranch: src } }),
                     prisma.task.findMany({ where: { projectId, gitBranch: src } }),
+                    prisma.memory.findMany({ where: { projectId, gitBranch: tgt }, select: { content: true } }),
+                    prisma.task.findMany({ where: { projectId, gitBranch: tgt }, select: { slug: true } })
                 ]);
 
                 let ported = 0;
 
-                for (const m of memories) {
-                    const exists = await prisma.memory.findFirst({
-                        where: { projectId, gitBranch: tgt, content: m.content }
-                    });
-                    if (!exists) {
-                        await prisma.memory.create({
-                            data: {
-                                projectId: m.projectId, gitBranch: tgt, type: m.type, content: m.content,
-                                filePath: m.filePath, lineNumber: m.lineNumber,
-                                symbolName: m.symbolName, symbolType: m.symbolType, symbolRange: m.symbolRange,
-                            }
+                // Pre-fetch Sets for O(1) lookups
+                const targetMemoryContents = new Set(targetMemories.map(m => m.content));
+                const targetTaskSlugs = new Set(targetTasks.map(t => t.slug));
+
+                // Process Memories
+                const memoriesToInsert = memories
+                    .filter(m => !targetMemoryContents.has(m.content))
+                    .map(m => ({
+                        projectId: m.projectId, gitBranch: tgt, type: m.type, content: m.content,
+                        filePath: m.filePath, lineNumber: m.lineNumber,
+                        symbolName: m.symbolName, symbolType: m.symbolType, symbolRange: m.symbolRange,
+                    }));
+
+                if (memoriesToInsert.length > 0) {
+                    await prisma.memory.createMany({ data: memoriesToInsert });
+                    ported += memoriesToInsert.length;
+                }
+
+                // Process Tasks & Decisions
+                const tasksToInsert: any[] = [];
+                const decisionsToInsert: any[] = [];
+
+                for (const t of tasks) {
+                    // Make the slug unique for the target branch to avoid global unique constraint violations.
+                    // If it already exists natively on the target branch (or was already merged), skip it.
+                    const mergedSlug = `${t.slug}-${tgt}`;
+                    const targetSlug = targetTaskSlugs.has(t.slug) ? t.slug : mergedSlug;
+
+                    if (!targetTaskSlugs.has(targetSlug)) {
+                        const newTaskId = uuidv4();
+                        tasksToInsert.push({
+                            id: newTaskId,
+                            projectId: t.projectId, gitBranch: tgt, slug: mergedSlug, title: t.title, status: t.status,
                         });
-                        ported++;
+
+                        const taskDecisions = decisions.filter(d => d.taskId === t.id);
+                        if (taskDecisions.length > 0) {
+                            decisionsToInsert.push(...taskDecisions.map(d => ({
+                                taskId: newTaskId, gitBranch: tgt, context: d.context, chosen: d.chosen,
+                                rejected: d.rejected as string[], reasoning: d.reasoning,
+                                filePath: d.filePath, lineNumber: d.lineNumber,
+                                symbolName: d.symbolName, symbolType: d.symbolType, symbolRange: d.symbolRange,
+                            })));
+                        }
                     }
                 }
 
-                for (const t of tasks) {
-                    const exists = await prisma.task.findFirst({
-                        where: { projectId, gitBranch: tgt, slug: t.slug }
-                    });
-                    if (!exists) {
-                        const newTask = await prisma.task.create({
-                            data: {
-                                projectId: t.projectId, gitBranch: tgt, slug: t.slug, title: t.title, status: t.status,
-                            }
-                        });
-                        const taskDecisions = decisions.filter(d => d.taskId === t.id);
-                        if (taskDecisions.length > 0) {
-                            await prisma.decision.createMany({
-                                data: taskDecisions.map(d => ({
-                                    taskId: newTask.id, gitBranch: tgt, context: d.context, chosen: d.chosen,
-                                    rejected: d.rejected as string[], reasoning: d.reasoning,
-                                    filePath: d.filePath, lineNumber: d.lineNumber,
-                                    symbolName: d.symbolName, symbolType: d.symbolType, symbolRange: d.symbolRange,
-                                }))
-                            });
-                            ported += taskDecisions.length;
-                        }
-                        ported++;
-                    }
+                if (tasksToInsert.length > 0) {
+                    await prisma.task.createMany({ data: tasksToInsert });
+                    ported += tasksToInsert.length;
+                }
+                if (decisionsToInsert.length > 0) {
+                    await prisma.decision.createMany({ data: decisionsToInsert });
+                    ported += decisionsToInsert.length;
                 }
 
                 return {
