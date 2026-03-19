@@ -107,12 +107,34 @@ export async function loadContextLedger(workspacePath: string) {
             });
             await prisma.memory.createMany({ data: reviveDates(safeMemories) });
 
-            // Attach embeddings explicitly via raw SQL 
-            for (const memory of ledger.memories) {
-                if (memory.embedding) {
-                    await prisma.$executeRaw`
-                        UPDATE "Memory" SET embedding = ${memory.embedding}::vector WHERE id = ${memory.id}
+            // Attach embeddings explicitly via raw SQL bulk update to avoid N+1 queries
+            const memoriesWithEmbeddings = ledger.memories.filter((m: any) => m.embedding);
+
+            if (memoriesWithEmbeddings.length > 0) {
+                // Using parameterized queries with VALUES requires exact unrolling of placeholders
+                // PostgreSQL limits parameters to ~65535. With 2 params per memory, chunk at 10000 to be safe.
+                const CHUNK_SIZE = 10000;
+
+                for (let i = 0; i < memoriesWithEmbeddings.length; i += CHUNK_SIZE) {
+                    const chunk = memoriesWithEmbeddings.slice(i, i + CHUNK_SIZE);
+                    const placeholders: string[] = [];
+                    const values: any[] = [];
+
+                    chunk.forEach((memory: any, index: number) => {
+                        const idParam = `$${index * 2 + 1}`;
+                        const embedParam = `$${index * 2 + 2}`;
+                        placeholders.push(`(${idParam}, ${embedParam}::text)`);
+                        values.push(memory.id, memory.embedding);
+                    });
+
+                    const query = `
+                        UPDATE "Memory" AS m
+                        SET embedding = v.embedding::vector
+                        FROM (VALUES ${placeholders.join(', ')}) AS v(id, embedding)
+                        WHERE m.id = v.id;
                     `;
+
+                    await prisma.$executeRawUnsafe(query, ...values);
                 }
             }
         }
