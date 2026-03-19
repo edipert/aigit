@@ -4,7 +4,7 @@ import { SyncProvider } from './syncProvider';
 import { SyncStatusBar } from './statusBar';
 import { AigitContextLensProvider } from './contextLens';
 import { AigitContextHoverProvider } from './contextHover';
-import { ContextPrefetchCache, createCursorWatcher } from './prefetch';
+import { CachedSymbolContext, ContextPrefetchCache, createCursorWatcher } from './prefetch';
 
 export function activate(context: vscode.ExtensionContext) {
     const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
@@ -108,7 +108,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     // --- Phase 25: Context detail command (triggered from CodeLens) ---
     context.subscriptions.push(
-        vscode.commands.registerCommand('aigit.showContextDetail', (entry: any) => {
+        vscode.commands.registerCommand('aigit.showContextDetail', (entry: CachedSymbolContext) => {
             const panel = vscode.window.createWebviewPanel(
                 'aigitContext', `⚓ aigit: ${entry.symbolName || 'Context'}`,
                 vscode.ViewColumn.Beside, { enableScripts: false }
