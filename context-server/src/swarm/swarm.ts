@@ -27,18 +27,16 @@ export async function createSwarm(
     });
 
     // Pre-create agent slots from sub-tasks (agents register into them)
-    for (let i = 0; i < subTasks.length; i++) {
-        await prisma.swarmAgent.create({
-            data: {
-                swarmId: swarm.id,
-                role: subTasks[i].role,
-                agentName: subTasks[i].role, // placeholder until agent registers
-                taskSlug: subTasks[i].slug,
-                turnOrder: i + 1,
-                status: 'IDLE',
-            },
-        });
-    }
+    await prisma.swarmAgent.createMany({
+        data: subTasks.map((task, i) => ({
+            swarmId: swarm.id,
+            role: task.role,
+            agentName: task.role, // placeholder until agent registers
+            taskSlug: task.slug,
+            turnOrder: i + 1,
+            status: 'IDLE',
+        })),
+    });
 
     return prisma.swarmSession.findUnique({
         where: { id: swarm.id },
