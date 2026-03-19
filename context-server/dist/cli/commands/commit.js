@@ -48,7 +48,7 @@ const COMMIT_HELP = `
 Commands:
   commit auto
       Automatically generate a rich semantic context from the latest git commit (message, files, diff stats)
-  
+
   commit memory "<content>" [--type <type>] [--file <path>]
       Commit a memory (architecture, capability, pattern, etc.)
       Types: architecture, capability, pattern, convention (default: architecture)

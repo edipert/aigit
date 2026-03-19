@@ -43,7 +43,7 @@ function migrateSkills(workspacePath) {
                     // It's best to use a relative path so the git repo remains portable
                     const relativeLinkPath = path_1.default.relative(path_1.default.dirname(sourceSkillsDir), aigitSkillsDir);
                     fs_1.default.symlinkSync(relativeLinkPath, sourceSkillsDir, 'junction');
-                    // 'junction' provides better cross-platform compatibility on Windows for directories, 
+                    // 'junction' provides better cross-platform compatibility on Windows for directories,
                     // although 'dir' works on unix. Node handles 'junction' gracefully on Unix too.
                     migrated.push(agent.tool.skillsDir);
                 }

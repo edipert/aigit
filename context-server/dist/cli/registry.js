@@ -101,14 +101,14 @@ Swarm Orchestration:
   swarm resume <id>             Resume a halted swarm
   swarm conflicts               List unresolved swarm conflicts
   swarm resolve <id> <text>     Resolve a conflict
-  
+
 Self-Healing Codebases:
   heal                          Run tests, diagnose failures, map AST context, propose fixes
   heal --auto                   Auto-commit fixes derived from memory
   heal status                   List test-failure healing history
   deps                          Audit npm dependencies & correlate with past context
   deps --auto                   Auto-branch and fix vulnerabilities
-  
+
 Other:
   telemetry off                 Show instructions to disable anonymous usage tracking
 `;
