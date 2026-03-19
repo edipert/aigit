@@ -55,15 +55,10 @@ async function resolveConflict(messageId, resolution, resumeSwarm = true) {
         });
         if (unresolvedCount === 0) {
             // Resume the swarm — set the blocked agent back to WORKING
-            const blockedAgents = await db_1.prisma.swarmAgent.findMany({
+            await db_1.prisma.swarmAgent.updateMany({
                 where: { swarmId: message.swarmId, status: 'BLOCKED' },
+                data: { status: 'WORKING' },
             });
-            for (const a of blockedAgents) {
-                await db_1.prisma.swarmAgent.update({
-                    where: { id: a.id },
-                    data: { status: 'WORKING' },
-                });
-            }
             await db_1.prisma.swarmSession.update({
                 where: { id: message.swarmId },
                 data: { status: 'ACTIVE' },

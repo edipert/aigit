@@ -147,10 +147,53 @@ CREATE TABLE "HealingEvent" (
     CONSTRAINT "HealingEvent_pkey" PRIMARY KEY ("id")
 );
 
+CREATE TABLE "SwarmSession" (
+    "id" TEXT NOT NULL,
+    "projectId" TEXT NOT NULL,
+    "goal" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'PENDING',
+    "gitBranch" TEXT NOT NULL DEFAULT 'main',
+    "currentTurn" INTEGER NOT NULL DEFAULT 0,
+    "totalTurns" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    CONSTRAINT "SwarmSession_pkey" PRIMARY KEY ("id")
+);
+
+CREATE TABLE "SwarmAgent" (
+    "id" TEXT NOT NULL,
+    "swarmId" TEXT NOT NULL,
+    "role" TEXT NOT NULL,
+    "agentName" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'IDLE',
+    "taskSlug" TEXT,
+    "turnOrder" INTEGER NOT NULL DEFAULT 0,
+    "joinedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "SwarmAgent_pkey" PRIMARY KEY ("id")
+);
+
+CREATE TABLE "SwarmMessage" (
+    "id" TEXT NOT NULL,
+    "swarmId" TEXT NOT NULL,
+    "fromAgentId" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "channel" TEXT NOT NULL,
+    "payload" TEXT NOT NULL,
+    "isConflict" BOOLEAN NOT NULL DEFAULT false,
+    "resolved" BOOLEAN NOT NULL DEFAULT false,
+    "resolution" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "SwarmMessage_pkey" PRIMARY KEY ("id")
+);
+
 CREATE UNIQUE INDEX "Project_name_key" ON "Project"("name");
 CREATE UNIQUE INDEX "Task_slug_key" ON "Task"("slug");
 
 ALTER TABLE "Agent" ADD CONSTRAINT "Agent_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "SwarmSession" ADD CONSTRAINT "SwarmSession_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "SwarmAgent" ADD CONSTRAINT "SwarmAgent_swarmId_fkey" FOREIGN KEY ("swarmId") REFERENCES "SwarmSession"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "SwarmMessage" ADD CONSTRAINT "SwarmMessage_swarmId_fkey" FOREIGN KEY ("swarmId") REFERENCES "SwarmSession"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "SwarmMessage" ADD CONSTRAINT "SwarmMessage_fromAgentId_fkey" FOREIGN KEY ("fromAgentId") REFERENCES "SwarmAgent"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE "Session" ADD CONSTRAINT "Session_agentId_fkey" FOREIGN KEY ("agentId") REFERENCES "Agent"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "Task" ADD CONSTRAINT "Task_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "Decision" ADD CONSTRAINT "Decision_taskId_fkey" FOREIGN KEY ("taskId") REFERENCES "Task"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -223,10 +266,59 @@ const MIGRATIONS: Migration[] = [
                 NOT VALID;
         `,
     },
+    {
+        version: 4,
+        description: 'Create Swarm tables',
+        sql: `
+            CREATE TABLE IF NOT EXISTS "SwarmSession" (
+                "id" TEXT NOT NULL,
+                "projectId" TEXT NOT NULL,
+                "goal" TEXT NOT NULL,
+                "status" TEXT NOT NULL DEFAULT 'PENDING',
+                "gitBranch" TEXT NOT NULL DEFAULT 'main',
+                "currentTurn" INTEGER NOT NULL DEFAULT 0,
+                "totalTurns" INTEGER NOT NULL DEFAULT 0,
+                "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                "updatedAt" TIMESTAMP(3) NOT NULL,
+                CONSTRAINT "SwarmSession_pkey" PRIMARY KEY ("id")
+            );
+
+            CREATE TABLE IF NOT EXISTS "SwarmAgent" (
+                "id" TEXT NOT NULL,
+                "swarmId" TEXT NOT NULL,
+                "role" TEXT NOT NULL,
+                "agentName" TEXT NOT NULL,
+                "status" TEXT NOT NULL DEFAULT 'IDLE',
+                "taskSlug" TEXT,
+                "turnOrder" INTEGER NOT NULL DEFAULT 0,
+                "joinedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                CONSTRAINT "SwarmAgent_pkey" PRIMARY KEY ("id")
+            );
+
+            CREATE TABLE IF NOT EXISTS "SwarmMessage" (
+                "id" TEXT NOT NULL,
+                "swarmId" TEXT NOT NULL,
+                "fromAgentId" TEXT NOT NULL,
+                "type" TEXT NOT NULL,
+                "channel" TEXT NOT NULL,
+                "payload" TEXT NOT NULL,
+                "isConflict" BOOLEAN NOT NULL DEFAULT false,
+                "resolved" BOOLEAN NOT NULL DEFAULT false,
+                "resolution" TEXT,
+                "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                CONSTRAINT "SwarmMessage_pkey" PRIMARY KEY ("id")
+            );
+
+            ALTER TABLE "SwarmSession" ADD CONSTRAINT "SwarmSession_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+            ALTER TABLE "SwarmAgent" ADD CONSTRAINT "SwarmAgent_swarmId_fkey" FOREIGN KEY ("swarmId") REFERENCES "SwarmSession"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+            ALTER TABLE "SwarmMessage" ADD CONSTRAINT "SwarmMessage_swarmId_fkey" FOREIGN KEY ("swarmId") REFERENCES "SwarmSession"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+            ALTER TABLE "SwarmMessage" ADD CONSTRAINT "SwarmMessage_fromAgentId_fkey" FOREIGN KEY ("fromAgentId") REFERENCES "SwarmAgent"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+        `,
+    },
     // ── Add future migrations below ───────────────────────────────────────────
     // Template:
     // {
-    //     version: 4,
+    //     version: 5,
     //     description: 'Your human-readable description',
     //     sql: `ALTER TABLE "Foo" ADD COLUMN IF NOT EXISTS "bar" TEXT;`,
     // },

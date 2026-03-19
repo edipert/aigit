@@ -1,20 +1,18 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { prisma, initializeDatabase } from '../db';
-import { resolveConflict, reportConflict } from './conflict';
-
-describe('conflict resolution performance', () => {
-    let projectId: string;
-    let swarmId: string;
-
-    beforeEach(async () => {
-        await initializeDatabase();
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const vitest_1 = require("vitest");
+const db_1 = require("../db");
+const conflict_1 = require("./conflict");
+(0, vitest_1.describe)('conflict resolution performance', () => {
+    let projectId;
+    let swarmId;
+    (0, vitest_1.beforeEach)(async () => {
         // Clean up or setup test data
-        const project = await prisma.project.create({
+        const project = await db_1.prisma.project.create({
             data: { name: 'test-project-' + Date.now() }
         });
         projectId = project.id;
-
-        const swarm = await prisma.swarmSession.create({
+        const swarm = await db_1.prisma.swarmSession.create({
             data: {
                 projectId: projectId,
                 goal: 'test goal',
@@ -23,13 +21,11 @@ describe('conflict resolution performance', () => {
         });
         swarmId = swarm.id;
     });
-
-    it('benchmarks resolveConflict with many blocked agents', async () => {
+    (0, vitest_1.it)('benchmarks resolveConflict with many blocked agents', async () => {
         const numAgents = 50;
         const agents = [];
-
         for (let i = 0; i < numAgents; i++) {
-            const agent = await prisma.swarmAgent.create({
+            const agent = await db_1.prisma.swarmAgent.create({
                 data: {
                     swarmId: swarmId,
                     role: 'worker-' + i,
@@ -39,8 +35,7 @@ describe('conflict resolution performance', () => {
             });
             agents.push(agent);
         }
-
-        const conflictMessage = await prisma.swarmMessage.create({
+        const conflictMessage = await db_1.prisma.swarmMessage.create({
             data: {
                 swarmId: swarmId,
                 fromAgentId: agents[0].id,
@@ -51,17 +46,14 @@ describe('conflict resolution performance', () => {
                 resolved: false
             }
         });
-
         const start = performance.now();
-        await resolveConflict(conflictMessage.id, 'resolved', true);
+        await (0, conflict_1.resolveConflict)(conflictMessage.id, 'resolved', true);
         const end = performance.now();
-
         console.log(`Resolution of ${numAgents} agents took ${end - start}ms`);
-
         // Verify status
-        const updatedAgents = await prisma.swarmAgent.findMany({
+        const updatedAgents = await db_1.prisma.swarmAgent.findMany({
             where: { swarmId: swarmId }
         });
-        expect(updatedAgents.every(a => a.status === 'WORKING')).toBe(true);
+        (0, vitest_1.expect)(updatedAgents.every(a => a.status === 'WORKING')).toBe(true);
     });
 });
