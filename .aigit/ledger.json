@@ -42,56 +42,6 @@
   "decisions": [],
   "memories": [
     {
-      "id": "43b67e79-5f29-41f1-a30c-7ca626c81da6",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "capability",
-      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nA\t.claude/AGENTS.md\nM\t.clinerules\nM\t.cursorrules\nM\t.gitignore\nM\t.windsurfrules\nM\tAGENTS.md\nM\tCLAUDE.md\nM\tGEMINI.md\nM\tcontext-server/dist/agents/registry.js\nM\tcontext-server/dist/cli/index.js\nM\tcontext-server/package-lock.json\nM\tcontext-server/package.json\nM\tcontext-server/src/agents/registry.ts\nM\tcontext-server/src/cli/index.ts\n\nStatistics:\n.claude/AGENTS.md                      | 252 +++++++++++++++++++++++++++++++++\n .clinerules                            |  71 ++++------\n .cursorrules                           |  71 ++++------\n .gitignore                             |   3 +\n .windsurfrules                         |  71 ++++------\n AGENTS.md                              |  48 ++++---\n CLAUDE.md                              |  70 ++++-----\n GEMINI.md                              |  96 ++++++-------\n context-server/dist/agents/registry.js |  32 +++++\n context-server/dist/cli/index.js       | 119 ++++++++++++++--\n context-server/package-lock.json       |   6 +-\n context-server/package.json            |   2 +-\n context-server/src/agents/registry.ts  |  32 +++++\n context-server/src/cli/index.ts        | 123 ++++++++++++++--\n 14 files changed, 742 insertions(+), 254 deletions(-)",
-      "embedding": null,
-      "createdAt": "2026-03-07T21:39:32.021Z"
-    },
-    {
-      "id": "2a9396dc-5aa7-4d3a-9d87-a6e8585628c7",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "capability",
-      "content": "Testing fixed ledger dump for Agent-Driven workflow (Attempt 2)",
-      "embedding": null,
-      "createdAt": "2026-03-07T21:53:54.635Z"
-    },
-    {
-      "id": "f3443c23-c6f0-498d-b4ff-acd12bd9facc",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "capability",
-      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tfrontend/src/DocsPage.tsx\n\nStatistics:\nfrontend/src/DocsPage.tsx | 16 +++++++++-------\n 1 file changed, 9 insertions(+), 7 deletions(-)",
-      "embedding": null,
-      "createdAt": "2026-03-07T22:03:12.145Z"
-    },
-    {
-      "id": "1e5d8068-b273-4106-834e-0cbb825d7002",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "capability",
-      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tvscode-aigit/dist/extension.js\nM\tvscode-aigit/dist/extension.js.map\nM\tvscode-aigit/package-lock.json\nM\tvscode-aigit/package.json\nM\tvscode-aigit/src/extension.ts\nA\tvscode-aigit/vscode-aigit-1.0.1.vsix\n\nStatistics:\nvscode-aigit/dist/extension.js       |  13 +++++++++++++\n vscode-aigit/dist/extension.js.map   |   2 +-\n vscode-aigit/package-lock.json       |   4 ++--\n vscode-aigit/package.json            |   9 +++++++--\n vscode-aigit/src/extension.ts        |  17 +++++++++++++++++\n vscode-aigit/vscode-aigit-1.0.1.vsix | Bin 0 -> 40233 bytes\n 6 files changed, 40 insertions(+), 5 deletions(-)",
-      "embedding": null,
-      "createdAt": "2026-03-07T22:09:51.913Z"
-    },
-    {
-      "id": "0d1a9818-9d35-4dd1-bd31-ee7238a875b3",
-      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
-      "sessionId": null,
-      "gitBranch": "main",
-      "type": "architecture",
-      "content": "Updated frontend/src/DocsPage.tsx to document the new Agent-Driven commit workflow.",
-      "embedding": null,
-      "createdAt": "2026-03-07T22:19:36.342Z"
-    },
-    {
       "id": "b2f63370-cfb0-48da-ab44-702f43481629",
       "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
       "sessionId": null,
@@ -322,6 +272,56 @@
       "createdAt": "2026-03-05T21:43:30.700Z"
     },
     {
+      "id": "43b67e79-5f29-41f1-a30c-7ca626c81da6",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "capability",
+      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nA\t.claude/AGENTS.md\nM\t.clinerules\nM\t.cursorrules\nM\t.gitignore\nM\t.windsurfrules\nM\tAGENTS.md\nM\tCLAUDE.md\nM\tGEMINI.md\nM\tcontext-server/dist/agents/registry.js\nM\tcontext-server/dist/cli/index.js\nM\tcontext-server/package-lock.json\nM\tcontext-server/package.json\nM\tcontext-server/src/agents/registry.ts\nM\tcontext-server/src/cli/index.ts\n\nStatistics:\n.claude/AGENTS.md                      | 252 +++++++++++++++++++++++++++++++++\n .clinerules                            |  71 ++++------\n .cursorrules                           |  71 ++++------\n .gitignore                             |   3 +\n .windsurfrules                         |  71 ++++------\n AGENTS.md                              |  48 ++++---\n CLAUDE.md                              |  70 ++++-----\n GEMINI.md                              |  96 ++++++-------\n context-server/dist/agents/registry.js |  32 +++++\n context-server/dist/cli/index.js       | 119 ++++++++++++++--\n context-server/package-lock.json       |   6 +-\n context-server/package.json            |   2 +-\n context-server/src/agents/registry.ts  |  32 +++++\n context-server/src/cli/index.ts        | 123 ++++++++++++++--\n 14 files changed, 742 insertions(+), 254 deletions(-)",
+      "embedding": null,
+      "createdAt": "2026-03-07T21:39:32.021Z"
+    },
+    {
+      "id": "2a9396dc-5aa7-4d3a-9d87-a6e8585628c7",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "capability",
+      "content": "Testing fixed ledger dump for Agent-Driven workflow (Attempt 2)",
+      "embedding": null,
+      "createdAt": "2026-03-07T21:53:54.635Z"
+    },
+    {
+      "id": "f3443c23-c6f0-498d-b4ff-acd12bd9facc",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "capability",
+      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tfrontend/src/DocsPage.tsx\n\nStatistics:\nfrontend/src/DocsPage.tsx | 16 +++++++++-------\n 1 file changed, 9 insertions(+), 7 deletions(-)",
+      "embedding": null,
+      "createdAt": "2026-03-07T22:03:12.145Z"
+    },
+    {
+      "id": "1e5d8068-b273-4106-834e-0cbb825d7002",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "capability",
+      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tvscode-aigit/dist/extension.js\nM\tvscode-aigit/dist/extension.js.map\nM\tvscode-aigit/package-lock.json\nM\tvscode-aigit/package.json\nM\tvscode-aigit/src/extension.ts\nA\tvscode-aigit/vscode-aigit-1.0.1.vsix\n\nStatistics:\nvscode-aigit/dist/extension.js       |  13 +++++++++++++\n vscode-aigit/dist/extension.js.map   |   2 +-\n vscode-aigit/package-lock.json       |   4 ++--\n vscode-aigit/package.json            |   9 +++++++--\n vscode-aigit/src/extension.ts        |  17 +++++++++++++++++\n vscode-aigit/vscode-aigit-1.0.1.vsix | Bin 0 -> 40233 bytes\n 6 files changed, 40 insertions(+), 5 deletions(-)",
+      "embedding": null,
+      "createdAt": "2026-03-07T22:09:51.913Z"
+    },
+    {
+      "id": "0d1a9818-9d35-4dd1-bd31-ee7238a875b3",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Updated frontend/src/DocsPage.tsx to document the new Agent-Driven commit workflow.",
+      "embedding": null,
+      "createdAt": "2026-03-07T22:19:36.342Z"
+    },
+    {
       "id": "36b954db-de94-4b2a-a636-04bfc2cbe3c6",
       "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
       "sessionId": null,
@@ -350,6 +350,16 @@
       "content": "Released aigit-core 1.1.6 to npm registry.",
       "embedding": null,
       "createdAt": "2026-03-11T22:00:16.492Z"
+    },
+    {
+      "id": "956d5052-068a-4710-90a2-58e3701168c9",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "feature/vscode-new-commands",
+      "type": "architecture",
+      "content": "Added new commands 'aigit.handoff' and 'aigit.syncSkills' to the vscode-aigit extension. Registered them in extension.ts and added UI bindings in syncProvider.ts.",
+      "embedding": null,
+      "createdAt": "2026-03-19T09:18:54.975Z"
     }
   ],
   "healingEvents": []
