@@ -351,16 +351,16 @@ server.setRequestHandler(types_js_1.CallToolRequestSchema, async (request) => {
                             }
                         });
                         const taskDecisions = decisions.filter(d => d.taskId === t.id);
-                        for (const d of taskDecisions) {
-                            await db_1.prisma.decision.create({
-                                data: {
+                        if (taskDecisions.length > 0) {
+                            await db_1.prisma.decision.createMany({
+                                data: taskDecisions.map(d => ({
                                     taskId: newTask.id, gitBranch: tgt, context: d.context, chosen: d.chosen,
                                     rejected: d.rejected, reasoning: d.reasoning,
                                     filePath: d.filePath, lineNumber: d.lineNumber,
                                     symbolName: d.symbolName, symbolType: d.symbolType, symbolRange: d.symbolRange,
-                                }
+                                }))
                             });
-                            ported++;
+                            ported += taskDecisions.length;
                         }
                         ported++;
                     }

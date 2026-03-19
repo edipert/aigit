@@ -409,13 +409,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                         });
                         const taskDecisions = decisions.filter(d => d.taskId === t.id);
                         if (taskDecisions.length > 0) {
-                            const decisionData = taskDecisions.map(d => ({
-                                taskId: newTask.id, gitBranch: tgt, context: d.context, chosen: d.chosen,
-                                rejected: d.rejected as string[], reasoning: d.reasoning,
-                                filePath: d.filePath, lineNumber: d.lineNumber,
-                                symbolName: d.symbolName, symbolType: d.symbolType, symbolRange: d.symbolRange,
-                            }));
-                            await prisma.decision.createMany({ data: decisionData });
+                            await prisma.decision.createMany({
+                                data: taskDecisions.map(d => ({
+                                    taskId: newTask.id, gitBranch: tgt, context: d.context, chosen: d.chosen,
+                                    rejected: d.rejected as string[], reasoning: d.reasoning,
+                                    filePath: d.filePath, lineNumber: d.lineNumber,
+                                    symbolName: d.symbolName, symbolType: d.symbolType, symbolRange: d.symbolRange,
+                                }))
+                            });
                             ported += taskDecisions.length;
                         }
                         ported++;
