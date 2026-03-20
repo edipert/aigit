@@ -21,7 +21,7 @@ const handler: CommandHandler = async ({ args, workspacePath, command }) => {
 
         await withSpinner(
             dryRun ? 'Syncing AI tool configs (dry run)…' : 'Syncing AI tool configs…',
-            async () => { syncAgents(workspacePath, { dryRun, from, to }); }
+            async () => { await syncAgents(workspacePath, { dryRun, from, to }); }
         );
 
         if (skillsMigrate && !dryRun) {

@@ -31,6 +31,26 @@
                 "icon": "$(save)"
             },
             {
+                "command": "aigit.init",
+                "title": "Aigit: Initialize Semantic Memory",
+                "icon": "$(folder-opened)"
+            },
+            {
+                "command": "aigit.commitTask",
+                "title": "Aigit: Start Task",
+                "icon": "$(list-unordered)"
+            },
+            {
+                "command": "aigit.handoff",
+                "title": "Aigit: Generate Handoff Context",
+                "icon": "$(sync)"
+            },
+            {
+                "command": "aigit.syncSkills",
+                "title": "Aigit: Sync + Migrate Skills",
+                "icon": "$(tools)"
+            },
+            {
                 "command": "aigit.hydrate",
                 "title": "Aigit: Hydrate Context",
                 "icon": "$(water)"

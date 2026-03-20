@@ -479,6 +479,49 @@
     opacity: 0.7;
 }
 
+/* Mobile Menu Styles */
+.mobile-menu-btn {
+    display: none;
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+}
+
+.mobile-menu {
+    display: none;
+    border-top: var(--border-glass);
+    padding: 1rem 2rem;
+    animation: slideDown 0.3s ease-out;
+}
+
+.mobile-menu-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.mobile-menu-actions {
+    display: flex;
+    gap: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* ==================================
    7. SYS.WORKFLOW — COMPACT CARDS
    ================================== */
@@ -784,8 +827,20 @@
 }
 
 @media (max-width: 768px) {
+    .navbar-links.desktop-links {
+        display: none !important;
+    }
+
+    .mobile-menu-btn {
+        display: flex;
+    }
+
+    .mobile-menu {
+        display: block;
+    }
+
     .hero-section {
-        padding-top: 80px;
+        padding-top: 100px;
     }
 
     .hero-title {

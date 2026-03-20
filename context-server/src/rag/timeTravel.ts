@@ -90,8 +90,13 @@ export function queryHistoricalContext(options: {
 
     // Enrich with original metadata
     const allEntries = [...(ledger.memories || []), ...(ledger.decisions || [])];
+    const entryMap = new Map<string, LedgerEntry>();
+    for (const entry of allEntries) {
+        entryMap.set(entry.id, entry);
+    }
+
     const results = ranked.map(r => {
-        const original = allEntries.find(e => e.id === r.id);
+        const original = entryMap.get(r.id);
         return {
             ...r,
             filePath: original?.filePath || null,

@@ -4,7 +4,7 @@ import { SyncProvider } from './syncProvider';
 import { SyncStatusBar } from './statusBar';
 import { AigitContextLensProvider } from './contextLens';
 import { AigitContextHoverProvider } from './contextHover';
-import { ContextPrefetchCache, createCursorWatcher } from './prefetch';
+import { CachedSymbolContext, ContextPrefetchCache, createCursorWatcher } from './prefetch';
 
 export function activate(context: vscode.ExtensionContext) {
     const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
@@ -68,6 +68,58 @@ export function activate(context: vscode.ExtensionContext) {
     );
 
     context.subscriptions.push(
+        vscode.commands.registerCommand('aigit.init', () => {
+            const terminal = getOrCreateTerminal();
+            terminal.sendText('aigit init');
+            terminal.show();
+        })
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand('aigit.commitTask', async () => {
+            const result = await vscode.window.showInputBox({
+                prompt: 'Enter task description (e.g. "feat: add login")',
+                placeHolder: 'Task title...',
+                validateInput: text => {
+                    return text.length > 0 ? null : 'Task title cannot be empty';
+                }
+            });
+
+            if (result) {
+                const terminal = getOrCreateTerminal();
+                terminal.sendText(`aigit commit task "${result}"`);
+                terminal.show();
+            }
+        })
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand('aigit.handoff', async () => {
+            const result = await vscode.window.showInputBox({
+                prompt: 'Enter task slug (e.g. "feat-add-login")',
+                placeHolder: 'Task slug...',
+                validateInput: text => {
+                    return text.length > 0 ? null : 'Task slug cannot be empty';
+                }
+            });
+
+            if (result) {
+                const terminal = getOrCreateTerminal();
+                terminal.sendText(`aigit handoff "${result}"`);
+                terminal.show();
+            }
+        })
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand('aigit.syncSkills', () => {
+            const terminal = getOrCreateTerminal();
+            terminal.sendText('aigit sync --skills');
+            terminal.show();
+        })
+    );
+
+    context.subscriptions.push(
         vscode.commands.registerCommand('aigit.hydrate', () => {
             const terminal = getOrCreateTerminal();
             terminal.sendText('aigit hydrate');
@@ -108,7 +160,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     // --- Phase 25: Context detail command (triggered from CodeLens) ---
     context.subscriptions.push(
-        vscode.commands.registerCommand('aigit.showContextDetail', (entry: any) => {
+        vscode.commands.registerCommand('aigit.showContextDetail', (entry: CachedSymbolContext) => {
             const panel = vscode.window.createWebviewPanel(
                 'aigitContext', `⚓ aigit: ${entry.symbolName || 'Context'}`,
                 vscode.ViewColumn.Beside, { enableScripts: false }

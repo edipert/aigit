@@ -5,6 +5,7 @@
 ## 1. Project Directives
 - **Core Mission**: Centralize and decouple AI agent state into the repository structure.
 - **Current Phase**: Finalizing Universal IDE Bootstrapping & Context Server Integration.
+- **Linear Project**: [Aigit](https://linear.app/connexsus/project/aigit-a88d6a99d685) (ID: `37daa892-53ca-435b-ad1a-20436b2b7ead`)
 
 ## 2. Architecture Decision Records (ADRs)
 

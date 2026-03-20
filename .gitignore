@@ -30,5 +30,6 @@ yarn-error.log*
 .gemini/
 
 /context-server/.env
+/context-server/dist
 
 /scripts
