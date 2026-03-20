@@ -380,6 +380,16 @@
       "content": "Reverted Vercel GitHub Action config to use --token flag, while adding a strict credential verifier step. This confirms and fails gracefully if GitHub actions cannot read the given secrets.",
       "embedding": null,
       "createdAt": "2026-03-20T19:34:30.140Z"
+    },
+    {
+      "id": "473a51dd-f22b-4d65-b8db-a0082e82afed",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Temporarily mitigated production deployment automation by swapping the GitHub Action push triggers for manual 'workflow_dispatch' overrides while stabilizing environments.",
+      "embedding": null,
+      "createdAt": "2026-03-20T20:06:15.693Z"
     }
   ],
   "healingEvents": []

@@ -1,12 +1,13 @@
 name: Frontend Vercel Production Deployment
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'frontend/**'
-      - '.github/workflows/frontend-production.yml'
+  workflow_dispatch:
+#  push:
+#    branches:
+#      - main
+#    paths:
+#      - 'frontend/**'
+#      - '.github/workflows/frontend-production.yml'
 
 jobs:
   build_and_deploy:
