@@ -416,6 +416,17 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                     const newTasks = tasks.filter(t => !existingSlugSet.has(t.slug));
 
                     if (newTasks.length > 0) {
+                        // Pre-group decisions by source taskId to avoid O(N*M) filtering inside the loop
+                        const decisionsByTaskId = new Map<string, typeof decisions>();
+                        for (const d of decisions) {
+                            let group = decisionsByTaskId.get(d.taskId);
+                            if (!group) {
+                                group = [];
+                                decisionsByTaskId.set(d.taskId, group);
+                            }
+                            group.push(d);
+                        }
+
                         // Create tasks individually to get their new IDs for associating decisions.
                         // We still save N queries by not checking existence individually.
                         for (const t of newTasks) {
@@ -426,8 +437,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                             });
                             ported++;
 
-                            const taskDecisions = decisions.filter(d => d.taskId === t.id);
-                            if (taskDecisions.length > 0) {
+                            const taskDecisions = decisionsByTaskId.get(t.id);
+                            if (taskDecisions && taskDecisions.length > 0) {
                                 await prisma.decision.createMany({
                                     data: taskDecisions.map(d => ({
                                         taskId: newTask.id, gitBranch: tgt, context: d.context, chosen: d.chosen,
