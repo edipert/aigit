@@ -1,11 +1,11 @@
 {
   "projects": [
     {
-      "id": "52454783-6f42-488a-951f-b54e5519b45f",
+      "id": "d51b6ddd-aad3-48fa-aff8-6cdb449b1b8f",
       "name": "aigit",
       "description": null,
-      "createdAt": "2026-03-20T19:21:15.886Z",
-      "updatedAt": "2026-03-20T19:21:15.886Z"
+      "createdAt": "2026-03-20T19:26:49.758Z",
+      "updatedAt": "2026-03-20T19:26:49.758Z"
     }
   ],
   "agents": [],
@@ -14,14 +14,14 @@
   "decisions": [],
   "memories": [
     {
-      "id": "e5bedd60-fd1b-4490-8e7c-86178add2241",
-      "projectId": "52454783-6f42-488a-951f-b54e5519b45f",
+      "id": "74b919ff-3a25-42b5-9b1d-97ff12abfb42",
+      "projectId": "d51b6ddd-aad3-48fa-aff8-6cdb449b1b8f",
       "sessionId": null,
       "gitBranch": "main",
       "type": "architecture",
-      "content": "Fixed Vercel GitHub Action by injecting the VERCEL_ACCESS_TOKEN directly into the 'VERCEL_TOKEN' environment variable instead of using the --token CLI flag to resolve authentication failures.",
+      "content": "Restored ledger.json after it was inadvertently dropped during a crash-aborted sync hydration step. Forcibly resolved persistent config drift between AI tool profile definitions utilizing the gemini agent definition as the canonical source.",
       "embedding": null,
-      "createdAt": "2026-03-20T19:21:15.891Z"
+      "createdAt": "2026-03-20T19:26:49.763Z"
     }
   ],
   "healingEvents": []
