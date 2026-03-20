@@ -109,6 +109,7 @@ CREATE TABLE "Decision" (
     "symbolType" TEXT,
     "symbolRange" TEXT,
     "issueRef" TEXT,
+    "agentName" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "Decision_pkey" PRIMARY KEY ("id")
 );
@@ -127,6 +128,7 @@ CREATE TABLE "Memory" (
     "symbolType" TEXT,
     "symbolRange" TEXT,
     "issueRef" TEXT,
+    "agentName" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "Memory_pkey" PRIMARY KEY ("id")
 );
@@ -317,6 +319,14 @@ const MIGRATIONS: Migration[] = [
         `,
     },
     // ── Add future migrations below ───────────────────────────────────────────
+    {
+        version: 5,
+        description: 'Add agentName for tracking context provenance in Decision and Memory',
+        sql: `
+            ALTER TABLE "Decision" ADD COLUMN IF NOT EXISTS "agentName" TEXT;
+            ALTER TABLE "Memory" ADD COLUMN IF NOT EXISTS "agentName" TEXT;
+        `,
+    },
     // Template:
     // {
     //     version: 5,

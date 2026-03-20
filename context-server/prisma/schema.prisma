@@ -67,6 +67,7 @@ model Decision {
   chosen      String   
   rejected    String[] 
   reasoning   String   
+  agentName   String?
   filePath    String?  
   lineNumber  Int?     
   symbolName  String?  
@@ -86,6 +87,7 @@ model Memory {
   gitBranch   String   @default("main")
   type        String   
   content     String   
+  agentName   String?
   filePath    String?  
   lineNumber  Int?     
   symbolName  String?  

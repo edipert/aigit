@@ -390,6 +390,16 @@
       "content": "Temporarily mitigated production deployment automation by swapping the GitHub Action push triggers for manual 'workflow_dispatch' overrides while stabilizing environments.",
       "embedding": null,
       "createdAt": "2026-03-20T20:06:15.693Z"
+    },
+    {
+      "id": "5a8f555a-ad1f-43f9-bf00-099d5b907ce7",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Implemented Phase 1 context engine features (bisect, stats, deps-graph). Extended schema to track agentName provenance.",
+      "embedding": null,
+      "createdAt": "2026-03-20T20:40:09.752Z"
     }
   ],
   "healingEvents": []

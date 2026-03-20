@@ -490,6 +490,44 @@ update
         });
     });
 
+// ── diagnostics & stats ───────────────────────────────────────
+program
+    .command('bisect <query>')
+    .description('Time-travel binary search for when a context entry appeared')
+    .option('--from <hash>', 'Oldest commit to search from')
+    .option('--to <hash>', 'Newest commit to search to (default: HEAD)')
+    .action(async (query: string, opts: { from?: string; to?: string }) => {
+        await run('bisect', async () => {
+            const args: string[] = [query];
+            if (opts.from) args.push('--from', opts.from);
+            if (opts.to) args.push('--to', opts.to);
+            const { default: handler } = await import('./commands/bisect');
+            await handler({ args, workspacePath: ws(), command: 'bisect' });
+        });
+    });
+
+program
+    .command('stats')
+    .description('Show AI ROI, agent contributions, and project stats')
+    .option('--top <n>', 'Number of agents/tasks to show', '10')
+    .action(async (opts: { top: string }) => {
+        await run('stats', async () => {
+            const args: string[] = ['--top', opts.top];
+            const { default: handler } = await import('./commands/stats');
+            await handler({ args, workspacePath: ws(), command: 'stats' });
+        });
+    });
+
+program
+    .command('deps-graph')
+    .description('Generate semantic dependency graph of the project')
+    .action(async () => {
+        await run('deps-graph', async () => {
+            const { default: handler } = await import('./commands/deps-graph');
+            await handler({ args: [], workspacePath: ws(), command: 'deps-graph' });
+        });
+    });
+
 // ── mcp ───────────────────────────────────────────────────────
 
 program
