@@ -1,0 +1,43 @@
+name: Aigit Context Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  context-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Get Changed Files
+        id: changed-files
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { issue: { number: issue_number }, repo: { owner, repo }  } = context;
+            const files = await github.rest.pulls.listFiles({ owner, repo, pull_number: issue_number });
+            const filenames = files.data.map(f => f.filename).join(',');
+            core.setOutput('files', filenames);
+
+      - name: Install Project Dependencies
+        run: npm ci
+
+      - name: Run Aigit CI Report
+        uses: ./.github/actions/aigit-ci
+        with:
+          pr_title: "${{ github.event.pull_request.title }}"
+          changed_files: "${{ steps.changed-files.outputs.files }}"
+          github_token: ${{ secrets.GITHUB_TOKEN }}

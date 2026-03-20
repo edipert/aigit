@@ -528,6 +528,53 @@ program
         });
     });
 
+program
+    .command('ci-report')
+    .description('Generate CI/CD context reports')
+    .option('--pr-title <title>', 'PR Title to search within context', '')
+    .option('--changed-files <files>', 'Comma-separated changed files', '')
+    .option('--json', 'Output strictly as JSON', false)
+    .action(async (opts: { prTitle: string; changedFiles: string; json: boolean }) => {
+        await run('ci-report', async () => {
+            const args: string[] = [];
+            if (opts.prTitle) args.push('--pr-title', opts.prTitle);
+            if (opts.changedFiles) args.push('--changed-files', opts.changedFiles);
+            if (opts.json) args.push('--json');
+            const { default: handler } = await import('./commands/ci');
+            await handler({ args, workspacePath: ws(), command: 'ci-report' });
+        });
+    });
+
+program
+    .command('resolve')
+    .description('Interactive wizard to assimilate or resolve context merged from other branches')
+    .action(async () => {
+        await run('resolve', async () => {
+            const { default: handler } = await import('./commands/resolve');
+            await handler({ args: [], workspacePath: ws(), command: 'resolve' });
+        });
+    });
+
+program
+    .command('gc')
+    .description('Garbage collect old context entries')
+    .action(async () => {
+        await run('gc', async () => {
+            const { default: handler } = await import('./commands/gc');
+            await handler({ args: [], workspacePath: ws(), command: 'gc' });
+        });
+    });
+
+program
+    .command('ui')
+    .description('Launch the local Aigit Web Dashboard')
+    .action(async () => {
+        await run('ui', async () => {
+            const { default: handler } = await import('./commands/ui');
+            await handler({ args: [], workspacePath: ws(), command: 'ui' });
+        });
+    });
+
 // ── mcp ───────────────────────────────────────────────────────
 
 program

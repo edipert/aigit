@@ -11,6 +11,7 @@ import { getActiveBranch } from './cli/git';
 import { prisma, initializeDatabase } from './db';
 import { resolveSymbolAtLine, extractAllSymbols, findLinkedContext, anchorFileToSymbols } from './ast/resolver';
 import { semanticSearch } from './rag/search';
+import { embedText } from './rag/embeddings';
 import { queryHistoricalContext } from './rag/timeTravel';
 import { createSwarm, registerAgent, unregisterAgent, publishMessage, pollMessages, updateAgentStatus, getSwarmStatus } from './swarm/swarm';
 import { reportConflict, resolveConflict } from './swarm/conflict';
@@ -137,7 +138,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
                 const decision = await prisma.decision.create({
                     data: {
-                        taskId, gitBranch: branch, context, chosen,
+                        taskId, gitBranch: branch, originBranch: branch, context, chosen,
                         rejected: rejected as string[],
                         reasoning,
                         filePath: filePath ?? null,
@@ -146,6 +147,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                         agentName: agentName ?? null,
                     }
                 });
+
+                const embText = `[DECISION] ${context} -> ${chosen} (Reason: ${reasoning})`;
+                const emb = await embedText(embText);
+                const vectorStr = `[${emb.join(',')}]`;
+                await prisma.$executeRaw`UPDATE "Decision" SET embedding = ${vectorStr}::vector WHERE id = ${decision.id}`;
+
                 const anchor = symName ? ` [⚓ @${symName}]` : (filePath ? ` [📎 ${filePath}]` : '');
                 return { content: [{ type: 'text', text: `Decision recorded correctly.${anchor} ID: ${decision.id}` }] };
             }
@@ -171,7 +178,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
                 const memory = await prisma.memory.create({
                     data: {
-                        projectId, gitBranch: branch,
+                        projectId, gitBranch: branch, originBranch: branch,
                         type: isDecision ? 'architecture' : 'human_note',
                         content: message,
                         filePath: scope ?? null,
@@ -179,6 +186,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                         agentName: agentName ?? null,
                     }
                 });
+
+                const emb = await embedText(message);
+                const vectorStr = `[${emb.join(',')}]`;
+                await prisma.$executeRaw`UPDATE "Memory" SET embedding = ${vectorStr}::vector WHERE id = ${memory.id}`;
 
                 await dumpContextLedger(workspacePath);
 
@@ -195,13 +206,18 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
                 const memory = await prisma.memory.create({
                     data: {
-                        projectId, gitBranch: branch, type, content,
+                        projectId, gitBranch: branch, originBranch: branch, type, content,
                         filePath: filePath ?? null,
                         lineNumber: lineNumber ?? null,
                         symbolName: symName, symbolType: symType, symbolRange: symRange,
                         agentName: agentName ?? null,
                     }
                 });
+
+                const emb = await embedText(content);
+                const vectorStr = `[${emb.join(',')}]`;
+                await prisma.$executeRaw`UPDATE "Memory" SET embedding = ${vectorStr}::vector WHERE id = ${memory.id}`;
+
                 const anchor = symName ? ` [⚓ @${symName}]` : (filePath ? ` [📎 ${filePath}]` : '');
                 return { content: [{ type: 'text', text: `✅ Context committed to branch [${branch}].${anchor} ID: ${memory.id}` }] };
             }
@@ -253,7 +269,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                     return { content: [{ type: 'text', text: `No matching context found at commit ${result.commitHash}.` }] };
                 }
 
-                const formatted = result.results.map((r, i) =>
+                const formatted = result.results.map((r: any, i: number) =>
                     `${i + 1}. (score: ${r.score.toFixed(2)}) ${r.text}${r.filePath ? ` 📁 ${r.filePath}` : ''}${r.symbolName ? ` ⚓ @${r.symbolName}` : ''}`
                 ).join('\n');
 
@@ -783,7 +799,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
                 if (result.context?.results.length) {
                     response += '\n🔍 Matching context at this commit:\n';
-                    response += result.context.results.map((r, i) =>
+                    response += result.context.results.map((r: any, i: number) =>
                         `   ${i + 1}. (score: ${r.score.toFixed(2)}) ${r.text}${r.filePath ? ` 📁 ${r.filePath}` : ''}${r.symbolName ? ` ⚓ @${r.symbolName}` : ''}`
                     ).join('\n');
                 }

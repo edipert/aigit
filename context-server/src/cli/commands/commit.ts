@@ -4,6 +4,7 @@ import path from 'path';
 import { getActiveBranch } from '../git';
 import { prisma } from '../../db';
 import { getOrCreateDefaultProject, afterWrite } from './utils';
+import { embedText } from '../../rag/embeddings';
 import type { CommandHandler } from './types';
 
 const COMMIT_HELP = `
@@ -52,8 +53,13 @@ const handler: CommandHandler = async ({ args, workspacePath }) => {
         const filePath = fileIdx !== -1 ? args[fileIdx + 1] : null;
 
         const memory = await prisma.memory.create({
-            data: { projectId: project.id, gitBranch: branch, type: memType, content, filePath },
+            data: { projectId: project.id, gitBranch: branch, originBranch: branch, type: memType, content, filePath },
         });
+
+        console.log('   Generating vector embedding...');
+        const emb = await embedText(content);
+        const vectorStr = `[${emb.join(',')}]`;
+        await prisma.$executeRaw`UPDATE "Memory" SET embedding = ${vectorStr}::vector WHERE id = ${memory.id}`;
 
         await afterWrite(workspacePath);
 
@@ -85,8 +91,14 @@ const handler: CommandHandler = async ({ args, workspacePath }) => {
         }
 
         const decision = await prisma.decision.create({
-            data: { taskId: task.id, gitBranch: branch, context, chosen, reasoning, filePath },
+            data: { taskId: task.id, gitBranch: branch, originBranch: branch, context, chosen, reasoning, filePath },
         });
+
+        console.log('   Generating vector embedding...');
+        const embText = `[DECISION] ${context} -> ${chosen} (Reason: ${reasoning})`;
+        const emb = await embedText(embText);
+        const vectorStr = `[${emb.join(',')}]`;
+        await prisma.$executeRaw`UPDATE "Decision" SET embedding = ${vectorStr}::vector WHERE id = ${decision.id}`;
 
         await afterWrite(workspacePath);
 
@@ -270,11 +282,17 @@ const handler: CommandHandler = async ({ args, workspacePath }) => {
                 data: {
                     projectId: project.id,
                     gitBranch: branch,
+                    originBranch: branch,
                     type: 'capability',
                     content: semanticSummary,
                     filePath: 'git-commit-auto',
                 },
             });
+
+            console.log('   Generating vector embedding...');
+            const emb = await embedText(semanticSummary);
+            const vectorStr = `[${emb.join(',')}]`;
+            await prisma.$executeRaw`UPDATE "Memory" SET embedding = ${vectorStr}::vector WHERE id = ${memory.id}`;
 
             await afterWrite(workspacePath);
 

@@ -63,6 +63,7 @@ model Decision {
   taskId      String
   task        Task     @relation(fields: [taskId], references: [id])
   gitBranch   String   @default("main")
+  originBranch String? 
   context     String   
   chosen      String   
   rejected    String[] 
@@ -74,6 +75,7 @@ model Decision {
   symbolType  String?  
   symbolRange String?  
   issueRef    String?  
+  embedding   Unsupported("vector(384)")?
   createdAt   DateTime @default(now())
 }
 
@@ -85,6 +87,7 @@ model Memory {
   session     Session? @relation(fields: [sessionId], references: [id])
   
   gitBranch   String   @default("main")
+  originBranch String? 
   type        String   
   content     String   
   agentName   String?
@@ -94,7 +97,7 @@ model Memory {
   symbolType  String?  
   symbolRange String?  
   issueRef    String?  
-  embedding   Unsupported("vector(1536)")? 
+  embedding   Unsupported("vector(384)")? 
   
   createdAt   DateTime @default(now())
 }
