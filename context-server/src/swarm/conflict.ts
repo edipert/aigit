@@ -84,10 +84,17 @@ export async function resolveConflict(
 /**
  * List unresolved conflicts in a swarm.
  */
-export async function listConflicts(swarmId: string) {
+export async function listConflicts(swarmId?: string) {
     return prisma.swarmMessage.findMany({
-        where: { swarmId, isConflict: true, resolved: false },
-        include: { fromAgent: { select: { role: true, agentName: true } } },
+        where: {
+            ...(swarmId ? { swarmId } : {}),
+            isConflict: true,
+            resolved: false
+        },
+        include: {
+            fromAgent: { select: { role: true, agentName: true } },
+            swarm: { select: { goal: true } } // include swarm goal since callers might need it if swarmId isn't known
+        },
         orderBy: { createdAt: 'desc' },
     });
 }

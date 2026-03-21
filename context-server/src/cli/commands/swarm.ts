@@ -20,20 +20,16 @@ const handler: CommandHandler = async ({ args, workspacePath }) => {
     const subCommand = args[0];
 
     if (subCommand === 'status') {
-        const projects = await prisma.project.findMany();
-        for (const project of projects) {
-            const swarms = await listActiveSwarms(project.id);
-            if (swarms.length === 0) continue;
-            for (const swarm of swarms) {
-                const statusEmoji: Record<string, string> = { PENDING: '⏳', ACTIVE: '🔄', HALTED: '⚠️', DONE: '✅', FAILED: '❌' };
-                console.log(`\n🐝 SWARM: ${swarm.goal}`);
-                console.log(`   Status: ${statusEmoji[swarm.status] || '❓'} ${swarm.status} — Turn ${swarm.currentTurn}/${swarm.totalTurns}`);
-                console.log(`   Branch: ${swarm.gitBranch}\n`);
-                console.log('   AGENTS:');
-                for (const agent of swarm.agents) {
-                    const emoji: Record<string, string> = { IDLE: '⏳', WORKING: '🔄', DONE: '✅', BLOCKED: '🚫' };
-                    console.log(`   ${agent.turnOrder}. ${emoji[agent.status] || '❓'} ${agent.agentName} (${agent.role}) — ${agent.status} [${agent.taskSlug || 'no task'}]`);
-                }
+        const swarms = await listActiveSwarms();
+        for (const swarm of swarms) {
+            const statusEmoji: Record<string, string> = { PENDING: '⏳', ACTIVE: '🔄', HALTED: '⚠️', DONE: '✅', FAILED: '❌' };
+            console.log(`\n🐝 SWARM: ${swarm.goal}`);
+            console.log(`   Status: ${statusEmoji[swarm.status] || '❓'} ${swarm.status} — Turn ${swarm.currentTurn}/${swarm.totalTurns}`);
+            console.log(`   Branch: ${swarm.gitBranch}\n`);
+            console.log('   AGENTS:');
+            for (const agent of swarm.agents) {
+                const emoji: Record<string, string> = { IDLE: '⏳', WORKING: '🔄', DONE: '✅', BLOCKED: '🚫' };
+                console.log(`   ${agent.turnOrder}. ${emoji[agent.status] || '❓'} ${agent.agentName} (${agent.role}) — ${agent.status} [${agent.taskSlug || 'no task'}]`);
             }
         }
     } else if (subCommand === 'halt') {
@@ -47,27 +43,32 @@ const handler: CommandHandler = async ({ args, workspacePath }) => {
         await resumeSwarm(swarmId);
         console.log(`▶️ Swarm ${swarmId} resumed.`);
     } else if (subCommand === 'conflicts') {
-        const projects = await prisma.project.findMany();
-        let totalConflicts = 0;
-        for (const project of projects) {
-            const swarms = await listActiveSwarms(project.id);
-            for (const swarm of swarms) {
-                const conflicts = await listConflicts(swarm.id);
-                if (conflicts.length === 0) continue;
-                totalConflicts += conflicts.length;
-                console.log(`\n⚠️  ${conflicts.length} conflict(s) in swarm "${swarm.goal}":\n`);
-                for (const c of conflicts) {
-                    try {
-                        const payload = JSON.parse(c.payload);
-                        console.log(`   CONFLICT ${c.id.substring(0, 8)}:`);
-                        console.log(`   ${c.fromAgent.role}: ${payload.reason}`);
-                        console.log(`   Blocked: ${payload.blockedDecision}`);
-                        if (payload.filePath) console.log(`   📁 ${payload.filePath}${payload.symbolName ? ` ⚓ @${payload.symbolName}` : ''}`);
-                        console.log('');
-                    } catch { /* skip unparseable */ }
-                }
+        const conflicts = await listConflicts();
+        let totalConflicts = conflicts.length;
+
+        // Group conflicts by swarm for display
+        const groupedConflicts: Record<string, { goal: string, conflicts: typeof conflicts }> = {};
+        for (const c of conflicts) {
+            if (!groupedConflicts[c.swarmId]) {
+                groupedConflicts[c.swarmId] = { goal: c.swarm.goal, conflicts: [] };
+            }
+            groupedConflicts[c.swarmId].conflicts.push(c);
+        }
+
+        for (const [swarmId, group] of Object.entries(groupedConflicts)) {
+            console.log(`\n⚠️  ${group.conflicts.length} conflict(s) in swarm "${group.goal}":\n`);
+            for (const c of group.conflicts) {
+                try {
+                    const payload = JSON.parse(c.payload);
+                    console.log(`   CONFLICT ${c.id.substring(0, 8)}:`);
+                    console.log(`   ${c.fromAgent.role}: ${payload.reason}`);
+                    console.log(`   Blocked: ${payload.blockedDecision}`);
+                    if (payload.filePath) console.log(`   📁 ${payload.filePath}${payload.symbolName ? ` ⚓ @${payload.symbolName}` : ''}`);
+                    console.log('');
+                } catch { /* skip unparseable */ }
             }
         }
+
         if (totalConflicts === 0) console.log('✅ No unresolved swarm conflicts.');
     } else if (subCommand === 'resolve') {
         const conflictId = args[1];
