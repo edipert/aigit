@@ -228,9 +228,12 @@ export async function getSwarmStatus(swarmId: string) {
     });
 }
 
-export async function listActiveSwarms(projectId: string) {
+export async function listActiveSwarms(projectId?: string) {
     return prisma.swarmSession.findMany({
-        where: { projectId, status: { in: ['PENDING', 'ACTIVE', 'HALTED'] } },
+        where: {
+            ...(projectId ? { projectId } : {}),
+            status: { in: ['PENDING', 'ACTIVE', 'HALTED'] }
+        },
         include: {
             agents: { orderBy: { turnOrder: 'asc' } },
         },
