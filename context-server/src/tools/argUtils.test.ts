@@ -81,14 +81,14 @@ describe('parseArgs — CommitDecisionArgs', () => {
     });
 
     it('defaults rejected to [] when omitted', () => {
-        const { rejected: _unused, ...noRejected } = VALID;
+        const { rejected: _, ...noRejected } = VALID;
         const result = parseArgs(CommitDecisionArgs, noRejected);
         expect(result.ok).toBe(true);
         if (result.ok) expect(result.data.rejected).toEqual([]);
     });
 
     it('rejects missing context', () => {
-        const { context: _unused, ...noContext } = VALID;
+        const { context: _, ...noContext } = VALID;
         const result = parseArgs(CommitDecisionArgs, noContext);
         expect(result.ok).toBe(false);
     });
@@ -194,7 +194,7 @@ describe('parseArgs — CommitTaskArgs', () => {
     });
 
     it('rejects missing title', () => {
-        const { title: _unused, ...noTitle } = VALID;
+        const { title: _, ...noTitle } = VALID;
         expect(parseArgs(CommitTaskArgs, noTitle).ok).toBe(false);
     });
 });
