@@ -1,9 +1,13 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { prisma } from '../db';
+import { describe, it, expect, beforeEach, beforeAll } from 'vitest';
+import { prisma, initializeDatabase } from '../db';
 import { createSwarm } from './swarm';
 
 describe('swarm performance', () => {
     let projectId: string;
+
+    beforeAll(async () => {
+        await initializeDatabase();
+    });
 
     beforeEach(async () => {
         const project = await prisma.project.create({

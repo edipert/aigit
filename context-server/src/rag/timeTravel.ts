@@ -1,4 +1,4 @@
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import { rankBySimilarity } from './embeddings';
 
 interface LedgerEntry {
@@ -25,7 +25,7 @@ interface LedgerData {
  */
 export function getHistoricalLedger(commitHash: string, workspacePath: string): LedgerData | null {
     try {
-        const raw = execSync(`git show ${commitHash}:.aigit/ledger.json`, {
+        const raw = execFileSync('git', ['show', `${commitHash}:.aigit/ledger.json`], {
             cwd: workspacePath,
             encoding: 'utf-8',
             stdio: ['pipe', 'pipe', 'pipe'],

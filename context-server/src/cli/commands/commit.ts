@@ -1,4 +1,4 @@
-import { execSync } from 'child_process';
+import { execSync, execFileSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { getActiveBranch } from '../git';
@@ -234,8 +234,7 @@ const handler: CommandHandler = async ({ args, workspacePath }) => {
 
                 console.log(`\n[Aigit] Saving semantic memory...`);
                 try {
-                    const safeSummary = trimmedSummary.replace(/"/g, '\\"');
-                    execSync(`npx --no-install aigit commit memory "${safeSummary}"`, { stdio: 'inherit' });
+                    execFileSync('npx', ['--no-install', 'aigit', 'commit', 'memory', trimmedSummary], { stdio: 'inherit' });
                     console.log(`⏭️  [aigit commit] Resuming git commit...\n`);
                     process.exit(0);
                 } catch {
