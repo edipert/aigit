@@ -1,37 +1,466 @@
 {
   "projects": [
     {
-      "id": "1e701f9e-28ac-4cbf-8698-c70940a22b07",
+      "id": "008465eb-074f-40e7-8bce-0e6d47927b1a",
       "name": "aigit",
       "description": null,
-      "createdAt": "2026-03-23T15:27:35.983Z",
-      "updatedAt": "2026-03-23T15:27:35.983Z"
+      "createdAt": "2026-03-02T19:51:19.528Z",
+      "updatedAt": "2026-03-02T19:51:19.528Z"
+    },
+    {
+      "id": "775049d5-a4d7-4814-b0b4-1828d85b9370",
+      "name": "aigit-monorepo",
+      "description": "Root workspace to execute tests across sub-packages",
+      "createdAt": "2026-03-11T21:48:04.313Z",
+      "updatedAt": "2026-03-11T21:48:04.312Z"
+    },
+    {
+      "id": "86dc6592-a7ab-41f6-a8ae-a722bdba1d65",
+      "name": "test-project-1774039842820",
+      "description": null,
+      "createdAt": "2026-03-20T20:50:42.881Z",
+      "updatedAt": "2026-03-20T20:50:42.881Z"
+    },
+    {
+      "id": "f739c0a6-e366-44d5-b627-07fd19aa0a9f",
+      "name": "test-project-1774040202181",
+      "description": null,
+      "createdAt": "2026-03-20T20:56:42.236Z",
+      "updatedAt": "2026-03-20T20:56:42.236Z"
+    },
+    {
+      "id": "5bcf0be4-3396-408d-8740-902d65538453",
+      "name": "test-project-1774043018335",
+      "description": null,
+      "createdAt": "2026-03-20T21:43:38.386Z",
+      "updatedAt": "2026-03-20T21:43:38.386Z"
     }
   ],
   "agents": [],
   "sessions": [],
-  "tasks": [],
+  "tasks": [
+    {
+      "id": "7bcd2685-2f78-4433-b063-23a5dfbaf92f",
+      "slug": "clean-architecture-generator",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "title": "clean-architecture-generator",
+      "gitBranch": "main",
+      "status": "DONE",
+      "createdAt": "2026-03-11T07:52:30.028Z",
+      "updatedAt": "2026-03-11T08:03:05.480Z"
+    },
+    {
+      "id": "4828678b-5624-4a73-8b7c-c35430c6f4de",
+      "slug": "implement-user-dashboard",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "title": "Implement User Dashboard",
+      "gitBranch": "main",
+      "status": "DONE",
+      "createdAt": "2026-03-11T21:48:05.315Z",
+      "updatedAt": "2026-03-11T21:53:37.195Z"
+    }
+  ],
   "decisions": [],
   "memories": [
     {
-      "id": "626a4e26-138e-430a-85a6-2a10046866d9",
-      "projectId": "1e701f9e-28ac-4cbf-8698-c70940a22b07",
+      "id": "b2f63370-cfb0-48da-ab44-702f43481629",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
       "sessionId": null,
       "gitBranch": "main",
       "type": "architecture",
-      "content": "test",
-      "embedding": "[0.0150311915,0.039732717,-0.023383679,0.06372785,-0.005140511,-0.049470607,0.07868458,0.035753068,-0.002070281,-0.0070414874,0.017928358,-0.081622876,0.0034197164,0.030264989,-0.013932856,-0.06677464,0.014973336,-0.030131001,-0.07880395,0.0059951185,-0.053337544,-0.026138613,-0.033209577,0.027369415,-0.020306319,0.021272216,-0.06863574,0.031516105,0.026471788,-0.053510968,0.041897148,0.040461276,0.032851573,0.027963864,0.060925964,0.03576408,0.025282508,0.014801066,0.010077064,-0.00421976,-0.0045211827,-0.12538964,0.031924974,-0.014995844,0.031084077,0.03502443,-0.014378042,0.061861422,-0.05602115,0.015304085,-0.022410369,-0.0405648,-0.028835611,-0.048974566,-0.022156743,0.02543076,-0.007838727,-0.016752519,0.045232628,0.037561785,0.04920763,-0.02487396,-0.029925006,0.05860091,0.018553471,0.023469212,0.009016827,-0.024819937,-0.04987919,-0.030387463,-0.013402352,0.02243039,0.029705536,0.06515289,0.07267004,-0.0069780378,0.0028868124,-0.06788481,0.058064085,-0.014649885,-0.06996754,-0.030399917,-0.051427495,0.05112711,0.013110224,0.07990211,0.103443325,0.029609472,-0.119706884,0.008730479,0.011384239,0.044996615,-0.016210472,0.00020768838,-0.03799272,0.0093167275,0.006836657,-0.016138872,-0.029505277,0.25840703,0.044436503,0.031670254,-0.010677436,-0.026014592,-0.07020295,-0.034758817,-0.013007444,-0.057437837,0.07694284,0.023601333,-0.06176438,-0.011029797,0.0352603,0.039451208,0.032094806,-0.057643704,-0.069190085,0.060267236,-0.030656317,0.025526395,0.056578413,0.004317729,-0.00214578,-0.010170389,0.03153118,-0.034276046,0.07365197,-4.5897364e-33,0.021729952,-0.12263769,0.055207882,0.09948456,-0.05177107,0.03312035,-0.009393053,0.053736497,-0.0025191938,0.06467606,0.008059364,-0.0055596335,-0.025301596,0.020993449,0.109721094,0.111974016,-0.027234228,0.0050404957,-0.04933179,0.027484464,-0.02781552,-0.04101401,0.0126299355,-0.03747296,-0.07384081,-0.045540035,-0.0007244115,-0.018936541,0.031460565,0.00068793964,-0.040185746,0.019813608,-0.07332384,0.07790342,-0.023867795,-0.011907416,0.018087598,-0.027770398,0.016352683,-0.018042075,-0.04033007,-0.010214588,-0.0011112466,0.047118463,0.032695305,-0.024383185,-0.024005292,-0.020213716,0.047992628,-0.0009767676,-0.013768759,0.015160688,-0.07444396,-0.029434573,-0.023691379,0.047676947,0.018745426,-0.065806545,-0.030311352,0.05402036,0.07341847,0.023463562,-0.048877988,0.052370105,-0.03216473,-0.028076753,-0.06266657,-0.09543621,0.04784439,0.04679866,-0.03538577,-0.075122274,0.026409002,0.034263637,-0.028636191,-0.036919482,-0.0068875235,0.07998951,-0.01885075,-0.05716134,0.09591411,-0.07021897,0.034596365,-0.052426342,0.0115883015,0.0061110877,-0.0029863694,-0.11347904,0.005037428,-0.07056433,-0.020478034,0.02961342,0.009584526,-0.013709891,0.07456489,3.9438467e-33,-0.024763448,0.02974939,-0.05263159,0.14134102,0.05175417,-0.032426212,0.14276646,-0.013135697,-0.064593785,0.12342836,0.022445435,-0.040650506,0.059068926,0.0021510248,-0.0041616834,0.025434388,0.045892365,-0.0810302,-0.04622483,-0.02373234,-0.08966161,0.060156643,0.0024178876,-0.0025174848,-0.10536586,0.025502263,0.04931067,-0.03936216,-0.0042652027,-0.0371559,0.08064174,0.008934689,-0.048693832,0.062839165,0.05993904,0.028694717,0.15490712,-0.017521184,-0.023376672,0.054985523,0.057972245,0.053548537,0.041057292,0.10155558,-0.033875305,0.060639773,0.010195079,-0.050187904,0.033957023,0.03836311,-0.06515571,0.019159686,0.00909052,-0.033912193,-0.009248794,-0.031548895,-0.05464497,0.012228379,-0.02636701,0.00506324,-0.06704774,0.07896341,-0.028663523,0.05269743,-0.072856985,-0.023121426,-0.0455241,0.060884576,0.06052564,0.031195492,0.015247042,0.02114966,-0.047461882,-0.010208259,0.035553467,-0.020601023,-0.11714452,0.008978515,-0.0072648413,-0.050776403,-0.0690041,-0.07810906,-0.053172205,0.078279994,-0.052368097,0.053635526,0.040144987,0.046057116,-0.046712358,0.011785191,0.05128903,0.025604524,-0.014257431,-0.052798044,-0.0030002175,-1.4230671e-08,-0.045651183,-0.08581978,0.045664877,0.012617353,-0.02832059,0.0072162454,-0.026115546,-0.027357375,-0.02599767,0.029181791,0.055215385,0.030487077,-0.036509402,0.07847346,0.046219613,-0.09006711,-0.038496304,0.046299856,-0.011651413,0.039470207,-0.08114445,0.033660334,0.010896454,0.048883803,-0.041340172,0.05295164,0.042393286,0.13303229,-0.001218084,-0.008694482,0.060704865,0.042398963,-0.040082794,-0.078069136,0.0005587563,0.03463921,-0.013519208,0.0009195031,0.031932943,0.03707338,-0.07299974,0.009550639,0.041986544,-0.04952101,-0.0560619,-0.08057475,-0.029529506,-0.04096815,-0.019872978,-0.08689644,-0.030914769,0.007373051,0.018751584,0.01000175,0.035906997,-0.025908623,0.0074271928,0.013473638,-0.1280659,0.07308226,0.19682854,-0.014192611,0.056975517,-0.04315627]",
-      "createdAt": "2026-03-23T15:27:35.986Z"
+      "content": "Added aigit.commitMemory command to vscode-aigit extension allowing developers to commit semantic memory via Command Palette.",
+      "embedding": null,
+      "createdAt": "2026-03-07T22:19:37.496Z"
     },
     {
-      "id": "c67bc9db-db43-49ae-8f2d-fc851ed68ca3",
-      "projectId": "1e701f9e-28ac-4cbf-8698-c70940a22b07",
+      "id": "7b7c43c0-ddc9-4e2f-adb5-c1a9e15b3f94",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Dummy summary for strict validation test",
+      "embedding": null,
+      "createdAt": "2026-03-07T22:38:21.917Z"
+    },
+    {
+      "id": "27ca22f5-987f-4d91-ac13-36dceb170e71",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Replaced interactive bypass prompt with a strict process.exit(1) hard block in the pre-commit hook to physically prevent AI agents from skipping the semantic commit rule.",
+      "embedding": null,
+      "createdAt": "2026-03-07T22:38:48.785Z"
+    },
+    {
+      "id": "da45941d-6e2c-4de6-858d-860ca2c33733",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Implemented strict non-bypassable git hooks. Replaced interactive TTY prompts with a hard process.exit(1) block to forcefully prevent AI agents from skipping semantic commit requirements.",
+      "embedding": null,
+      "createdAt": "2026-03-07T22:40:09.089Z"
+    },
+    {
+      "id": "0f566571-ee73-49ea-8dab-f25a2609f0e0",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Testing the smart hybrid fallback path.",
+      "embedding": null,
+      "createdAt": "2026-03-07T22:49:43.908Z"
+    },
+    {
+      "id": "6c5435ad-254d-4fcf-9ec3-433714daa419",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Replaced the strict commit hard-block with a Smart Hybrid TTY check. Human devs are seamlessly prompted inline for a semantic summary to save their commit momentum, while headless AI agents are strictly blocked to enforce compliance.",
+      "embedding": null,
+      "createdAt": "2026-03-07T22:50:09.192Z"
+    },
+    {
+      "id": "b066c954-0e3a-41cd-aaff-d34bbb0b4949",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Updated the DocsPage frontend to detail the new Smart Hybrid Commit Enforcement approach for pre-commit hooks.",
+      "embedding": null,
+      "createdAt": "2026-03-07T22:57:45.226Z"
+    },
+    {
+      "id": "74cefc04-fbdd-4c98-a0c8-072f9e7d0b35",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Added explicit 'FATAL CONSEQUENCE' warnings directly into the AI agent prompt files (AGENTS.md, GEMINI.md). This ensures headless AI agents are aware of the strict isTTY git hook and do not waste tokens attempting raw git commits.",
+      "embedding": null,
+      "createdAt": "2026-03-07T23:18:10.745Z"
+    },
+    {
+      "id": "48f0016f-e7af-4bef-85c0-983380348359",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Documented the new Smart Hybrid Git Hooks in both the main README and the context-server README to highlight the split AI/Human developer experience.",
+      "embedding": null,
+      "createdAt": "2026-03-07T23:23:26.910Z"
+    },
+    {
+      "id": "9ec96b6b-6f43-4788-88aa-924bb7dfa056",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Added a root package.json router to allow 'npm test' to correctly trigger child package tests, enabling the local CI 'aigit heal' workflow on pre-push.",
+      "embedding": null,
+      "createdAt": "2026-03-07T23:33:57.189Z"
+    },
+    {
+      "id": "57fa7b0c-c97a-4941-a118-76b85dc56755",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Bumped aigit-core version to 1.1.3 to release the new Smart Hybrid Git Hooks (pre-commit  logic) to the npm registry.",
+      "embedding": null,
+      "createdAt": "2026-03-07T23:37:02.214Z"
+    },
+    {
+      "id": "e082dcd4-4995-4848-bc75-66c121db8434",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Added GitHub repository link to Navbar. Resolved context drift across AI instruction files by standardizing synced rules. Ignored scripts directory in git.",
+      "embedding": null,
+      "createdAt": "2026-03-10T22:36:44.777Z"
+    },
+    {
+      "id": "2a9396dc-5aa7-4d3a-9d87-a6e8585628c7",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "capability",
+      "content": "Testing fixed ledger dump for Agent-Driven workflow (Attempt 2)",
+      "embedding": null,
+      "createdAt": "2026-03-07T21:53:54.635Z"
+    },
+    {
+      "id": "f3443c23-c6f0-498d-b4ff-acd12bd9facc",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "capability",
+      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tfrontend/src/DocsPage.tsx\n\nStatistics:\nfrontend/src/DocsPage.tsx | 16 +++++++++-------\n 1 file changed, 9 insertions(+), 7 deletions(-)",
+      "embedding": null,
+      "createdAt": "2026-03-07T22:03:12.145Z"
+    },
+    {
+      "id": "691f28c6-a7ba-4a7a-96cf-b6fe0dcb9dde",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "capability",
+      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tcontext-server/dist/cli/index.js\nA\tcontext-server/dist/cli/index.test.js\nM\tcontext-server/package-lock.json\nM\tcontext-server/package.json\nA\tcontext-server/scan-db.js\nA\tcontext-server/src/cli/index.test.ts\nM\tcontext-server/src/cli/index.ts\nA\tcontext-server/vitest.config.ts\nM\tfrontend/src/FeedbackPage.tsx\n\nStatistics:\ncontext-server/dist/cli/index.js      |   90 ++\n context-server/dist/cli/index.test.js |   11 +\n context-server/package-lock.json      | 2286 ++++++++++++++++++++++++++++++++-\n context-server/package.json           |    8 +-\n context-server/scan-db.js             |    9 +\n context-server/src/cli/index.test.ts  |   10 +\n context-server/src/cli/index.ts       |   59 +\n context-server/vitest.config.ts       |    9 +\n frontend/src/FeedbackPage.tsx         |   13 +\n 9 files changed, 2464 insertions(+), 31 deletions(-)",
+      "embedding": null,
+      "createdAt": "2026-03-05T21:30:07.217Z"
+    },
+    {
+      "id": "40cd5a6e-3412-4ced-836c-62cf1a978e21",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "capability",
+      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tcontext-server/dist/cli/index.js\nA\tcontext-server/dist/cli/index.test.js\nM\tcontext-server/package-lock.json\nM\tcontext-server/package.json\nA\tcontext-server/scan-db.js\nA\tcontext-server/src/cli/index.test.ts\nM\tcontext-server/src/cli/index.ts\nA\tcontext-server/vitest.config.ts\nM\tfrontend/src/main.tsx\n\nStatistics:\ncontext-server/dist/cli/index.js      |   90 ++\n context-server/dist/cli/index.test.js |   11 +\n context-server/package-lock.json      | 2286 ++++++++++++++++++++++++++++++++-\n context-server/package.json           |    8 +-\n context-server/scan-db.js             |    9 +\n context-server/src/cli/index.test.ts  |   10 +\n context-server/src/cli/index.ts       |   59 +\n context-server/vitest.config.ts       |    9 +\n frontend/src/main.tsx                 |   15 +-\n 9 files changed, 2463 insertions(+), 34 deletions(-)",
+      "embedding": null,
+      "createdAt": "2026-03-05T21:33:56.766Z"
+    },
+    {
+      "id": "7007cce8-0ea6-4cb5-93eb-9061712cf962",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "capability",
+      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tfrontend/dist/index.html\n\nStatistics:\nfrontend/dist/index.html | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)",
+      "embedding": null,
+      "createdAt": "2026-03-05T21:47:32.727Z"
+    },
+    {
+      "id": "f3f4409e-df1b-44df-aada-1ab916c39637",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "capability",
+      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tfrontend/src/main.tsx\n\nStatistics:\nfrontend/src/main.tsx | 10 +---------\n 1 file changed, 1 insertion(+), 9 deletions(-)",
+      "embedding": null,
+      "createdAt": "2026-03-05T22:11:27.457Z"
+    },
+    {
+      "id": "4d4ab24e-e7d8-429f-9318-5fb61934b464",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "capability",
+      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tfrontend/dist/index.html\nM\tfrontend/index.html\nM\tfrontend/package-lock.json\nM\tfrontend/package.json\nA\tfrontend/public/robots.txt\nA\tfrontend/public/sitemap.xml\nM\tfrontend/src/App.tsx\nM\tfrontend/src/DocsPage.tsx\nM\tfrontend/src/FeedbackPage.tsx\nM\tfrontend/src/NotFoundPage.tsx\nA\tfrontend/src/SEO.tsx\nM\tfrontend/src/main.tsx\n\nStatistics:\nfrontend/dist/index.html      | 33 ++++++++++++++++++++++++++++-\n frontend/index.html           | 31 +++++++++++++++++++++++++++\n frontend/package-lock.json    | 49 ++++++++++++++++++++++++++++++++++++++++++-\n frontend/package.json         |  1 +\n frontend/public/robots.txt    |  4 ++++\n frontend/public/sitemap.xml   | 27 ++++++++++++++++++++++++\n frontend/src/App.tsx          |  9 ++++++--\n frontend/src/DocsPage.tsx     |  7 +++++++\n frontend/src/FeedbackPage.tsx |  6 ++++++\n frontend/src/NotFoundPage.tsx |  6 ++++++\n frontend/src/SEO.tsx          | 42 +++++++++++++++++++++++++++++++++++++\n frontend/src/main.tsx         |  6 +++++-\n 12 files changed, 216 insertions(+), 5 deletions(-)",
+      "embedding": null,
+      "createdAt": "2026-03-05T22:30:25.320Z"
+    },
+    {
+      "id": "78e50f73-d306-431b-bd4a-342a2f520707",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Refined frontend UI to support a professional Light Mode. Abstracted hardcoded transparent dark grays into CSS variables and customized the contrast of terminal simulation blocks, documentation grids, and feature cards.",
+      "embedding": null,
+      "createdAt": "2026-03-08T18:57:23.779Z"
+    },
+    {
+      "id": "fd3e3e0c-e4c2-4619-a75c-795110236c40",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Optimized context-server/ARCHITECTURE.md generator to strip redundant git stats and truncate bloated Git Commit Contexts from file-based tracking structure directly.",
+      "embedding": null,
+      "createdAt": "2026-03-11T07:44:47.763Z"
+    },
+    {
+      "id": "ee7f15d5-3257-4178-a53a-ab25369bd2ad",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Refactored DocsPage UI to split usage funnels into 'Core Capabilities' and introduced new workflows for Self-Healing, Agent Sync, and Security Auditing. Redirected all multi-agent Task file generation from root to .aigit/tasks directory.",
+      "embedding": null,
+      "createdAt": "2026-03-11T08:34:46.139Z"
+    },
+    {
+      "id": "e0696389-ada9-4846-b8df-61f2dab5936a",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "capability",
+      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tcontext-server/dist/cli/index.js\nA\tcontext-server/dist/cli/index.test.js\nM\tcontext-server/package-lock.json\nM\tcontext-server/package.json\nA\tcontext-server/scan-db.js\nA\tcontext-server/src/cli/index.test.ts\nM\tcontext-server/src/cli/index.ts\nA\tcontext-server/vitest.config.ts\n\nStatistics:\ncontext-server/dist/cli/index.js      |   90 ++\n context-server/dist/cli/index.test.js |   11 +\n context-server/package-lock.json      | 2286 ++++++++++++++++++++++++++++++++-\n context-server/package.json           |    8 +-\n context-server/scan-db.js             |    9 +\n context-server/src/cli/index.test.ts  |   10 +\n context-server/src/cli/index.ts       |   59 +\n context-server/vitest.config.ts       |    9 +\n 8 files changed, 2451 insertions(+), 31 deletions(-)",
+      "embedding": null,
+      "createdAt": "2026-03-05T21:11:18.022Z"
+    },
+    {
+      "id": "41aba1d6-2b9b-494b-a4c1-55500bfcf1b0",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "capability",
+      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tfrontend/src/main.tsx\n\nStatistics:\nfrontend/src/main.tsx | 5 +++++\n 1 file changed, 5 insertions(+)",
+      "embedding": null,
+      "createdAt": "2026-03-05T21:42:02.973Z"
+    },
+    {
+      "id": "614dd17f-8670-4bb6-96c7-0182f0b9f9fe",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "capability",
+      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tfrontend/src/main.tsx\n\nStatistics:\nfrontend/src/main.tsx | 10 ++++++++++\n 1 file changed, 10 insertions(+)",
+      "embedding": null,
+      "createdAt": "2026-03-05T21:43:30.700Z"
+    },
+    {
+      "id": "43b67e79-5f29-41f1-a30c-7ca626c81da6",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "capability",
+      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nA\t.claude/AGENTS.md\nM\t.clinerules\nM\t.cursorrules\nM\t.gitignore\nM\t.windsurfrules\nM\tAGENTS.md\nM\tCLAUDE.md\nM\tGEMINI.md\nM\tcontext-server/dist/agents/registry.js\nM\tcontext-server/dist/cli/index.js\nM\tcontext-server/package-lock.json\nM\tcontext-server/package.json\nM\tcontext-server/src/agents/registry.ts\nM\tcontext-server/src/cli/index.ts\n\nStatistics:\n.claude/AGENTS.md                      | 252 +++++++++++++++++++++++++++++++++\n .clinerules                            |  71 ++++------\n .cursorrules                           |  71 ++++------\n .gitignore                             |   3 +\n .windsurfrules                         |  71 ++++------\n AGENTS.md                              |  48 ++++---\n CLAUDE.md                              |  70 ++++-----\n GEMINI.md                              |  96 ++++++-------\n context-server/dist/agents/registry.js |  32 +++++\n context-server/dist/cli/index.js       | 119 ++++++++++++++--\n context-server/package-lock.json       |   6 +-\n context-server/package.json            |   2 +-\n context-server/src/agents/registry.ts  |  32 +++++\n context-server/src/cli/index.ts        | 123 ++++++++++++++--\n 14 files changed, 742 insertions(+), 254 deletions(-)",
+      "embedding": null,
+      "createdAt": "2026-03-07T21:39:32.021Z"
+    },
+    {
+      "id": "1e5d8068-b273-4106-834e-0cbb825d7002",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "capability",
+      "content": "Automatic Git Commit Context (Staged Changes)\nFiles Changed:\nM\tvscode-aigit/dist/extension.js\nM\tvscode-aigit/dist/extension.js.map\nM\tvscode-aigit/package-lock.json\nM\tvscode-aigit/package.json\nM\tvscode-aigit/src/extension.ts\nA\tvscode-aigit/vscode-aigit-1.0.1.vsix\n\nStatistics:\nvscode-aigit/dist/extension.js       |  13 +++++++++++++\n vscode-aigit/dist/extension.js.map   |   2 +-\n vscode-aigit/package-lock.json       |   4 ++--\n vscode-aigit/package.json            |   9 +++++++--\n vscode-aigit/src/extension.ts        |  17 +++++++++++++++++\n vscode-aigit/vscode-aigit-1.0.1.vsix | Bin 0 -> 40233 bytes\n 6 files changed, 40 insertions(+), 5 deletions(-)",
+      "embedding": null,
+      "createdAt": "2026-03-07T22:09:51.913Z"
+    },
+    {
+      "id": "0d1a9818-9d35-4dd1-bd31-ee7238a875b3",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Updated frontend/src/DocsPage.tsx to document the new Agent-Driven commit workflow.",
+      "embedding": null,
+      "createdAt": "2026-03-07T22:19:36.342Z"
+    },
+    {
+      "id": "36b954db-de94-4b2a-a636-04bfc2cbe3c6",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Implemented complete task handoff funnel: commit task now creates .aigit/tasks/{slug}.md plan file, new aigit handoff command generates copy-paste agent context blocks, aigit update task shorthand added, commander routing bug fixed for 3-level subcommands, aigit init interactive wizard with 6 spinner steps and next-steps summary, contextual tips system fires after each command, DocsPage updated with all new workflows and MCP --profile documentation.",
+      "embedding": null,
+      "createdAt": "2026-03-11T21:48:06.029Z"
+    },
+    {
+      "id": "89506b8b-bf6b-42d1-b236-15820441d963",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Updated context-server/ARCHITECTURE.md with restored project history and new task status. Verified mermaid DAG connectivity for all 335 lines of historical memory.",
+      "embedding": null,
+      "createdAt": "2026-03-11T21:55:26.205Z"
+    },
+    {
+      "id": "23d30a67-0437-4288-91c4-0eb843590384",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Released aigit-core 1.1.6 to npm registry.",
+      "embedding": null,
+      "createdAt": "2026-03-11T22:00:16.492Z"
+    },
+    {
+      "id": "956d5052-068a-4710-90a2-58e3701168c9",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "feature/vscode-new-commands",
+      "type": "architecture",
+      "content": "Added new commands 'aigit.handoff' and 'aigit.syncSkills' to the vscode-aigit extension. Registered them in extension.ts and added UI bindings in syncProvider.ts.",
+      "embedding": null,
+      "createdAt": "2026-03-19T09:18:54.975Z"
+    },
+    {
+      "id": "15819e53-fe84-4ca0-b285-564f4d8521b4",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Recovered the complete historical aigit memory dataset from an unintentional stash override wipe, manually porting over Vercel UI deployment and Swarm test fix records.",
+      "embedding": null,
+      "createdAt": "2026-03-20T19:30:54.769Z"
+    },
+    {
+      "id": "d56e0da6-bc99-4157-8a34-ac28a22b6c8e",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Reverted Vercel GitHub Action config to use --token flag, while adding a strict credential verifier step. This confirms and fails gracefully if GitHub actions cannot read the given secrets.",
+      "embedding": null,
+      "createdAt": "2026-03-20T19:34:30.140Z"
+    },
+    {
+      "id": "473a51dd-f22b-4d65-b8db-a0082e82afed",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Temporarily mitigated production deployment automation by swapping the GitHub Action push triggers for manual 'workflow_dispatch' overrides while stabilizing environments.",
+      "embedding": null,
+      "createdAt": "2026-03-20T20:06:15.693Z"
+    },
+    {
+      "id": "5a8f555a-ad1f-43f9-bf00-099d5b907ce7",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Implemented Phase 1 context engine features (bisect, stats, deps-graph). Extended schema to track agentName provenance.",
+      "embedding": null,
+      "createdAt": "2026-03-20T20:40:09.752Z"
+    },
+    {
+      "id": "b9e70397-d4b7-422b-a0a2-996065f21c58",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Integrated real semantic vector embeddings (Xenova + pgvector) and final Web UI APIs into the CLI",
+      "embedding": "[-0.07142802,-0.079041325,-0.028466523,-0.025468811,0.069147594,-0.05959011,-0.06982292,-0.0501301,-0.0816321,-0.0715566,-0.0067982827,-0.08418793,0.0052073183,0.034637447,0.10928308,0.011595956,0.101123944,0.061170872,-0.00073514826,0.046499785,0.034443736,0.008155286,-0.049262736,-0.054030694,-0.010716777,0.06980669,-0.028428093,-0.08887145,0.057158705,0.025446346,0.017897354,0.061455607,-0.07526935,0.083308585,-0.11312443,0.07589404,0.028048432,-0.06620833,-0.033510257,-0.016971814,-0.040549327,0.025856776,-0.119732425,0.005046959,0.060624383,-0.09171245,-0.08295705,-0.054718785,-0.02881828,0.06813936,-0.089177236,-0.059477612,0.021588266,-0.01498951,-0.009791763,0.05324124,-0.058456402,-0.035538744,0.028433913,0.009364763,-0.002105568,-0.0112124,0.1174849,0.06083499,0.0012548662,-0.03919079,-0.034955498,0.0287951,0.08971698,-0.10867199,-0.034877054,0.054115638,-0.1384852,-0.06292766,-0.04782564,0.022261102,0.013094924,-0.0317338,0.04155893,-0.08071872,0.006035222,0.041206777,0.026459478,0.09361849,0.06213324,0.057868443,0.068535425,0.013601979,-0.028994098,0.08629108,0.056699988,-0.068985075,0.064701065,0.038677443,0.080263846,-0.009048632,0.07032358,-0.08678515,-0.02052683,0.03304515,-0.012229264,-0.037052933,0.0027608986,-0.008157539,-0.039609212,-0.0521928,-0.04571309,0.002981227,-0.07582927,-0.0068956576,-0.0027095769,0.027390324,-0.014264073,-0.099356934,0.009104444,0.035372168,-0.007507839,-0.00712545,0.14808755,-0.048068322,-0.049048167,0.102260746,-0.0583936,0.054512087,0.03528924,-0.032090236,-0.03464338,2.1078548e-33,-0.027688967,-0.009304212,0.050257985,-0.002022557,0.05460483,-0.017571032,-0.006334303,0.06622219,-0.046850964,-0.041224968,0.032686472,0.11914448,-0.014913243,0.043152753,0.06531556,0.0033467014,-0.09189358,0.021045858,0.0041879765,-0.033772323,-0.0069752657,-0.033296548,0.021415016,0.032184333,-0.05764003,0.056038152,-0.014908558,0.031794313,-0.03744984,0.008112249,-0.028327836,-0.064999096,-0.008655302,0.087250546,-0.045007568,0.0036686629,0.030724531,-0.113148466,-0.06275072,-0.026280606,-0.06469328,0.00929332,-0.021147436,-0.08640626,-0.066081285,0.016278451,0.02777818,-0.016335366,-0.020261608,-0.02373973,-0.041554295,0.05333748,-0.01934353,0.045328483,-0.03401707,-0.048192862,0.029685585,0.04466324,0.024583481,-0.02698726,-0.026806083,0.022790916,0.041232068,-0.0057766736,-0.068774834,0.032736257,0.038827706,0.0018218072,0.0446829,0.016413331,-0.021491298,0.04852007,0.008546769,-0.0621142,0.07853881,-0.074371174,-0.034599267,-0.05894211,0.0001299684,0.109789595,0.016003618,-0.004760071,0.031659458,0.013656241,0.040517647,-0.051939636,0.032295585,-0.030153029,-0.0071664215,0.016180193,-0.05000162,-0.049314924,0.013445235,0.0059255394,-0.031248935,-3.707124e-33,-0.059035975,-0.056266945,0.00014333904,0.04902504,-0.028508868,-0.04458588,-0.054600008,0.053341247,-0.039372984,-0.042141292,0.020031605,-0.0037910552,-0.0057560997,0.057452574,0.008924617,0.09080988,-0.08202364,-0.08297188,-0.051720433,0.025482072,0.035490856,0.0441427,-0.015313266,0.03483586,0.023195783,-0.0077668983,0.04589163,0.012163023,-0.06256444,-0.0802143,0.058728162,-0.043831896,-0.07866446,-0.0009622024,0.007374749,-0.053571854,0.062239114,0.035092086,-0.0029633576,0.0013859485,-0.025532724,-0.07008249,-0.09022762,0.025514532,-0.02561077,0.068182364,-0.07779163,0.09063759,-0.0010917868,0.02034218,-0.018220952,0.033306994,-0.06852413,-0.028647732,0.0065651205,-0.05297284,-0.011640277,-0.0033225804,-0.038846042,-0.010270201,0.00041834815,-0.014715336,0.0018876654,-0.026846921,0.009962509,-0.058794815,-0.016530206,0.056052357,-0.065733016,-0.044426076,0.08333034,0.026337346,-0.04256017,0.039561775,0.0428641,-0.018227573,0.07618429,-0.052170545,0.09313656,-0.026339205,0.034464598,0.012011401,0.16869237,0.043382633,0.099391185,0.06587833,-0.022497924,-0.013357551,0.008815652,0.043794826,-0.046942905,0.042591605,-0.0046283104,0.12617224,-0.0047034924,-2.4714572e-08,-0.061544906,0.039869044,-0.070309676,-0.0028503444,-0.03983865,-0.019133365,-0.022556381,0.028887477,-0.019949945,0.050766055,0.020080341,-0.0508583,-0.06615227,0.0824893,0.031983666,0.027204055,-0.018750448,0.026668701,0.06453877,-0.06689637,0.04877734,0.043435663,-0.005226732,0.051757317,0.087500095,-0.018334378,-0.0071105715,0.04916622,0.06083581,-0.0002668441,-0.015734931,0.017667098,0.01196548,-0.0015989962,0.06345748,0.03269261,0.0020509507,-0.0496426,-0.010760795,-0.03785904,0.045143895,-0.05444073,0.030376716,-0.053070668,0.08634555,0.0736538,-0.05826783,-0.067709975,0.0976804,0.015150369,-0.035363045,-0.024696914,-0.0067245415,0.10607633,0.051370036,-0.011648606,-0.052513286,-0.021311145,0.048765115,0.017858816,-0.009733802,0.04258796,0.047329247,0.010804384]",
+      "createdAt": "2026-03-20T21:44:35.431Z"
+    },
+    {
+      "id": "2a38502f-f5a8-4a4d-9be3-d5eebcc108bb",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "The Xenova transformers library allows running ONNX models locally for semantic vector search natively within PGLite.",
+      "embedding": "[-0.054049745,-0.08185489,0.016109733,-0.00096023147,0.038630966,-0.0073893,-0.027384348,-0.05602716,-0.039696768,-0.053816173,-0.08301795,0.018826406,0.031179437,0.034451626,0.035195198,-0.026898762,0.056089398,0.08544152,0.051692255,-0.0015906331,0.044998426,0.019462558,0.05274738,-0.07416533,-0.016205804,0.0030123563,0.00508939,-0.106439665,0.06700977,-0.003874448,-0.035484005,0.08331387,-0.05667034,0.17048171,-0.05544356,0.06476217,-0.020089114,0.021147687,-0.12103286,-0.06709582,0.029334549,0.046628155,-0.052722484,0.011818749,0.08307365,-0.0014734785,-0.056503195,-0.08773202,0.040964786,-0.024494147,-0.079835,-0.08475597,0.049132913,-0.003970082,0.021317407,0.060268924,-0.021137286,-0.053466775,0.010245903,-0.013189826,-0.03571216,-0.013833297,-0.032453775,-0.022650493,0.022049082,0.030091846,0.058964424,0.0663772,0.0074775447,-0.054591026,0.013393465,0.04783313,-0.06585551,-0.07281783,-0.095101245,0.08670306,0.10012684,-0.036829006,0.023239618,-0.0977834,-0.0010671176,0.013694568,0.043623082,0.07841215,0.043967992,-0.00049907947,-0.0072017475,0.029988142,0.07180198,0.08570443,0.0036577485,0.017096234,0.020438788,-0.014754646,0.03713967,0.007318705,0.13783894,-0.051333103,0.01711757,0.040379178,0.011026714,0.008586708,0.03358262,-0.06117882,-0.064422704,0.02993758,-0.019277735,-0.02941017,0.021840878,-0.018186232,0.0072586215,0.017160973,0.008943965,-0.079744324,-0.006080428,-0.021706162,-0.01961271,0.0034303789,0.073855825,-0.02272746,-0.09504704,0.040138982,-0.08705461,0.06770468,-0.012427426,0.04017366,-0.11474955,1.4340497e-33,-0.023048889,0.06175333,0.04445945,0.00052900024,-0.032255527,0.01353691,0.06965527,0.055982105,-0.10714133,0.004618555,-0.12703691,0.07839367,-0.085321836,0.017392272,-0.021568278,-0.02764775,-0.015300588,0.008817262,-0.050197437,0.006917873,0.016899263,-0.022693953,-0.018721575,-0.002948382,-0.057981946,-0.010609076,-0.00045882174,-0.059843704,0.010947161,-0.017956529,-0.084381714,0.01059465,-0.00257826,0.11115344,0.0014377467,0.005660792,-0.040725958,-0.016687147,-0.06888479,-0.05214509,-0.063253805,-0.020372385,-0.015333957,-0.11849821,-0.09059054,-0.0017262406,0.019572498,-0.047832813,0.05451464,-0.048385583,0.02991984,0.09113135,-0.12412297,0.0020101008,0.040519744,0.041538272,0.029908128,0.07297351,0.05473918,0.005448581,0.06956125,0.003068865,0.080699764,0.018393975,0.0130596245,0.043054875,-0.047035772,-0.037122425,0.04112825,0.056968413,-0.025750492,0.022628503,0.05806056,-0.006713193,0.13042034,-0.022280715,-0.068906724,-0.043616697,-0.008248709,0.039538294,-0.08152765,-0.05518103,0.011943202,0.03269858,0.0817053,-0.04367961,0.054400347,-0.09378646,-0.081212126,-0.003728384,-0.004050992,-0.09223785,-0.0022521352,-0.00248124,-0.048608985,-1.9612734e-33,-0.043887272,-0.040462688,-0.006196481,0.055854753,-0.059463613,-0.06758306,-0.023459585,-0.027192036,-0.06444761,0.0053584916,0.02803439,-0.023219883,0.07937069,-0.06982897,0.01638147,0.043851983,0.017392362,-0.023052955,-0.03428324,0.07521649,-0.031887922,0.06420602,-0.115123495,0.029741524,-0.013624748,-0.0010631501,0.06207931,0.07274936,-0.07371491,-0.037807446,-0.005934521,0.031563614,-0.02149475,0.024426823,-0.0006817743,-0.013692176,0.031749915,-0.020832358,-0.015929189,0.05671446,-0.03381417,-0.0066139325,-0.054762274,0.049805228,-0.03231491,0.013751861,-0.0845768,0.057959516,0.033207875,0.04272838,0.045936152,0.0030467892,-0.1033919,-0.0040934454,-0.020171164,-0.028844122,0.0030448935,0.010673214,-0.0049610534,-0.005951785,0.0026954787,-0.10371666,-0.023834819,0.027009426,-0.010233131,-0.016592551,-0.006458425,0.06813058,0.0054674363,0.043870363,0.045457046,0.03941478,0.07504066,0.08991134,-0.0023188249,0.004359855,0.061675858,-0.04205393,0.017934086,-0.07450984,0.07726628,0.0142759485,0.08808753,0.11168537,0.0741959,0.06979273,0.051926795,0.119694605,0.027814826,0.026541302,-0.04363892,-0.02382117,-0.025336163,0.052282706,-0.039991166,-2.3549573e-08,-0.053647935,0.021194113,-0.052908953,-0.024506813,-0.02409164,0.0010378001,0.033865876,0.035128936,-0.09073508,0.026140586,-0.020708853,-0.07390711,-0.008784912,0.012458905,0.044028934,0.01967198,0.05421144,0.032287378,-0.03061821,-0.030489946,-0.021894319,0.06833629,-0.025051562,0.09893117,0.054811276,-0.018261012,-0.036349587,0.024065306,0.11347883,0.005729769,-0.013238316,0.0004831233,0.0029184744,-0.016996948,0.012544341,0.0944048,0.037704177,-0.008652192,0.021940317,0.037959334,0.0121676875,-0.026842304,-0.043944325,-0.022254484,-0.042206597,0.0381447,-0.02082102,-0.09532054,0.05439177,0.090726726,0.0467079,0.014739726,-0.08308393,0.07528648,0.043177083,-0.018441044,-0.049908593,-0.0076103047,0.027295297,0.0059303986,-0.020714251,0.034039482,0.0021037718,-0.015341865]",
+      "createdAt": "2026-03-21T08:57:10.800Z"
+    },
+    {
+      "id": "ae6ac39c-63be-4ae6-b6c8-fb4a75784d57",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
+      "sessionId": null,
+      "gitBranch": "main",
+      "type": "architecture",
+      "content": "Refined the React frontend Dashboard to correctly compile layout utility classes natively, fixing broken card icon rendering in glassmorphic view.",
+      "embedding": "[-0.048611764,0.064581856,0.06517722,0.000790266,0.035514306,-0.008157834,-0.038607292,0.0011439981,-0.05416717,-0.06730644,-0.09527606,0.017752923,-0.09234499,0.082275465,0.030461919,-0.03405378,0.010246797,-0.08368972,0.03714504,0.09184598,0.009090491,-0.051177718,0.01962106,0.04595141,0.05870448,0.10132272,-0.006010453,-0.051376853,-0.022932896,-0.045321845,-0.012191053,0.089860715,0.0015006724,-0.0371164,-0.0800654,0.010099135,0.003458585,0.008255284,0.020715427,-0.07857253,-0.05532526,0.11567178,-0.038456265,0.00737026,0.019072939,-0.025924439,0.073302515,-0.05162035,-0.023299042,0.0064844056,-0.06836247,0.01960562,0.02571851,-0.09994265,0.007960643,-0.0038053074,0.058080282,0.024880448,0.081014484,0.029372806,0.09193051,-0.012531626,0.042863417,0.036434464,-0.005626865,0.051179823,0.051322058,-0.02085054,0.08155254,-0.0056669037,0.04993283,0.010623112,0.06496095,-0.08369834,0.024532434,0.012897818,0.049801093,0.015712928,0.013241588,-0.006712543,0.027965004,-0.02709092,-0.017917456,0.030798465,0.11721536,0.0017703252,0.016788235,-0.090304226,-0.044636313,-0.07138313,0.0013918765,-0.012416955,0.020507183,0.026944863,-0.026097681,-0.04643815,-0.040563036,-0.019701889,-0.08955489,0.068580806,0.014247687,-0.007195897,0.10472228,0.044109404,0.039447792,-0.018119503,-0.013122282,0.0008326029,-0.04285569,0.043898422,0.03720201,-0.04622675,-0.01270701,0.046685945,-0.07361684,0.0064422605,-0.061770715,-0.075710915,0.0112168025,0.10773194,-0.014200073,0.0039367387,0.026930671,0.04042589,0.030833386,0.011015905,-0.039397374,2.4375106e-33,-0.0050366875,0.07274999,0.009419649,-0.01102181,0.101565465,-0.0516508,-0.019432494,-0.030165603,0.031125959,-0.006908324,0.13519236,0.051337443,0.0143205775,0.049698185,-0.05271846,-0.041101743,-0.0035532147,0.03451621,-0.06621181,-0.09303442,-0.04703735,0.012530636,-0.086577296,0.017449565,-0.03213751,0.11069918,0.03263017,0.11187532,-0.005405127,0.0018741951,0.053950284,0.0002990015,0.104586124,0.078597,-0.04277915,-0.009456074,-0.015825352,-0.030805273,-0.009040469,-0.029340219,-0.08946226,0.035376694,0.00013287352,0.06696277,0.008679926,0.02496607,0.0056777275,0.05136167,0.024679068,-0.042291194,-0.08393746,-0.034924626,0.038382273,-0.009483498,-0.06326389,-0.07854415,0.023053916,0.0718203,0.056620955,-0.102463074,-0.0036356258,-0.026095571,-0.06287071,-0.009073871,-0.107247785,0.061831467,-0.026380872,0.040140495,-0.04038937,-0.020279119,0.04856179,0.020361703,0.04163325,0.06225145,-0.008505161,-0.012694256,-0.0031974355,-0.049662694,-0.078540124,0.06954516,-0.053335886,-0.03663299,0.004594277,-0.03240773,-0.018093126,-0.032268852,0.085826665,-0.031715263,0.006599331,0.08414132,-0.0006803571,-0.09382211,0.017830618,0.0013183119,-0.043631334,-2.0637618e-33,-0.04815888,-0.043317124,0.04733894,-0.032832835,-0.0038535772,-0.0070422255,-0.017502667,0.13163462,0.066829845,-0.075360805,-0.011993071,0.02482894,-0.040813085,0.0040534157,-0.09997697,0.05445097,0.05094344,-0.029396275,-0.018735427,0.008790058,0.07757747,0.016518531,-0.046272893,0.033024225,-0.021957312,0.12727025,0.10162258,-0.094555914,0.050910182,-0.025653547,0.026658343,-0.06508291,0.004190149,0.03604776,-0.0018594321,0.08456687,-0.06328051,-0.052460697,-0.088065125,-0.007829287,-0.11123288,-0.010940932,-0.016044931,0.069505036,0.046416108,-0.08473223,0.044590358,0.026206115,-0.018925188,-0.03931542,0.025979852,-0.036927905,0.04352987,-0.008316263,-0.063505106,-0.025500566,0.048076287,0.027803628,-0.02253982,-0.033609897,0.038015123,-0.0036287843,-0.03660547,-0.063252896,-0.017351503,-0.013978316,-0.09091057,0.02358433,0.09797794,0.09906374,0.071529865,0.11821963,-0.030089978,-0.013197582,0.07555676,0.017780904,0.038494535,0.06757135,0.0027907041,-0.027769607,0.025756842,0.03694703,0.04791505,0.027211107,0.021089919,-0.09004185,0.021921497,-0.004502834,-0.059057225,0.0012553047,-0.08640724,0.009651269,-0.00513299,0.07730862,0.041927863,-2.5168372e-08,0.016401058,0.01928488,-0.054197397,-0.0052876337,0.019997109,0.0077874283,-0.022481563,-0.023419973,-0.09937476,-0.012204273,-0.0591636,0.059389725,-0.091553524,-0.05224482,-0.034641564,-0.022271648,-0.049872164,0.121583946,-0.089912236,-0.072769076,0.004717402,-0.011502844,0.058557358,0.020021953,0.0027654464,0.042641237,-0.052138727,-0.057383247,0.011115345,-0.030288398,-0.036648728,-0.038242217,0.03708781,0.010356738,0.04672798,0.002958999,-0.015521587,0.007682751,-0.026961891,0.02117562,0.030280871,-0.10070387,0.0028226671,0.025193777,-0.06371918,-0.03906059,-0.026651746,0.04087999,-0.00018093394,0.0073181405,0.053478967,-0.015104527,-0.12359401,0.027151363,-0.04248308,-0.06521382,-0.00024684082,0.041881137,0.06670333,0.011365063,0.07096404,0.010382266,0.018646788,0.015692929]",
+      "createdAt": "2026-03-23T15:02:42.316Z"
+    },
+    {
+      "id": "3bc45404-2619-479a-86bd-4cea0cbdc8c2",
+      "projectId": "008465eb-074f-40e7-8bce-0e6d47927b1a",
       "sessionId": null,
       "gitBranch": "main",
       "type": "architecture",
       "content": "Skipped highly intensive PGLite benchmark tests and restored Vitest module isolation to prevent WASM Out-Of-Memory aborts across suite evaluations. Reverted explicit mock expectations for embeddings tests to tolerate fallback vectors.",
       "embedding": "[-0.038231444,-0.014525511,0.011333354,0.07757596,0.04166089,-0.059957862,-0.07669836,0.016619643,-0.09134108,-0.014770963,-0.007436369,0.023094524,-0.018869905,-0.04833418,0.014898817,-0.06770015,0.09212404,0.08894374,0.009230881,0.011379212,-0.03924931,-0.05034883,0.027646784,0.015914764,0.009402054,-0.013683023,-0.06268125,0.0088813575,0.07081108,-0.07780116,0.011643494,0.046660494,-0.06120859,0.08073674,0.014289037,0.040711455,0.0022180912,-0.06106813,-0.08860629,-0.07117314,-0.008213515,0.07980582,-0.05338692,0.05159239,0.020072518,-0.030362124,0.0026478027,-0.09357335,-0.04334422,-0.051847026,-0.007679267,-0.008502566,0.013366621,-0.015267875,-0.0040889923,-0.015943984,0.04760266,-0.057374734,0.036403608,0.08558436,-0.041626368,-0.07006655,-0.009455622,-0.03624096,0.005218306,5.804445e-05,0.122128054,0.03690169,0.042932775,0.027092574,0.01151162,0.0075829,-0.08671138,0.0056633977,-0.03149267,0.1218322,-0.037546642,-0.055727996,0.06652871,-0.04357916,0.042953502,-0.06223074,0.0044023115,0.0092454925,0.037984334,0.02026543,0.0738012,0.025464462,-0.007767191,0.043118395,0.08799066,0.027441764,-0.007841942,0.08639372,0.032763634,-0.020890923,0.12934701,-0.067711234,-0.0063302987,0.08621671,0.058259737,0.052845333,0.06437504,0.02275661,-0.019208351,0.004254487,0.04020156,-0.045468874,0.007192431,-0.0032272444,0.031184204,0.0009561973,0.0750287,0.0048358785,-0.0033454627,-0.037128404,-0.032350324,0.0004357328,0.05812881,0.041748866,0.008886431,0.05671636,0.078288235,0.045452405,-0.009099268,0.013111659,-0.004619617,5.4163136e-33,-0.02168382,-0.02310801,-0.050839726,0.07744304,0.0066837054,0.0010170303,0.03919687,0.0995818,-0.10786738,-0.035019055,0.008359614,-0.05374163,0.0075931833,0.096181266,0.01595277,-0.00055787974,-0.018307019,-0.00081257836,-0.051453017,0.015978519,-0.007370325,-0.031158965,-0.00799835,-0.07531123,-0.029141724,0.043727167,-0.025378436,-0.035334703,0.01974679,0.02644594,-0.073277675,0.011607585,-0.0010183922,0.11230894,0.03669483,0.057264637,-0.032891195,-0.08186545,-0.12042561,-0.022209488,-0.014078726,0.03508607,-0.04704983,-0.07735391,-0.01651588,-0.10040885,0.00412743,-0.053388525,0.03600676,-0.039812263,-0.045333605,0.1439466,-0.07058061,-0.062380347,0.0007808947,0.023219103,0.0481088,0.030792862,0.0421653,0.068623275,-0.032956272,0.05395885,-0.019161548,0.06027917,-0.038103685,0.03597112,-0.093904115,-0.04075272,-0.017892027,0.051733732,-0.020043196,-0.0047542583,-0.03313751,0.003838178,-0.0006502859,-0.021870658,-0.008140033,-0.012808833,-0.012732022,-0.09815359,0.037237313,-0.0022002563,-0.013561404,-0.027827349,-0.053049855,-0.13478638,0.07130291,-0.09274519,-0.07070733,-0.033803314,0.035579734,-0.057351243,0.085410915,-0.030173108,-0.00096294685,-5.5632364e-33,-0.08328292,0.061529074,-0.0699681,0.1567034,-0.040011425,-0.0052035116,0.023339653,-0.03464195,-0.064135484,-0.0029860302,0.01972691,-0.022918055,0.05778145,-0.013567757,0.029948274,0.026683213,-0.018301353,-0.07487962,-0.012164742,-0.0059217047,0.05833169,0.08379673,0.06519646,0.030954195,-0.030014664,0.02224471,-0.010305206,-0.007745308,-0.019504968,-0.03581848,0.14765744,0.10187223,-0.040252086,0.0146923065,0.022398377,0.015624416,0.06646164,0.03065667,-0.02511441,0.012452044,0.027531309,0.09699459,-0.042423412,-0.007701036,-0.021108896,0.11338759,-0.021296043,-0.010364926,0.082428254,-0.040206566,-0.04503581,-0.023657786,-0.06446501,0.025488937,-0.017166613,-0.09620246,0.0072159106,0.010547559,-0.07442623,0.006903731,0.021381278,-0.044044457,-0.015355754,-0.08844363,0.020808779,-0.004950982,0.045617636,0.025228942,-0.015743777,0.011829658,0.029152626,0.061000656,0.004391893,0.011855836,0.040163584,0.030779831,-0.043230306,-0.0583201,-0.014500647,-0.081881195,0.022873715,-0.026908688,-0.01099392,0.029586012,0.030519577,-0.018069426,-0.0022140131,0.0822629,-0.024425507,0.033477448,-0.009646922,-0.005435522,-0.054902926,0.042960055,0.044106405,-3.6355758e-08,0.02633391,-0.026117772,-0.053850226,0.011250926,0.0020900418,-0.08724637,-0.023116576,0.047958363,-0.019822929,-0.0034496135,0.0077570337,-0.10105256,-0.037914198,0.03917782,0.06836957,0.017921565,-0.03361277,0.069721885,-0.069377325,-0.0058848416,-0.08007737,0.04755348,-0.009167966,-0.042957846,-0.030920753,0.022426905,0.0892863,0.051544342,0.087540984,0.012574179,0.03556599,0.020387737,-0.034944993,-0.06706585,-0.09576235,0.12571992,0.07480719,0.06602678,0.06764834,0.066590644,-0.039668478,-0.06995082,-0.03439363,-0.006409422,-0.029370774,-0.04508412,-0.10747658,-0.062613755,-0.04067408,-0.042577647,-0.0016443889,0.0062639336,-0.05259416,0.06993005,0.06407414,-0.041555732,-0.012869975,0.030041704,-0.06299066,-0.010525261,0.08409747,-0.10195112,0.028193088,-0.02717823]",
-      "createdAt": "2026-03-23T15:27:52.910Z"
+      "createdAt": "2026-03-23T15:29:47.907Z"
     }
   ],
   "healingEvents": []
