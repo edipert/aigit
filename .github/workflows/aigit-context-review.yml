@@ -33,7 +33,7 @@ jobs:
             core.setOutput('files', filenames);
 
       - name: Install Project Dependencies
-        run: npm ci
+        run: npm install
 
       - name: Run Aigit CI Report
         uses: ./.github/actions/aigit-ci
