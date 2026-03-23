@@ -43,10 +43,10 @@ describe('Semantic Bisect Command', () => {
                 decisions: []
             };
 
-            // queryHistoricalContext runs "git show hash:.aigit/ledger.json" using execSync
-            vi.mocked(child_process.execSync).mockImplementation((cmd: any) => {
-                if (cmd.includes('c2:.aigit') || cmd.includes('c3:.aigit')) {
-                    return Buffer.from(JSON.stringify(mockLedger));
+            vi.mocked(child_process.execFileSync).mockImplementation((cmd: any, args: any) => {
+                const combined = [cmd, ...(args || [])].join(' ');
+                if (combined.includes('c2:.aigit') || combined.includes('c3:.aigit')) {
+                    return Buffer.from(JSON.stringify(mockLedger)) as any;
                 }
                 throw new Error('Not found');
             });
@@ -56,7 +56,7 @@ describe('Semantic Bisect Command', () => {
             
             const result = bisectCommits('exact memory', commits, '/test');
             
-            expect(child_process.execSync).toHaveBeenCalledWith(expect.stringContaining('git show c2'), expect.anything());
+            expect(child_process.execFileSync).toHaveBeenCalledWith('git', ['show', 'c2:.aigit/ledger.json'], expect.anything());
             expect(result.found).toBe(true);
             expect(result.commit?.hash).toBe('c2');
         });
