@@ -37,8 +37,10 @@ jobs:
 
       - name: Build Aigit CLI Workspace
         run: |
-          npm run build -w context-server
+          cd context-server
           npm install
+          npm run build
+          npm link
 
       - name: Run Aigit CI Report
         uses: ./.github/actions/aigit-ci
