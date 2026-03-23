@@ -40,7 +40,6 @@ export const CommitDecisionArgs = z.object({
     symbolName: z.string().optional(),
     symbolType: SymbolType,
     workspacePath: workspacePath.optional(),
-    agentName: z.string().optional(),
 });
 
 export const CommitTaskArgs = z.object({
@@ -62,7 +61,6 @@ export const TakeNoteArgs = z.object({
     scope: optionalPath,
     isDecision: z.boolean().optional(),
     issueRef: z.string().optional(),
-    agentName: z.string().optional(),
 });
 
 export const CommitMemoryArgs = z.object({
@@ -74,7 +72,6 @@ export const CommitMemoryArgs = z.object({
     lineNumber: optionalLineNum,
     symbolName: z.string().optional(),
     symbolType: SymbolType,
-    agentName: z.string().optional(),
 });
 
 export const QueryContextArgs = z.object({
@@ -217,26 +214,6 @@ export const FlagVulnerabilityArgs = z.object({
 });
 
 export const GenerateArchitectureDocsArgs = z.object({
-    workspacePath,
-});
-
-export const SemanticBisectArgs = z.object({
-    query: nonEmpty,
-    workspacePath,
-    fromCommit: z.string().optional(),
-    toCommit: z.string().optional(),
-});
-
-export const GetProjectStatsArgs = z.object({
-    limit: z.number().int().positive().optional(),
-});
-
-export const DetectContextDriftArgs = z.object({
-    projectId: uuid,
-    workspacePath,
-});
-
-export const GetDependencyGraphArgs = z.object({
     workspacePath,
 });
 

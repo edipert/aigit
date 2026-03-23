@@ -99,7 +99,6 @@ CREATE TABLE "Decision" (
     "id" TEXT NOT NULL,
     "taskId" TEXT NOT NULL,
     "gitBranch" TEXT NOT NULL DEFAULT 'main',
-    "originBranch" TEXT,
     "context" TEXT NOT NULL,
     "chosen" TEXT NOT NULL,
     "rejected" TEXT[],
@@ -110,8 +109,6 @@ CREATE TABLE "Decision" (
     "symbolType" TEXT,
     "symbolRange" TEXT,
     "issueRef" TEXT,
-    "agentName" TEXT,
-    "embedding" vector(384),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "Decision_pkey" PRIMARY KEY ("id")
 );
@@ -121,17 +118,15 @@ CREATE TABLE "Memory" (
     "projectId" TEXT NOT NULL,
     "sessionId" TEXT,
     "gitBranch" TEXT NOT NULL DEFAULT 'main',
-    "originBranch" TEXT,
     "type" TEXT NOT NULL,
     "content" TEXT NOT NULL,
-    "embedding" vector(384),
+    "embedding" vector(1536),
     "filePath" TEXT,
     "lineNumber" INTEGER,
     "symbolName" TEXT,
     "symbolType" TEXT,
     "symbolRange" TEXT,
     "issueRef" TEXT,
-    "agentName" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "Memory_pkey" PRIMARY KEY ("id")
 );
@@ -322,31 +317,6 @@ const MIGRATIONS: Migration[] = [
         `,
     },
     // ── Add future migrations below ───────────────────────────────────────────
-    {
-        version: 5,
-        description: 'Add agentName for tracking context provenance in Decision and Memory',
-        sql: `
-            ALTER TABLE "Decision" ADD COLUMN IF NOT EXISTS "agentName" TEXT;
-            ALTER TABLE "Memory" ADD COLUMN IF NOT EXISTS "agentName" TEXT;
-        `,
-    },
-    {
-        version: 6,
-        description: 'Add originBranch for stable tracking across cross-branch merges',
-        sql: `
-            ALTER TABLE "Decision" ADD COLUMN IF NOT EXISTS "originBranch" TEXT;
-            ALTER TABLE "Memory" ADD COLUMN IF NOT EXISTS "originBranch" TEXT;
-        `,
-    },
-    {
-        version: 7,
-        description: 'Change embedding vector size to 384 for Xenova MiniLM and add to Decision',
-        sql: `
-            ALTER TABLE "Memory" DROP COLUMN IF EXISTS "embedding";
-            ALTER TABLE "Memory" ADD COLUMN "embedding" vector(384);
-            ALTER TABLE "Decision" ADD COLUMN IF NOT EXISTS "embedding" vector(384);
-        `,
-    },
     // Template:
     // {
     //     version: 5,

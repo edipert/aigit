@@ -43,14 +43,6 @@ export function label(key: string, value: string): void {
     console.log(`  ${c.muted(key + ':')} ${value}`);
 }
 
-export function out(message: string): void {
-    console.log(message);
-}
-
-export function blank(): void {
-    console.log();
-}
-
 // ── Spinner helpers ───────────────────────────────────────────
 
 /**

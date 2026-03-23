@@ -49,7 +49,6 @@ export const TOOL_SCHEMAS = [
                 symbolName: { type: 'string', description: 'Optional. The code symbol name to anchor this decision to (e.g. "initRedisClient"). Auto-resolved from filePath+lineNumber if omitted.' },
                 symbolType: { type: 'string', enum: ['function', 'class', 'method', 'export', 'variable'], description: 'Optional. Symbol type.' },
                 workspacePath: { type: 'string', description: 'Optional. The root directory (used to detect branch).' },
-                agentName: { type: 'string', description: 'Optional. The name of the AI agent creating this.' }
             },
             required: ['taskId', 'context', 'chosen', 'rejected', 'reasoning']
         }
@@ -94,8 +93,7 @@ export const TOOL_SCHEMAS = [
                 message: { type: 'string', description: 'The note message to capture.' },
                 scope: { type: 'string', description: 'Optional. A specific directory or file to bind the note to.' },
                 isDecision: { type: 'boolean', description: 'Optional. Set to true to categorize this note as an architectural decision.' },
-                issueRef: { type: 'string', description: 'Optional. An external issue tracker reference (e.g. "ENG-404", "#45").' },
-                agentName: { type: 'string', description: 'Optional. The name of the AI agent creating this.' }
+                issueRef: { type: 'string', description: 'Optional. An external issue tracker reference (e.g. "ENG-404", "#45").' }
             },
             required: ['projectId', 'workspacePath', 'message']
         }
@@ -118,8 +116,7 @@ export const TOOL_SCHEMAS = [
                 filePath: { type: 'string', description: 'Optional. The file path this memory is anchored to.' },
                 lineNumber: { type: 'number', description: 'Optional. The line number this memory is anchored to.' },
                 symbolName: { type: 'string', description: 'Optional. The code symbol name to anchor this memory to. Auto-resolved from filePath+lineNumber if omitted.' },
-                symbolType: { type: 'string', enum: ['function', 'class', 'method', 'export', 'variable'], description: 'Optional. Symbol type.' },
-                agentName: { type: 'string', description: 'Optional. The name of the AI agent creating this.' }
+                symbolType: { type: 'string', enum: ['function', 'class', 'method', 'export', 'variable'], description: 'Optional. Symbol type.' }
             },
             required: ['projectId', 'workspacePath', 'type', 'content']
         }
@@ -507,57 +504,4 @@ export const TOOL_SCHEMAS = [
             required: ['workspacePath']
         }
     },
-    
-    // ── Diagnostics & Insights ────────────────────────────────
-    {
-        name: 'semantic_bisect',
-        description: 'Binary search the commit history to find exactly when a specific decision, architecture, or context entry first appeared.',
-        inputSchema: {
-            type: 'object',
-            additionalProperties: false,
-            properties: {
-                query: { type: 'string', description: 'The semantic query to search for.' },
-                workspacePath: { type: 'string', description: 'The root directory of the workspace.' },
-                fromCommit: { type: 'string', description: 'Optional. Oldest commit to start searching from.' },
-                toCommit: { type: 'string', description: 'Optional. Newest commit to search up to (defaults to HEAD).' }
-            },
-            required: ['query', 'workspacePath']
-        }
-    },
-    {
-        name: 'get_project_stats',
-        description: 'Retrieve AI context engine usage statistics, agent contributions, task velocity, and context tax savings estimates.',
-        inputSchema: {
-            type: 'object',
-            additionalProperties: false,
-            properties: {
-                limit: { type: 'number', description: 'Number of top agents/tasks to return.' }
-            }
-        }
-    },
-    {
-        name: 'detect_context_drift',
-        description: 'Analyze the project for semantic context drift (e.g., memories describing files or symbols that have been deleted or npm packages that have been removed).',
-        inputSchema: {
-            type: 'object',
-            additionalProperties: false,
-            properties: {
-                projectId: { type: 'string', description: 'The UUID of the project.' },
-                workspacePath: { type: 'string', description: 'The root directory of the workspace.' }
-            },
-            required: ['projectId', 'workspacePath']
-        }
-    },
-    {
-        name: 'get_dependency_graph',
-        description: 'Generate a dynamic Mermaid.js dependency graph that combines code imports with semantic memory links.',
-        inputSchema: {
-            type: 'object',
-            additionalProperties: false,
-            properties: {
-                workspacePath: { type: 'string', description: 'The root directory of the workspace.' }
-            },
-            required: ['workspacePath']
-        }
-    }
 ] as const;

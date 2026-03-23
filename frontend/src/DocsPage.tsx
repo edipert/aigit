@@ -714,36 +714,6 @@ Cursor, Windsurf, Claude Desktop, Claude Code, Cline/Roo, VS Code with Copilot, 
     },
   */
   {
-    id: 'dashboard-ui',
-    title: 'Context Dashboard (UI)',
-    content: `### 🧭 Aigit Context Dashboard
-
-Aigit isn't just a CLI—it ships with a fully featured local **Context UI** designed to help you interactively explore, search, and manage your semantic ledger natively in your browser.
-
-Run the API and visual dashboard locally:
-\`\`\`bash
-aigit ui
-\`\`\`
-
-### 📊 Platform Stats
-See a live telemetry breakdown of all memories, architecture decisions, active orchestration tasks, and pending Swarm states across your active Git branch.
-
-### 🔍 Semantic Vector Search
-Instead of guessing which files impact a specific feature, use the **Semantic Search** tab. This utilizes local Transformers.js vector embeddings to perform ultra-fast RAG operations natively.
-- Query: *"Why did we choose Postgres over Redis?"*
-- Result: Directly linked AST symbols and origin branches where the architectural decision was explicitly formulated by your AI agent.
-
-### 🕸️ Context Graph (Architecture Dependency Topologies)
-The true power of semantic memory is relational context. The **Context Graph** translates your raw \`.aigit/ledger.json\` database into breathtaking **Mermaid.js** visualizations. 
-- Map topological relationships between \`Memory\` nodes and structural files.
-- Track blast radiuses of code changes using dynamic D3-styled graphs.
-
-### 🧹 Garbage Collection (Admin Settings)
-Keep your memory footprint negligible using the embedded DB Vacuum settings.
-- Remove orphaned memories associated with deleted origin branches.
-- Auto-heal and reconstruct AST scopes that have suffered context drift.`
-  },
-  {
     id: 'architecture',
     title: 'Architecture',
     content: `### How aigit Works
@@ -811,11 +781,9 @@ function renderMarkdown(md: string): string {
     .replace(/\n/g, '<br/>');
 }
 
-const processedSections = sections.map(s => ({ ...s, htmlContent: renderMarkdown(s.content) }));
-
 export function DocsPage() {
   const [activeSection, setActiveSection] = useState('quickstart');
-  const current = processedSections.find(s => s.id === activeSection) || processedSections[0];
+  const current = sections.find(s => s.id === activeSection) || sections[0];
 
   return (
     <div className="docs-page">
@@ -827,7 +795,7 @@ export function DocsPage() {
       />
       <aside className="docs-sidebar">
         <div className="docs-sidebar-title">Documentation</div>
-        {processedSections.map(s => (
+        {sections.map(s => (
           <button
             key={s.id}
             className={`docs-nav-item ${activeSection === s.id ? 'active' : ''}`}
@@ -841,7 +809,7 @@ export function DocsPage() {
         <h1 className="docs-page-title">{current.title}</h1>
         <div
           className="docs-body"
-          dangerouslySetInnerHTML={{ __html: current.htmlContent }}
+          dangerouslySetInnerHTML={{ __html: renderMarkdown(current.content) }}
         />
       </main>
     </div>

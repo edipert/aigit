@@ -1,10 +1,9 @@
-import { Prisma } from '@prisma/client';
 import { prisma } from '../db';
-import { embedText } from './embeddings';
+import { rankBySimilarity } from './embeddings';
 
 /**
- * Semantic search against the live database using real pgvector embeddings.
- * Queries memories and decisions by cosine similarity to the input query.
+ * Semantic search against the live database.
+ * Queries memories and decisions by relevance to the input query.
  */
 export async function semanticSearch(options: {
     query: string;
@@ -14,67 +13,62 @@ export async function semanticSearch(options: {
     topK?: number;
 }) {
     const { query, branch, filePath, symbolName, topK = 10 } = options;
-    const queryEmbedding = await embedText(query);
-    const vectorString = `[${queryEmbedding.join(',')}]`;
 
-    // Construct the WHERE clause dynamically for Memories
-    const memoryConditions: Prisma.Sql[] = [];
+    // Build where clause
+    const memoryWhere: Record<string, unknown> = {};
+    const decisionWhere: Record<string, unknown> = {};
+
     if (branch) {
-        memoryConditions.push(Prisma.sql`"gitBranch" IN ('main', ${branch})`);
+        memoryWhere.gitBranch = { in: ['main', branch] };
+        decisionWhere.gitBranch = { in: ['main', branch] };
     }
     if (filePath) {
-        memoryConditions.push(Prisma.sql`"filePath" LIKE ${'%' + filePath + '%'}`);
+        memoryWhere.filePath = { contains: filePath };
+        decisionWhere.filePath = { contains: filePath };
     }
     if (symbolName) {
-        memoryConditions.push(Prisma.sql`"symbolName" = ${symbolName}`);
+        memoryWhere.symbolName = symbolName;
+        decisionWhere.symbolName = symbolName;
     }
-    
-    const memoryWhere = memoryConditions.length > 0 
-        ? Prisma.sql`WHERE ${Prisma.join(memoryConditions, ' AND ')} AND "embedding" IS NOT NULL`
-        : Prisma.sql`WHERE "embedding" IS NOT NULL`;
-
-    const memoryQuery = Prisma.sql`
-        SELECT id, type, content as text, "createdAt" as date, "filePath", "symbolName",
-        1 - ("embedding" <=> ${vectorString}::vector) as score
-        FROM "Memory"
-        ${memoryWhere}
-        ORDER BY "embedding" <=> ${vectorString}::vector
-        LIMIT ${topK}
-    `;
-
-    // Construct the WHERE clause dynamically for Decisions
-    const decisionConditions: Prisma.Sql[] = [];
-    if (branch) {
-        decisionConditions.push(Prisma.sql`"gitBranch" IN ('main', ${branch})`);
-    }
-    if (filePath) {
-        decisionConditions.push(Prisma.sql`"filePath" LIKE ${'%' + filePath + '%'}`);
-    }
-    if (symbolName) {
-        decisionConditions.push(Prisma.sql`"symbolName" = ${symbolName}`);
-    }
-
-    const decisionWhere = decisionConditions.length > 0 
-        ? Prisma.sql`WHERE ${Prisma.join(decisionConditions, ' AND ')} AND "embedding" IS NOT NULL`
-        : Prisma.sql`WHERE "embedding" IS NOT NULL`;
-
-    const decisionQuery = Prisma.sql`
-        SELECT id, 'decision' as type, 
-        ('[DECISION] ' || "context" || ' -> ' || "chosen" || ' (Reason: ' || "reasoning" || ')') as text, 
-        "createdAt" as date, "filePath", "symbolName",
-        1 - ("embedding" <=> ${vectorString}::vector) as score
-        FROM "Decision"
-        ${decisionWhere}
-        ORDER BY "embedding" <=> ${vectorString}::vector
-        LIMIT ${topK}
-    `;
 
     const [memories, decisions] = await Promise.all([
-        prisma.$queryRaw<any[]>(memoryQuery),
-        prisma.$queryRaw<any[]>(decisionQuery)
+        prisma.memory.findMany({ where: memoryWhere, orderBy: { createdAt: 'desc' }, take: 50 }),
+        prisma.decision.findMany({ where: decisionWhere, orderBy: { createdAt: 'desc' }, take: 50 }),
     ]);
 
-    // Merge, sort by score, and take topK
-    const docs = [...memories, ...decisions].sort((a, b) => b.score - a.score).slice(0, topK);
-    return docs;
+    // Flatten into searchable documents
+    const docs = [
+        ...memories.map(m => ({
+            id: m.id,
+            text: `[MEMORY] ${m.type}: ${m.content}${m.symbolName ? ` @${m.symbolName}` : ''}`,
+            type: 'memory' as const,
+            date: m.createdAt,
+            filePath: m.filePath,
+            symbolName: m.symbolName,
+        })),
+        ...decisions.map(d => ({
+            id: d.id,
+            text: `[DECISION] ${d.context} → ${d.chosen} (Reason: ${d.reasoning})${d.symbolName ? ` @${d.symbolName}` : ''}`,
+            type: 'decision' as const,
+            date: d.createdAt,
+            filePath: d.filePath,
+            symbolName: d.symbolName,
+        })),
+    ];
+
+    // Rank by similarity
+    const ranked = rankBySimilarity(query, docs, topK);
+
+    // Enrich with metadata
+    const docsMap = new Map(docs.map(d => [d.id, d]));
+    return ranked.map(r => {
+        const original = docsMap.get(r.id)!;
+        return {
+            ...r,
+            type: original.type,
+            date: original.date,
+            filePath: original.filePath,
+            symbolName: original.symbolName,
+        };
+    });
 }

@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, beforeAll, afterAll } from 'vitest';
-import { prisma, initializeDatabase, client } from '../db';
+import { describe, it, expect, beforeEach, beforeAll } from 'vitest';
+import { prisma, initializeDatabase } from '../db';
 import { createSwarm } from './swarm';
 
 describe('swarm performance', () => {
@@ -9,10 +9,6 @@ describe('swarm performance', () => {
         await initializeDatabase();
     });
 
-    afterAll(async () => {
-        await client.close();
-    });
-
     beforeEach(async () => {
         const project = await prisma.project.create({
             data: { name: 'test-project-' + Date.now() }
@@ -20,8 +16,8 @@ describe('swarm performance', () => {
         projectId = project.id;
     });
 
-    it.skip('benchmarks createSwarm with many subtasks', async () => {
-        const numSubTasks = 5;
+    it('benchmarks createSwarm with many subtasks', async () => {
+        const numSubTasks = 50;
         const subTasks = [];
 
         for (let i = 0; i < numSubTasks; i++) {

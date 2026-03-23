@@ -1,20 +1,5 @@
 import { execFileSync } from 'child_process';
-
-function localRankBySimilarity(query: string, docs: { id: string; text: string }[], topK: number) {
-    const qTerms = query.toLowerCase().split(/\W+/).filter(Boolean);
-    if (!qTerms.length) return [];
-
-    const scored = docs.map(doc => {
-        const dTerms = doc.text.toLowerCase();
-        let score = 0;
-        for (const qt of qTerms) {
-            if (dTerms.includes(qt)) score += 1;
-        }
-        return { id: doc.id, text: doc.text, score };
-    });
-
-    return scored.filter(s => s.score > 0).sort((a, b) => b.score - a.score).slice(0, topK);
-}
+import { rankBySimilarity } from './embeddings';
 
 interface LedgerEntry {
     id: string;
@@ -101,7 +86,7 @@ export function queryHistoricalContext(options: {
         };
     }
 
-    const ranked = localRankBySimilarity(query, docs, topK);
+    const ranked = rankBySimilarity(query, docs, topK);
 
     // Enrich with original metadata
     const allEntries = [...(ledger.memories || []), ...(ledger.decisions || [])];
@@ -110,7 +95,7 @@ export function queryHistoricalContext(options: {
         entryMap.set(entry.id, entry);
     }
 
-    const results = ranked.map((r: any) => {
+    const results = ranked.map(r => {
         const original = entryMap.get(r.id);
         return {
             ...r,

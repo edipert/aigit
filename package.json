@@ -3,7 +3,13 @@
     "version": "1.0.0",
     "private": true,
     "description": "Root workspace to execute tests across sub-packages",
+    "workspaces": [
+        "context-server",
+        "frontend",
+        "vscode-aigit"
+    ],
     "scripts": {
-        "test": "npm test --prefix context-server"
+        "test": "npm test --workspace=aigit-core",
+        "prepare": "npm run build --workspace=aigit-core"
     }
 }

@@ -11,7 +11,6 @@ import { getActiveBranch } from './cli/git';
 import { prisma, initializeDatabase } from './db';
 import { resolveSymbolAtLine, extractAllSymbols, findLinkedContext, anchorFileToSymbols } from './ast/resolver';
 import { semanticSearch } from './rag/search';
-import { embedText } from './rag/embeddings';
 import { queryHistoricalContext } from './rag/timeTravel';
 import { createSwarm, registerAgent, unregisterAgent, publishMessage, pollMessages, updateAgentStatus, getSwarmStatus } from './swarm/swarm';
 import { reportConflict, resolveConflict } from './swarm/conflict';
@@ -20,10 +19,6 @@ import { buildHealingPlan, formatHealPayload } from './healing/strategy';
 import { healFromTestFailure, getHealingHistory } from './healing/runner';
 import { runAudit, buildDepHealPlan, executeDepAutoHeal } from './healing/depAudit';
 import { generateArchitectureDocs } from './docs/generator';
-import { bisectCommits, getCommitRange } from './cli/commands/bisect';
-import { buildProjectStats } from './cli/commands/stats';
-import { detectContextDrift } from './diagnostics/drift';
-import { buildDependencyGraph } from './diagnostics/depGraph';
 import { TOOL_SCHEMAS } from './tools/schemas';
 import { resolveSymbolContext } from './tools/symbolUtils';
 import { resolveProfile, filterByProfile } from './tools/profiles';
@@ -61,10 +56,6 @@ import {
     AuditSemanticDecisionsArgs,
     FlagVulnerabilityArgs,
     GenerateArchitectureDocsArgs,
-    SemanticBisectArgs,
-    GetProjectStatsArgs,
-    DetectContextDriftArgs,
-    GetDependencyGraphArgs,
 } from './tools/argUtils';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -132,27 +123,20 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             case 'commit_decision': {
                 const v = parseArgs(CommitDecisionArgs, raw);
                 if (!v.ok) return validationError(tool, v.error);
-                const { taskId, context, chosen, rejected, reasoning, filePath, lineNumber, workspacePath, agentName } = v.data;
+                const { taskId, context, chosen, rejected, reasoning, filePath, lineNumber, workspacePath } = v.data;
                 const branch = workspacePath ? getActiveBranch(workspacePath) : 'main';
                 const { symName, symType, symRange } = resolveSymbolContext(v.data as Record<string, unknown>);
 
                 const decision = await prisma.decision.create({
                     data: {
-                        taskId, gitBranch: branch, originBranch: branch, context, chosen,
+                        taskId, gitBranch: branch, context, chosen,
                         rejected: rejected as string[],
                         reasoning,
                         filePath: filePath ?? null,
                         lineNumber: lineNumber ?? null,
                         symbolName: symName, symbolType: symType, symbolRange: symRange,
-                        agentName: agentName ?? null,
                     }
                 });
-
-                const embText = `[DECISION] ${context} -> ${chosen} (Reason: ${reasoning})`;
-                const emb = await embedText(embText);
-                const vectorStr = `[${emb.join(',')}]`;
-                await prisma.$executeRaw`UPDATE "Decision" SET embedding = ${vectorStr}::vector WHERE id = ${decision.id}`;
-
                 const anchor = symName ? ` [⚓ @${symName}]` : (filePath ? ` [📎 ${filePath}]` : '');
                 return { content: [{ type: 'text', text: `Decision recorded correctly.${anchor} ID: ${decision.id}` }] };
             }
@@ -172,24 +156,19 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             case 'take_note': {
                 const v = parseArgs(TakeNoteArgs, raw);
                 if (!v.ok) return validationError(tool, v.error);
-                const { projectId, workspacePath, message, scope, isDecision, issueRef, agentName } = v.data;
+                const { projectId, workspacePath, message, scope, isDecision, issueRef } = v.data;
                 const branch = getActiveBranch(workspacePath);
                 const { dumpContextLedger } = await import('./cli/sync');
 
                 const memory = await prisma.memory.create({
                     data: {
-                        projectId, gitBranch: branch, originBranch: branch,
+                        projectId, gitBranch: branch,
                         type: isDecision ? 'architecture' : 'human_note',
                         content: message,
                         filePath: scope ?? null,
                         issueRef: issueRef ?? null,
-                        agentName: agentName ?? null,
                     }
                 });
-
-                const emb = await embedText(message);
-                const vectorStr = `[${emb.join(',')}]`;
-                await prisma.$executeRaw`UPDATE "Memory" SET embedding = ${vectorStr}::vector WHERE id = ${memory.id}`;
 
                 await dumpContextLedger(workspacePath);
 
@@ -200,24 +179,18 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             case 'commit_memory': {
                 const v = parseArgs(CommitMemoryArgs, raw);
                 if (!v.ok) return validationError(tool, v.error);
-                const { projectId, workspacePath, type, content, filePath, lineNumber, agentName } = v.data;
+                const { projectId, workspacePath, type, content, filePath, lineNumber } = v.data;
                 const branch = getActiveBranch(workspacePath);
                 const { symName, symType, symRange } = resolveSymbolContext(v.data as Record<string, unknown>);
 
                 const memory = await prisma.memory.create({
                     data: {
-                        projectId, gitBranch: branch, originBranch: branch, type, content,
+                        projectId, gitBranch: branch, type, content,
                         filePath: filePath ?? null,
                         lineNumber: lineNumber ?? null,
                         symbolName: symName, symbolType: symType, symbolRange: symRange,
-                        agentName: agentName ?? null,
                     }
                 });
-
-                const emb = await embedText(content);
-                const vectorStr = `[${emb.join(',')}]`;
-                await prisma.$executeRaw`UPDATE "Memory" SET embedding = ${vectorStr}::vector WHERE id = ${memory.id}`;
-
                 const anchor = symName ? ` [⚓ @${symName}]` : (filePath ? ` [📎 ${filePath}]` : '');
                 return { content: [{ type: 'text', text: `✅ Context committed to branch [${branch}].${anchor} ID: ${memory.id}` }] };
             }
@@ -269,7 +242,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                     return { content: [{ type: 'text', text: `No matching context found at commit ${result.commitHash}.` }] };
                 }
 
-                const formatted = result.results.map((r: any, i: number) =>
+                const formatted = result.results.map((r, i) =>
                     `${i + 1}. (score: ${r.score.toFixed(2)}) ${r.text}${r.filePath ? ` 📁 ${r.filePath}` : ''}${r.symbolName ? ` ⚓ @${r.symbolName}` : ''}`
                 ).join('\n');
 
@@ -776,67 +749,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                 } catch (e: any) {
                     return { content: [{ type: 'text', text: `❌ Error generating documentation: ${e.message}` }], isError: true };
                 }
-            }
-
-            // ── Diagnostics & Insights Handlers ────────────────────────────────
-            case 'semantic_bisect': {
-                const v = parseArgs(SemanticBisectArgs, raw);
-                if (!v.ok) return validationError(tool, v.error);
-                const { query, workspacePath, fromCommit, toCommit = 'HEAD' } = v.data;
-
-                const commits = getCommitRange(workspacePath, fromCommit, toCommit);
-                if (commits.length === 0) {
-                    return { content: [{ type: 'text', text: '❌ No commits found in the specified range.' }] };
-                }
-
-                const result = bisectCommits(query, commits, workspacePath);
-
-                if (!result.found || !result.commit) {
-                    return { content: [{ type: 'text', text: '❌ No matching decision or memory found in the commit history.' }] };
-                }
-
-                let response = `✅ First appearance found!\n📍 Commit: ${result.commit.hash.substring(0, 8)}\n📅 Date:   ${result.commit.date}\n💬 Message: ${result.commit.message}\n📈 Position: Commit ${result.index! + 1} of ${commits.length}\n`;
-
-                if (result.context?.results.length) {
-                    response += '\n🔍 Matching context at this commit:\n';
-                    response += result.context.results.map((r: any, i: number) =>
-                        `   ${i + 1}. (score: ${r.score.toFixed(2)}) ${r.text}${r.filePath ? ` 📁 ${r.filePath}` : ''}${r.symbolName ? ` ⚓ @${r.symbolName}` : ''}`
-                    ).join('\n');
-                }
-
-                return { content: [{ type: 'text', text: response }] };
-            }
-
-            case 'get_project_stats': {
-                const v = parseArgs(GetProjectStatsArgs, raw);
-                if (!v.ok) return validationError(tool, v.error);
-                const stats = await buildProjectStats(v.data.limit ?? 10);
-                return { content: [{ type: 'text', text: stats }] };
-            }
-
-            case 'detect_context_drift': {
-                const v = parseArgs(DetectContextDriftArgs, raw);
-                if (!v.ok) return validationError(tool, v.error);
-                const report = await detectContextDrift(v.data.workspacePath);
-                
-                if (report.staleCount === 0) {
-                    return { content: [{ type: 'text', text: '✅ No semantic context drift detected. All file references and dependencies remain valid.' }] };
-                }
-                
-                const formatted = report.staleItems.map(
-                    s => `[${s.type.toUpperCase()}] ${s.reason}\nPreview: ${s.contentPreview}\nID: ${s.id}`
-                ).join('\n---\n');
-
-                return { content: [{ type: 'text', text: `⚠️ Context Drift Detected (${report.staleCount} stale items):\n\n${formatted}` }] };
-            }
-
-            case 'get_dependency_graph': {
-                const v = parseArgs(GetDependencyGraphArgs, raw);
-                if (!v.ok) return validationError(tool, v.error);
-                const result = await buildDependencyGraph(v.data.workspacePath);
-                
-                const mdContent = `# Semantic Dependency Graph\n\n\`\`\`mermaid\n${result.mermaid}\n\`\`\`\n\n> Found ${result.totalFiles} tracked files with ${result.totalLinks} total semantic context links.\n`;
-                return { content: [{ type: 'text', text: mdContent }] };
             }
 
             default:
