@@ -43,27 +43,30 @@ describe('redactSecrets', () => {
 });
 
 describe('sanitizeDecision', () => {
-    it('redacts secrets in summary, justification, and alternatives', () => {
+    it('redacts secrets in context, chosen, reasoning, and rejected', () => {
         const decision = {
-            summary: 'Using key AKIA1234567890ABCDEF',
-            justification: 'Found at test@example.com',
-            alternatives: 'Try password: "secret-password"',
+            context: 'Using key AKIA1234567890ABCDEF',
+            chosen: 'Found at test@example.com',
+            reasoning: 'Because of api_key: "secret-password"',
+            rejected: ['Try password: "secret-password"'],
             otherField: 'Keep this'
         };
         const sanitized = sanitizeDecision(decision);
-        expect(sanitized.summary).toBe('Using key [REDACTED]');
-        expect(sanitized.justification).toBe('Found at [REDACTED]');
-        expect(sanitized.alternatives).toBe('Try password: "[REDACTED]"');
+        expect(sanitized.context).toBe('Using key [REDACTED]');
+        expect(sanitized.chosen).toBe('Found at [REDACTED]');
+        expect(sanitized.reasoning).toBe('Because of api_key: "[REDACTED]"');
+        expect(sanitized.rejected[0]).toBe('Try password: "[REDACTED]"');
         expect(sanitized.otherField).toBe('Keep this');
     });
 
     it('handles missing optional fields', () => {
         const decision = {
-            summary: 'No secrets here'
+            context: 'No secrets here'
         };
         const sanitized = sanitizeDecision(decision);
-        expect(sanitized.summary).toBe('No secrets here');
-        expect(sanitized.justification).toBeUndefined();
+        expect(sanitized.context).toBe('No secrets here');
+        expect(sanitized.chosen).toBeUndefined();
+        expect(sanitized.rejected).toBeUndefined();
     });
 
     it('returns null/undefined as is', () => {
@@ -73,11 +76,11 @@ describe('sanitizeDecision', () => {
 
     it('does not mutate the original object', () => {
         const decision = {
-            summary: 'Using key AKIA1234567890ABCDEF',
+            context: 'Using key AKIA1234567890ABCDEF',
         };
         const sanitized = sanitizeDecision(decision);
-        expect(sanitized.summary).toBe('Using key [REDACTED]');
-        expect(decision.summary).toBe('Using key AKIA1234567890ABCDEF');
+        expect(sanitized.context).toBe('Using key [REDACTED]');
+        expect(decision.context).toBe('Using key AKIA1234567890ABCDEF');
         expect(sanitized).not.toBe(decision);
     });
 });

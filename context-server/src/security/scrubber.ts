@@ -56,14 +56,17 @@ export function sanitizeDecision(decision: any): any {
 
     const sanitized = { ...decision };
 
-    if (sanitized.summary) {
-        sanitized.summary = redactSecrets(sanitized.summary);
+    if (sanitized.context) {
+        sanitized.context = redactSecrets(sanitized.context);
     }
-    if (sanitized.justification) {
-        sanitized.justification = redactSecrets(sanitized.justification);
+    if (sanitized.chosen) {
+        sanitized.chosen = redactSecrets(sanitized.chosen);
     }
-    if (sanitized.alternatives) {
-        sanitized.alternatives = redactSecrets(sanitized.alternatives);
+    if (sanitized.reasoning) {
+        sanitized.reasoning = redactSecrets(sanitized.reasoning);
+    }
+    if (Array.isArray(sanitized.rejected)) {
+        sanitized.rejected = sanitized.rejected.map((alt: string) => redactSecrets(alt));
     }
 
     return sanitized;
