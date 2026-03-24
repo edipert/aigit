@@ -1,8 +1,8 @@
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 
 export function getActiveBranch(workspacePath: string): string {
     try {
-        return execSync('git rev-parse --abbrev-ref HEAD', { cwd: workspacePath, encoding: 'utf-8', stdio: 'pipe' }).trim();
+        return execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], { cwd: workspacePath, encoding: 'utf-8', stdio: 'pipe' }).trim();
     } catch (e) {
         return 'unknown';
     }
@@ -10,7 +10,7 @@ export function getActiveBranch(workspacePath: string): string {
 
 export function getChangedFiles(workspacePath: string): string[] {
     try {
-        const diff = execSync('git diff --name-only HEAD', { cwd: workspacePath, encoding: 'utf-8', stdio: 'pipe' });
+        const diff = execFileSync('git', ['diff', '--name-only', 'HEAD'], { cwd: workspacePath, encoding: 'utf-8', stdio: 'pipe' });
         return diff.split('\n').filter(Boolean);
     } catch (e) {
         return [];

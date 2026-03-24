@@ -1,4 +1,4 @@
-import { execSync, execFileSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { getActiveBranch } from '../git';
@@ -272,9 +272,9 @@ const handler: CommandHandler = async ({ args, workspacePath }) => {
 
     } else if (subCommand === 'auto') {
         try {
-            const commitInfo = execSync('git log -1 --pretty=format:"%h - %s%n%b"').toString().trim();
-            const fileChanges = execSync('git diff-tree --no-commit-id --name-status -r HEAD').toString().trim();
-            const diffStats = execSync('git diff --stat HEAD~1 HEAD').toString().trim();
+            const commitInfo = execFileSync('git', ['log', '-1', '--pretty=format:%h - %s%n%b']).toString().trim();
+            const fileChanges = execFileSync('git', ['diff-tree', '--no-commit-id', '--name-status', '-r', 'HEAD']).toString().trim();
+            const diffStats = execFileSync('git', ['diff', '--stat', 'HEAD~1', 'HEAD']).toString().trim();
 
             const semanticSummary = `Automatic Git Commit Context\nCommit:\n${commitInfo}\n\nFiles Changed:\n${fileChanges}\n\nStatistics:\n${diffStats}`;
 

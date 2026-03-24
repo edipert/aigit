@@ -1,4 +1,4 @@
-import { execSync, execFileSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import path from 'path';
 import { prisma } from '../db';
 import { getActiveBranch } from '../cli/git';
@@ -38,7 +38,7 @@ export interface DepHealPlan {
 export function runAudit(workspacePath: string): AuditResult {
     let raw: string;
     try {
-        raw = execSync('npm audit --json 2>/dev/null', {
+        raw = execFileSync('npm', ['audit', '--json'], {
             cwd: workspacePath,
             encoding: 'utf-8',
             stdio: 'pipe',

@@ -1,4 +1,4 @@
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import { prisma } from '../db';
 import { getActiveBranch } from '../cli/git';
 import { diagnoseTestFailure, Diagnosis } from './diagnosis';
@@ -25,7 +25,10 @@ export interface HealResult {
 export function runTestSuite(workspacePath: string, cmd?: string): { exitCode: number; output: string } {
     const testCmd = cmd || 'npm test';
     try {
-        const output = execSync(testCmd, {
+        const parts = testCmd.trim().split(/\s+/);
+        const command = parts[0];
+        const args = parts.slice(1);
+        const output = execFileSync(command, args, {
             cwd: workspacePath,
             encoding: 'utf-8',
             stdio: 'pipe',

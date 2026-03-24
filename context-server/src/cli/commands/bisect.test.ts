@@ -20,7 +20,7 @@ describe('Semantic Bisect Command', () => {
     describe('getCommitRange', () => {
         it('returns correctly parsed commits', () => {
             const mockOutput = 'hash1|2023-10-01|feat: 1\nhash2|2023-10-02|fix: 2\n';
-            vi.mocked(child_process.execSync).mockReturnValue(mockOutput as any);
+            vi.mocked(child_process.execFileSync).mockReturnValue(mockOutput as any);
 
             const commits = getCommitRange('/test', 'start', 'HEAD');
             
