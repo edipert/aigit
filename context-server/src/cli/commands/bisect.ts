@@ -12,8 +12,11 @@ interface CommitEntry {
  * Get a list of commits in the given range, oldest first.
  */
 function getCommitRange(workspacePath: string, from?: string, to?: string): CommitEntry[] {
-    const range = from && to ? [`${from}..${to}`] : [];
-    const args = ['log', ...range, '--reverse', '--format=%H|%ai|%s'];
+    const args = ['log'];
+    if (from && to) {
+        args.push(`${from}..${to}`);
+    }
+    args.push('--reverse', '--format=%H|%ai|%s');
 
     try {
         const raw = execFileSync('git', args, { cwd: workspacePath, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] });
