@@ -93,6 +93,12 @@ describe('sanitizeMemory', () => {
         expect(sanitized).not.toBe(memory);
     });
 
+    it('redacts secrets in content', () => {
+        const memory = { id: 2, content: 'Using key AKIA1234567890ABCDEF in my script' };
+        const sanitized = sanitizeMemory(memory);
+        expect(sanitized.content).toBe('Using key [REDACTED] in my script');
+    });
+
     it('returns null/undefined as is', () => {
         expect(sanitizeMemory(null)).toBe(null);
         expect(sanitizeMemory(undefined)).toBe(undefined);

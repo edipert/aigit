@@ -15,3 +15,8 @@
 **Vulnerability:** Command injection risks due to the use of `child_process.execSync` allowing arbitrary shell command execution when combining user input or branch names with system commands.
 **Learning:** `execSync` is inherently vulnerable when parameters are dynamically formatted as parts of a command string, especially when those string arguments pass through untested or unbounded paths.
 **Prevention:** Consistently use `child_process.execFileSync` and pass arguments as structured arrays to completely bypass the system shell, isolating variables from executable targets.
+
+## 2024-05-24 - [Data Leakage in Memory Serialization]
+**Vulnerability:** The `sanitizeMemory` function in `context-server/src/security/scrubber.ts` returned the memory object without scrubbing the `content` field.
+**Learning:** During serialization and synchronization of memory logs (e.g., `dumpContextLedger`), sensitive information such as API keys and tokens embedded within memory `content` fields was being exported in plaintext due to an incomplete sanitization implementation.
+**Prevention:** Always verify that security/scrubber functions handle all sensitive fields for data structures they are responsible for. Writing unit tests that specifically inject secrets into these fields ensures the scrubber is effective.
