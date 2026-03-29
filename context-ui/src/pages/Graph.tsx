@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { RefreshCw } from 'lucide-react';
 import mermaid from 'mermaid';
+import DOMPurify from 'dompurify';
 
 export default function GraphPage() {
   const [graphData, setGraphData] = useState<{ mermaid: string, totalFiles: number, totalLinks: number } | null>(null);
@@ -38,11 +39,17 @@ export default function GraphPage() {
         if (element && graphData.mermaid) {
             element.innerHTML = '';
             try {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore - Handle hybrid return types in newer mermaid vs older typings
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const result: any = await mermaid.render('mermaid-svg', graphData.mermaid);
-                element.innerHTML = typeof result === 'string' ? result : result.svg;
+                const rawSvg = typeof result === 'string' ? result : result.svg;
+                // Sanitize mermaid output to prevent XSS vulnerabilities from malicious SVG content
+                element.innerHTML = DOMPurify.sanitize(rawSvg);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (e: any) {
-                element.innerHTML = `<div class="text-danger p-4 border border-danger/30 rounded bg-danger/10">Mermaid Render Error: ${e.message}</div>`;
+                // Sanitize error message to prevent XSS vulnerabilities
+                element.innerHTML = DOMPurify.sanitize(`<div class="text-danger p-4 border border-danger/30 rounded bg-danger/10">Mermaid Render Error: ${e.message}</div>`);
             }
         }
       }, 100);
