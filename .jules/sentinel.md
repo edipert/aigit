@@ -26,3 +26,8 @@
 **Vulnerability:** The `sanitizeMemory` function in `context-server/src/security/scrubber.ts` returned the memory object without scrubbing the `content` field.
 **Learning:** During serialization and synchronization of memory logs (e.g., `dumpContextLedger`), sensitive information such as API keys and tokens embedded within memory `content` fields was being exported in plaintext due to an incomplete sanitization implementation.
 **Prevention:** Always verify that security/scrubber functions handle all sensitive fields for data structures they are responsible for. Writing unit tests that specifically inject secrets into these fields ensures the scrubber is effective.
+
+## 2024-11-06 - [HIGH] XSS Vulnerability in Mermaid Graph Rendering
+**Vulnerability:** A Cross-Site Scripting (XSS) vulnerability was present in `context-ui/src/pages/Graph.tsx`. The output from `mermaid.render()` and dynamically generated error messages were being directly assigned to `element.innerHTML` without sanitization. Although `mermaid` has a `securityLevel: 'loose'` setting, custom node labels or error message content could still allow for XSS if they contain unescaped HTML.
+**Learning:** Even when using visualization libraries like Mermaid, any HTML content generated that is injected into the DOM via `innerHTML` must be treated as potentially unsafe, especially if the input data (the Mermaid graph definition or error messages) could contain user-controlled or external data.
+**Prevention:** Always sanitize the output of libraries like Mermaid, and any dynamically constructed HTML strings, using `DOMPurify.sanitize()` before assigning them to `innerHTML` in React components or other DOM elements.
